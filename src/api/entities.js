@@ -5,7 +5,9 @@ export const Note = base44.entities.Note;
 
 export const NoteVersion = base44.entities.NoteVersion;
 
-export const Share = base44.entities.Share;
+export const Dashboard = base44.entities.Dashboard;
+
+export const DashboardShare = base44.entities.DashboardShare;
 
 
 

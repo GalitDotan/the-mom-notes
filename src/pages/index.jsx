@@ -1,16 +1,28 @@
 import Layout from "./Layout.jsx";
 
-import Dashboard from "./Dashboard";
-
 import Explanation from "./Explanation";
+
+import Credits from "./Credits";
+
+import About from "./About";
+
+import DashboardsPage from "./DashboardsPage";
+
+import DashboardDetailPage from "./DashboardDetailPage";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
     
-    Dashboard: Dashboard,
-    
     Explanation: Explanation,
+    
+    Credits: Credits,
+    
+    About: About,
+    
+    DashboardsPage: DashboardsPage,
+    
+    DashboardDetailPage: DashboardDetailPage,
     
 }
 
@@ -36,12 +48,18 @@ function PagesContent() {
         <Layout currentPageName={currentPage}>
             <Routes>            
                 
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/" element={<Explanation />} />
                 
-                
-                <Route path="/Dashboard" element={<Dashboard />} />
                 
                 <Route path="/Explanation" element={<Explanation />} />
+                
+                <Route path="/Credits" element={<Credits />} />
+                
+                <Route path="/About" element={<About />} />
+                
+                <Route path="/DashboardsPage" element={<DashboardsPage />} />
+                
+                <Route path="/DashboardDetailPage" element={<DashboardDetailPage />} />
                 
             </Routes>
         </Layout>

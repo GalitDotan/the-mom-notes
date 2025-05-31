@@ -3,17 +3,20 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from "@/api/entities";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
-  StickyNote, 
-  Users, 
-  History, 
+  LayoutDashboard, // Changed icon for "Notes" to represent Dashboards
   HelpCircle, 
   User as UserIcon,
   LogOut,
   Wifi,
   WifiOff,
   Menu,
-  X
+  X,
+  Heart,
+  Info,
+  Loader2,
+  StickyNote // Keep StickyNote for branding
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,20 +29,49 @@ import {
 
 const navigationItems = [
   {
-    title: "Notes",
-    url: createPageUrl("Dashboard"),
-    icon: StickyNote,
+    title: "Dashboards", // Renamed "Notes" to "Dashboards"
+    url: createPageUrl("DashboardsPage"), // Points to the new DashboardsPage
+    icon: LayoutDashboard,
   },
   {
     title: "Explanation",
     url: createPageUrl("Explanation"),
     icon: HelpCircle,
   },
+  {
+    title: "Credits",
+    url: createPageUrl("Credits"),
+    icon: Heart,
+  },
+  {
+    title: "About",
+    url: createPageUrl("About"),
+    icon: Info,
+  },
 ];
+
+const pageVariants = {
+  initial: {
+    opacity: 0,
+  },
+  in: {
+    opacity: 1,
+  },
+  out: {
+    opacity: 0,
+  }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.3
+};
+
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -76,7 +108,15 @@ export default function Layout({ children, currentPageName }) {
     await User.login();
   };
 
-  if (!user) {
+  if (user === undefined) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+        <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (user === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
@@ -84,7 +124,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12">
               <StickyNote className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-3">MomTest Notes</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-3">The Mom Notes</h1>
             <p className="text-gray-600 text-lg leading-relaxed">
               Capture insights with emoji-coded research notes. 
               <br />Perfect for user interviews and feedback.
@@ -123,20 +163,18 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex flex-col">
       <header className="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
-              <Link to={createPageUrl("Dashboard")} className="flex items-center gap-3">
+              <Link to={createPageUrl("DashboardsPage")} className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center transform rotate-12">
                   <StickyNote className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900 hidden sm:block">MomTest Notes</span>
+                <span className="text-xl font-bold text-gray-900 hidden sm:block">The Mom Notes</span>
               </Link>
               
-              {/* Desktop Navigation */}
               <nav className="hidden md:flex items-center gap-1 ml-8">
                 {navigationItems.map((item) => (
                   <Link
@@ -156,7 +194,6 @@ export default function Layout({ children, currentPageName }) {
             </div>
 
             <div className="flex items-center gap-4">
-              {/* Sync Status */}
               <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
                 isOnline 
                   ? 'bg-green-100 text-green-700' 
@@ -175,7 +212,6 @@ export default function Layout({ children, currentPageName }) {
                 )}
               </div>
 
-              {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -185,7 +221,6 @@ export default function Layout({ children, currentPageName }) {
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
 
-              {/* User Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="hidden md:flex items-center gap-2 px-3 py-2">
@@ -212,7 +247,6 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </div>
 
-          {/* Mobile Navigation */}
           {isMobileMenuOpen && (
             <div className="md:hidden py-4 border-t border-gray-100">
               <nav className="space-y-2">
@@ -258,10 +292,19 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        {children}
-      </main>
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={location.pathname} 
+          className="flex-1"
+          variants={pageVariants}
+          initial="initial"
+          animate="in"
+          exit="out"
+          transition={pageTransition}
+        >
+          {children}
+        </motion.main>
+      </AnimatePresence>
     </div>
   );
 }
