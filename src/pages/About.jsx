@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,10 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function About() {
+  useEffect(() => {
+    document.title = "About - The Mom Notes";
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -58,7 +63,7 @@ export default function About() {
                   <div className="prose prose-lg text-gray-700 space-y-4">
                     <p>
                       This project was created by <strong>Galit Dotan</strong>, an entrepreneur 
-                      passionate about building thoughtful, user-centered products. Galit has 
+                      consistent in building thoughtful, user-centered products. Galit has 
                       experience in innovation, product development, and leveraging customer 
                       insights to drive meaningful solutions.
                     </p>

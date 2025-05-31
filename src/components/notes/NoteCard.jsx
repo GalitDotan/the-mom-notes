@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +22,7 @@ import {
 import { toast } from "sonner";
 
 const EMOJI_LABELS = {
-  "🙂": "Excited", "🙁": "Angry", "😳": "Embarrassed", "⚡": "Pain/Problem",
+  "🙂": "Excited", "🙁": "Angry", "😳": "Embarrassed", "💥": "Pain/Problem",
   "🥅": "Goal", "🟥": "Obstacle", "↪️": "Workaround", "🏔": "Context",
   "☑️": "Feature Request", "💲": "Budget", "♀️": "Person/Company", "⭐": "Follow-up"
 };

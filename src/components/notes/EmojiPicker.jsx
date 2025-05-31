@@ -11,7 +11,7 @@ const EMOJI_OPTIONS = [
   { emoji: "🙂", label: "Excited", description: "Positive emotions or enthusiasm" },
   { emoji: "🙁", label: "Angry", description: "Frustration, complaints, or negative feelings" },
   { emoji: "😳", label: "Embarrassed", description: "Awkwardness, discomfort, or uncertainty" },
-  { emoji: "⚡", label: "Pain/Problem", description: "💥 Critical insight: the core challenge or pain the user urgently needs solved" },
+  { emoji: "💥", label: "Pain/Problem", description: "Critical insight: the core challenge or pain the user urgently needs solved" },
   { emoji: "🥅", label: "Goal", description: "What the user ultimately wants to achieve or accomplish" },
   { emoji: "🟥", label: "Obstacle", description: "Something blocking progress or creating friction" },
   { emoji: "↪️", label: "Workaround", description: "A clever or improvised solution the user employs" },
