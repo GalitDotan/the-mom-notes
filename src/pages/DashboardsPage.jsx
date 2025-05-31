@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Plus, LayoutDashboard, Users, Lock, Edit3, Trash2, LogIn, ChevronRight, Star, FolderOpen, FolderPlus, Sparkles, Loader2 } from "lucide-react"; 
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns"; // This will format in local time by default
 
 const DashboardCard = ({ dashboard, isOwner, permission }) => {
   const navigate = useNavigate();
@@ -48,6 +48,7 @@ const DashboardCard = ({ dashboard, isOwner, permission }) => {
         </CardHeader>
         <CardContent>
           <CardDescription>
+            {/* Ensured new Date() is used; formatDistanceToNow() will use client's local timezone */}
             Last updated: {formatDistanceToNow(new Date(dashboard.updated_date), { addSuffix: true })}
           </CardDescription>
         </CardContent>
@@ -65,6 +66,7 @@ export default function DashboardsPage() {
   const [newDashboardName, setNewDashboardName] = useState("");
 
   useEffect(() => {
+    document.title = "Your Dashboards - The Mom Notes"; // Added this line
     const fetchUserAndDashboards = async () => {
       setIsLoading(true);
       try {

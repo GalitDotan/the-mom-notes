@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,15 +8,19 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function Credits() {
+  useEffect(() => {
+    document.title = "Credits - The Mom Notes";
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link to={createPageUrl("Dashboard")}>
+          <Link to={createPageUrl("DashboardsPage")}> {/* Corrected Link to DashboardsPage */}
             <Button variant="outline" className="mb-6 bg-white/80 border-0">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Notes
+              Back to Dashboards
             </Button>
           </Link>
         </div>
@@ -46,8 +51,8 @@ export default function Credits() {
           className="mb-8"
         >
           <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl overflow-hidden">
-            <CardContent className="p-8">
-              <div className="flex items-start gap-6">
+            <CardContent className="p-6 md:p-8"> {/* Adjusted padding for smaller screens */}
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left"> {/* Responsive flex layout */}
                 <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0">
                   <BookOpen className="w-10 h-10 text-white" />
                 </div>
@@ -71,8 +76,8 @@ export default function Credits() {
                         rel="noopener noreferrer"
                         className="inline-block"
                       >
-                        <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-lg px-8 py-4 shadow-lg transform hover:scale-105 transition-all duration-200">
-                          <ExternalLink className="w-5 h-5 mr-3" />
+                        <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 shadow-lg transform hover:scale-105 transition-all duration-200 w-full sm:w-auto"> {/* Responsive button sizing */}
+                          <ExternalLink className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3" />
                           Get The Mom Test Book
                         </Button>
                       </a>

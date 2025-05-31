@@ -5,7 +5,7 @@ import { createPageUrl } from "@/utils";
 import { User } from "@/api/entities";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  LayoutDashboard, // Changed icon for "Notes" to represent Dashboards
+  LayoutDashboard, 
   HelpCircle, 
   User as UserIcon,
   LogOut,
@@ -16,7 +16,7 @@ import {
   Heart,
   Info,
   Loader2,
-  StickyNote // Keep StickyNote for branding
+  StickyNote
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +29,8 @@ import {
 
 const navigationItems = [
   {
-    title: "Dashboards", // Renamed "Notes" to "Dashboards"
-    url: createPageUrl("DashboardsPage"), // Points to the new DashboardsPage
+    title: "Dashboards",
+    url: createPageUrl("DashboardsPage"),
     icon: LayoutDashboard,
   },
   {
@@ -76,6 +76,8 @@ export default function Layout({ children, currentPageName }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    // Set a default title, can be overridden by specific pages
+    document.title = "The Mom Notes";
     loadUser();
     
     const handleOnline = () => setIsOnline(true);
@@ -89,6 +91,11 @@ export default function Layout({ children, currentPageName }) {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  useEffect(() => {
+    // When page changes, close mobile menu
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   const loadUser = async () => {
     try {
@@ -117,6 +124,8 @@ export default function Layout({ children, currentPageName }) {
   }
 
   if (user === null) {
+    // Set title for login page
+    document.title = "Login - The Mom Notes";
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
@@ -124,7 +133,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12">
               <StickyNote className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-3">The Mom Notes</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-3">Welcome to The Mom Notes</h1>
             <p className="text-gray-600 text-lg leading-relaxed">
               Capture insights with emoji-coded research notes. 
               <br />Perfect for user interviews and feedback.
@@ -226,7 +235,7 @@ export default function Layout({ children, currentPageName }) {
                   <Button variant="ghost" className="hidden md:flex items-center gap-2 px-3 py-2">
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-medium">
-                        {user.full_name?.charAt(0) || 'U'}
+                        {user.full_name?.charAt(0).toUpperCase() || 'U'}
                       </span>
                     </div>
                     <span className="font-medium text-gray-700">{user.full_name}</span>
@@ -238,7 +247,7 @@ export default function Layout({ children, currentPageName }) {
                     <p className="text-sm text-gray-500">{user.email}</p>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign out
                   </DropdownMenuItem>
@@ -269,7 +278,7 @@ export default function Layout({ children, currentPageName }) {
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-medium">
-                        {user.full_name?.charAt(0) || 'U'}
+                        {user.full_name?.charAt(0).toUpperCase() || 'U'}
                       </span>
                     </div>
                     <div>
@@ -280,7 +289,7 @@ export default function Layout({ children, currentPageName }) {
                   <Button 
                     onClick={handleLogout} 
                     variant="outline" 
-                    className="w-full text-red-600 border-red-200 hover:bg-red-50"
+                    className="w-full text-red-600 border-red-200 hover:bg-red-50 focus:bg-red-100"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign out

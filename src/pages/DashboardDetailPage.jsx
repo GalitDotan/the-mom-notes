@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,20 +32,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Filter, SortAsc, Grid3X3, List, Sparkles, Edit3, Trash2, Share2, History, ArrowLeft, MoreVertical, Users, UserPlus, Eye, Edit, Save, XCircle, Loader2 } from "lucide-react";
+import { Plus, Search, Filter, SortAsc, SortDesc, Grid3X3, List, Sparkles, Edit3, Trash2, Share2, History, ArrowLeft, MoreVertical, Users, UserPlus, Eye, Edit, Save, XCircle, Loader2, ArrowUpNarrowWide, ArrowDownWideNarrow } from "lucide-react";
 
 import NoteCard from "../components/notes/NoteCard";
 import NoteEditor from "../components/notes/NoteEditor";
 import VersionHistory from "../components/notes/VersionHistory";
 // New ShareDialog specifically for dashboards
-import DashboardShareDialog from "../components/dashboards/DashboardShareDialog"; 
+import DashboardShareDialog from "../components/dashboards/DashboardShareDialog";
 
 const EMOJI_FILTERS = [
   { value: "all", label: "All Notes", emoji: "📝" },
   { emoji: "🙂", label: "Excited", description: "Positive emotions or enthusiasm" },
   { emoji: "🙁", label: "Angry", description: "Frustration, complaints, or negative feelings" },
   { emoji: "😳", label: "Embarrassed", description: "Awkwardness, discomfort, or uncertainty" },
-  { emoji: "⚡", label: "Pain/Problem", description: "💥 Critical insight: the core challenge or pain the user urgently needs solved" },
+  { emoji: "💥", label: "Pain/Problem", description: "Critical insight: the core challenge or pain the user urgently needs solved" },
   { emoji: "🥅", label: "Goal", description: "What the user ultimately wants to achieve or accomplish" },
   { emoji: "🟥", label: "Obstacle", description: "Something blocking progress or creating friction" },
   { emoji: "↪️", label: "Workaround", description: "A clever or improvised solution the user employs" },
@@ -66,9 +67,10 @@ export default function DashboardDetailPage() {
   const [filteredNotes, setFilteredNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [emojiFilter, setEmojiFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("updated_date");
+  const [sortBy, setSortBy] = useState("updated_date"); // Default sort field
+  const [sortOrder, setSortOrder] = useState("desc"); // Default sort order: 'asc' or 'desc'
   const [viewMode, setViewMode] = useState("grid");
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isNotesLoading, setIsNotesLoading] = useState(true);
   const [isSavingNote, setIsSavingNote] = useState(false);
@@ -85,6 +87,14 @@ export default function DashboardDetailPage() {
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [newDashboardName, setNewDashboardName] = useState("");
 
+  useEffect(() => {
+    if (currentDashboard) {
+      document.title = `${currentDashboard.name} - The Mom Notes`;
+    } else {
+      document.title = "Dashboard - The Mom Notes";
+    }
+  }, [currentDashboard]);
+
   const fetchDashboardData = useCallback(async (user) => {
     if (!dashboardId || !user) return;
     setIsLoading(true);
@@ -95,7 +105,7 @@ export default function DashboardDetailPage() {
         navigate(createPageUrl("DashboardsPage"));
         return;
       }
-      
+
       // Determine user permission
       let permission = "viewer";
       if (dashboardDetails.owner_email === user.email) {
@@ -111,12 +121,12 @@ export default function DashboardDetailPage() {
           return;
         }
       }
-      
+
       setCurrentDashboard(dashboardDetails);
       setNewDashboardName(dashboardDetails.name);
       setUserPermission(permission);
       setIsLoading(false);
-      
+
       // Fetch notes only after dashboard and permissions are confirmed
       if (permission !== "none") { // "none" could be a state if not found or no permission
         fetchNotesForDashboard(dashboardDetails.id);
@@ -133,14 +143,15 @@ export default function DashboardDetailPage() {
   const fetchNotesForDashboard = useCallback(async (currentDashboardId) => {
     setIsNotesLoading(true);
     try {
-      const fetchedNotes = await Note.filter({ dashboard_id: currentDashboardId }, `-${sortBy}`);
+      const sortParam = sortOrder === 'desc' ? `-${sortBy}` : sortBy;
+      const fetchedNotes = await Note.filter({ dashboard_id: currentDashboardId }, sortParam);
       setNotes(fetchedNotes);
     } catch (error) {
       console.error("Failed to load notes:", error);
       toast.error("Failed to load notes for this dashboard.");
     }
     setIsNotesLoading(false);
-  }, [sortBy]);
+  }, [sortBy, sortOrder]); // Added sortOrder dependency
 
   useEffect(() => {
     const init = async () => {
@@ -154,12 +165,12 @@ export default function DashboardDetailPage() {
     };
     init();
   }, [dashboardId, fetchDashboardData, navigate]);
-  
+
   useEffect(() => {
     if (currentDashboard) {
       fetchNotesForDashboard(currentDashboard.id);
     }
-  }, [sortBy, currentDashboard, fetchNotesForDashboard]);
+  }, [sortBy, sortOrder, currentDashboard, fetchNotesForDashboard]); // Added sortOrder
 
   useEffect(() => {
     const applyFilters = () => {
@@ -254,7 +265,7 @@ export default function DashboardDetailPage() {
       }
     }
   };
-  
+
   const handleViewHistory = (note) => {
     setHistoryDialogNote(note);
   };
@@ -301,6 +312,14 @@ export default function DashboardDetailPage() {
     }
   };
 
+  const toggleSortOrder = () => {
+    setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+  };
+
+  const toggleViewMode = () => {
+    setViewMode(prevMode => prevMode === 'grid' ? 'list' : 'grid');
+  };
+
   if (isLoading || !currentUser || !currentDashboard) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
@@ -335,7 +354,7 @@ export default function DashboardDetailPage() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex gap-3 items-center">
             {canEditDashboard && (
               <Button variant="outline" onClick={() => setIsShareDialogOpen(true)} className="bg-white/80 border-0 shadow-sm">
@@ -374,43 +393,49 @@ export default function DashboardDetailPage() {
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-white/20 shadow-lg">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-8 border border-white/20 shadow-lg">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  placeholder="Search notes in this dashboard..."
+                  placeholder="Search notes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white/80 border-0 focus:bg-white"
+                  className="pl-10 bg-white/80 border-0 focus:bg-white h-10"
                 />
               </div>
             </div>
-            <Select value={emojiFilter} onValueChange={setEmojiFilter}>
-              <SelectTrigger className="w-full lg:w-48 bg-white/80 border-0">
-                <div className="flex items-center gap-2"> <Filter className="w-4 h-4" /> <SelectValue /> </div>
-              </SelectTrigger>
-              <SelectContent>
-                {EMOJI_FILTERS.map((filter) => (
-                  <SelectItem key={filter.value} value={filter.value}>
-                    <div className="flex items-center gap-2"><span>{filter.emoji}</span><span>{filter.label}</span></div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={(value) => {setSortBy(value); fetchNotesForDashboard(currentDashboard.id);}}>
-              <SelectTrigger className="w-full lg:w-48 bg-white/80 border-0">
-                <div className="flex items-center gap-2"> <SortAsc className="w-4 h-4" /> <SelectValue /> </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="updated_date">Last Updated</SelectItem>
-                <SelectItem value="created_date">Date Created</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="flex gap-2">
-              <Button variant={viewMode === "grid" ? "default" : "outline"} size="icon" onClick={() => setViewMode("grid")} className="bg-white/80 border-0"><Grid3X3 className="w-4 h-4" /></Button>
-              <Button variant={viewMode === "list" ? "default" : "outline"} size="icon" onClick={() => setViewMode("list")} className="bg-white/80 border-0"><List className="w-4 h-4" /></Button>
+            <div className="flex gap-3 sm:gap-4 flex-wrap">
+              <Select value={emojiFilter} onValueChange={setEmojiFilter}>
+                <SelectTrigger className="w-full sm:w-auto lg:w-48 bg-white/80 border-0 h-10">
+                  <div className="flex items-center gap-2"> <Filter className="w-4 h-4" /> <SelectValue /> </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {EMOJI_FILTERS.map((filter) => (
+                    <SelectItem key={filter.value || filter.emoji} value={filter.value || filter.emoji}>
+                      <div className="flex items-center gap-2"><span>{filter.emoji}</span><span>{filter.label}</span></div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="flex gap-1">
+                <Select value={sortBy} onValueChange={(value) => {setSortBy(value);}}>
+                  <SelectTrigger className="w-full sm:w-auto lg:w-[150px] bg-white/80 border-0 h-10">
+                     <div className="flex items-center gap-2"> <SortAsc className="w-4 h-4" /> <SelectValue /> </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="updated_date">Last Updated</SelectItem>
+                    <SelectItem value="created_date">Date Created</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size="icon" onClick={toggleSortOrder} className="bg-white/80 border-0 h-10 w-10">
+                  {sortOrder === 'asc' ? <ArrowUpNarrowWide className="w-4 h-4 text-gray-600" /> : <ArrowDownWideNarrow className="w-4 h-4 text-gray-600" />}
+                </Button>
+              </div>
+              <Button variant="outline" size="icon" onClick={toggleViewMode} className="bg-white/80 border-0 h-10 w-10">
+                {viewMode === "grid" ? <Grid3X3 className="w-4 h-4 text-gray-600" /> : <List className="w-4 h-4 text-gray-600" />}
+              </Button>
             </div>
           </div>
         </div>
@@ -479,8 +504,8 @@ export default function DashboardDetailPage() {
             <DialogTitle>Rename Dashboard</DialogTitle>
             <DialogDescription>Enter a new name for your dashboard "{currentDashboard?.name}".</DialogDescription>
           </DialogHeader>
-          <Input 
-            value={newDashboardName} 
+          <Input
+            value={newDashboardName}
             onChange={(e) => setNewDashboardName(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleRenameDashboard()}
             className="my-4"
