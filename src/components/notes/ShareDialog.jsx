@@ -3,10 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { X, Mail, Plus, Trash2, Users, Send } from "lucide-react";
-import { Share } from "@/api/entities/Share";
-import { User } from "@/api/entities";
+import { X, Mail, Trash2, Users, Send } from "lucide-react";
+import { Share } from "@/entities/Share";
 import { toast } from "sonner";
 
 export default function ShareDialog({ note, isOpen, onClose }) {

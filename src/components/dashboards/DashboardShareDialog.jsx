@@ -1,15 +1,12 @@
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge"; // Added missing import
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { X, Mail, Plus, Trash2, Users, Send, UserCheck, UserX, Edit, Eye, UserPlus } from "lucide-react"; // Added Eye and UserPlus imports
-import { DashboardShare } from "@/api/entities"; // Assuming DashboardShare entity exists
-import { User } from "@/api/entities";
+import { Users, Send, UserCheck, UserX, Edit, Eye, UserPlus } from "lucide-react"; // Added Eye and UserPlus imports
+import { DashboardShare } from "@/entities/DashboardShare"; // Assuming DashboardShare entity exists
 import { toast } from "sonner";
 
 export default function DashboardShareDialog({ dashboard, currentUserEmail, isOpen, onClose }) {
@@ -139,7 +136,7 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={handleShare} disabled={!email.trim() || isSending} className="self-end">
+            <Button onClick={handleShare} disabled={!email.trim() || isSending} className="self-end bg-[var(--ruby-dust-600)] hover:bg-[var(--ruby-dust-700)] text-[var(--ruby-dust-text-on-primary)]">
               {isSending ? <Send className="w-4 h-4 animate-pulse" /> : <UserPlus className="w-4 h-4" />}
             </Button>
           </div>
@@ -154,8 +151,8 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                     className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg"
                   >
                     <div className="flex items-center gap-2">
-                       <div className="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-sm text-blue-600 font-medium">
+                       <div className="w-7 h-7 bg-[var(--ruby-dust-100)] rounded-full flex items-center justify-center">
+                          <span className="text-sm text-[var(--ruby-dust-600)] font-medium">
                             {share.shared_with_email.charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -186,7 +183,7 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                           <UserCheck className="w-4 h-4" />
                         </Button>
                       ) : (
-                        <Button variant="ghost" size="icon" onClick={() => startEditing(share)} className="h-7 w-7 text-gray-500 hover:text-blue-600">
+                        <Button variant="ghost" size="icon" onClick={() => startEditing(share)} className="h-7 w-7 text-gray-500 hover:text-[var(--ruby-dust-600)]">
                           <Edit className="w-4 h-4" />
                         </Button>
                       )}

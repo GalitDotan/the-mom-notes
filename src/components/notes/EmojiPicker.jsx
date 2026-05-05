@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +31,7 @@ export default function EmojiPicker({ selectedEmoji, onSelect, size = "default" 
       <PopoverTrigger asChild>
         <Button 
           variant="outline" 
-          className={`${isLarge ? 'w-16 h-16 text-2xl' : 'w-12 h-12 text-xl'} border-2 hover:border-blue-300 transition-all duration-200`}
+          className={`${isLarge ? 'w-16 h-16 text-2xl' : 'w-12 h-12 text-xl'} border-2 hover:border-[var(--ruby-dust-300)] transition-all duration-200 focus:ring-2 focus:ring-[var(--ruby-dust-focus-ring)]`}
         >
           {selectedEmoji}
         </Button>
@@ -47,7 +48,7 @@ export default function EmojiPicker({ selectedEmoji, onSelect, size = "default" 
                       variant={selectedEmoji === option.emoji ? "default" : "ghost"}
                       className={`h-12 text-xl transition-all duration-200 ${
                         selectedEmoji === option.emoji 
-                          ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' 
+                          ? 'bg-[var(--ruby-dust-100)] text-[var(--ruby-dust-text-interactive)] border-2 border-[var(--ruby-dust-300)]' 
                           : 'hover:bg-gray-50'
                       }`}
                       onClick={() => onSelect(option.emoji)}

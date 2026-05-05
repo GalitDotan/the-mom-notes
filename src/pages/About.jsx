@@ -13,7 +13,7 @@ export default function About() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -32,7 +32,7 @@ export default function About() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="w-24 h-24 bg-gradient-to-r from-purple-400 to-indigo-600 rounded-3xl mx-auto mb-8 flex items-center justify-center transform rotate-12">
+          <div className="w-24 h-24 bg-gradient-to-r from-[var(--ruby-dust-400)] to-[var(--ruby-dust-600)] rounded-3xl mx-auto mb-8 flex items-center justify-center transform rotate-12">
             <User className="w-12 h-12 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-6">
@@ -53,7 +53,7 @@ export default function About() {
           <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl overflow-hidden">
             <CardContent className="p-8">
               <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="w-32 h-32 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-3xl flex items-center justify-center flex-shrink-0">
+                <div className="w-32 h-32 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-3xl flex items-center justify-center flex-shrink-0">
                   <span className="text-4xl font-bold text-white">GD</span>
                 </div>
                 <div className="flex-1 text-center md:text-left">
@@ -93,7 +93,7 @@ export default function About() {
                   rel="noopener noreferrer"
                   className="inline-block"
                 >
-                  <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
+                  <Button className="w-full sm:w-auto bg-[var(--ruby-dust-600)] hover:bg-[var(--ruby-dust-700)] text-white shadow-lg transform hover:scale-105 transition-all duration-200">
                     <Linkedin className="w-5 h-5 mr-3" />
                     LinkedIn Profile
                     <ExternalLink className="w-4 h-4 ml-2" />
@@ -125,10 +125,10 @@ export default function About() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <Card className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-0 shadow-xl">
+          <Card className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] text-white border-0 shadow-xl">
             <CardContent className="p-8 text-center">
               <h3 className="text-2xl font-bold mb-4">Project Mission</h3>
-              <p className="text-lg text-purple-100 leading-relaxed max-w-2xl mx-auto">
+              <p className="text-lg text-[var(--ruby-dust-100)] leading-relaxed max-w-2xl mx-auto">
                 The Mom Notes was created to help entrepreneurs, product managers, and researchers 
                 systematically capture and organize customer insights using Rob Fitzpatrick's proven 
                 methodology. By making good customer development practices more accessible, we hope 

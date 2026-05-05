@@ -13,11 +13,11 @@ export default function Credits() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link to={createPageUrl("DashboardsPage")}> {/* Corrected Link to DashboardsPage */}
+          <Link to={createPageUrl("DashboardsPage")}>
             <Button variant="outline" className="mb-6 bg-white/80 border-0">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboards
@@ -51,9 +51,9 @@ export default function Credits() {
           className="mb-8"
         >
           <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl overflow-hidden">
-            <CardContent className="p-6 md:p-8"> {/* Adjusted padding for smaller screens */}
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left"> {/* Responsive flex layout */}
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
+                <div className="w-20 h-20 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-2xl flex items-center justify-center flex-shrink-0">
                   <BookOpen className="w-10 h-10 text-white" />
                 </div>
                 <div className="flex-1">
@@ -62,8 +62,8 @@ export default function Credits() {
                   </h2>
                   <div className="prose prose-lg text-gray-700 space-y-4">
                     <p>
-                      This app is inspired by and gives full credit to <strong>Rob Fitzpatrick</strong>, 
-                      author of <em>The Mom Test</em> — a must-read book for anyone doing customer development, 
+                      This app is inspired by and gives full credit to <strong>Rob Fitzpatrick</strong>,
+                      author of <em>The Mom Test</em> — a must-read book for anyone doing customer development,
                       product interviews, or startup validation.
                     </p>
                     <p>
@@ -76,7 +76,7 @@ export default function Credits() {
                         rel="noopener noreferrer"
                         className="inline-block"
                       >
-                        <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 shadow-lg transform hover:scale-105 transition-all duration-200 w-full sm:w-auto"> {/* Responsive button sizing */}
+                        <Button className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] hover:from-[var(--ruby-dust-600)] hover:to-[var(--ruby-dust-800)] text-[var(--ruby-dust-text-on-primary)] text-base md:text-lg px-6 md:px-8 py-3 md:py-4 shadow-lg transform hover:scale-105 transition-all duration-200 w-full sm:w-auto">
                           <ExternalLink className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3" />
                           Get The Mom Test Book
                         </Button>
@@ -84,8 +84,8 @@ export default function Credits() {
                     </div>
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800">
                       <p className="text-sm font-medium">
-                        <strong>Important:</strong> This project is not affiliated with, endorsed by, 
-                        or officially connected to Rob Fitzpatrick or The Mom Test. It's simply a 
+                        <strong>Important:</strong> This project is not affiliated with, endorsed by,
+                        or officially connected to Rob Fitzpatrick or The Mom Test. It's simply a
                         tribute tool for those who want to apply the lessons in their own workflows.
                       </p>
                     </div>
@@ -103,13 +103,13 @@ export default function Credits() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mb-8"
         >
-          <Card className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-0 shadow-xl">
+          <Card className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] text-white border-0 shadow-xl">
             <CardContent className="p-8 text-center">
               <blockquote className="text-xl italic mb-4 leading-relaxed">
-                "The Mom Test is a set of simple rules for crafting good questions that 
+                "The Mom Test is a set of simple rules for crafting good questions that
                 even your mom can't lie to you about."
               </blockquote>
-              <cite className="text-blue-100 font-medium">— Rob Fitzpatrick</cite>
+              <cite className="text-[var(--ruby-dust-100)] font-medium">— Rob Fitzpatrick</cite>
             </CardContent>
           </Card>
         </motion.div>
@@ -136,7 +136,7 @@ export default function Credits() {
                   </p>
                 </div>
                 <div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-12 h-12 bg-[var(--ruby-dust-100)] rounded-full flex items-center justify-center mx-auto mb-3">
                     <span className="text-2xl">💡</span>
                   </div>
                   <h4 className="font-semibold text-gray-900 mb-2">Real Insights</h4>
