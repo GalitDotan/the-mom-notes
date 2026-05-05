@@ -1,15 +1,8 @@
-import { base44 } from './base44Client';
+import Note from '@/entities/Note';
+import NoteVersion from '@/entities/NoteVersion';
+import Dashboard from '@/entities/Dashboard';
+import DashboardShare from '@/entities/DashboardShare';
+import Share from '@/entities/Share';
+import User from '@/entities/User';
 
-
-export const Note = base44.entities.Note;
-
-export const NoteVersion = base44.entities.NoteVersion;
-
-export const Dashboard = base44.entities.Dashboard;
-
-export const DashboardShare = base44.entities.DashboardShare;
-
-
-
-// auth sdk:
-export const User = base44.auth;
+export { Note, NoteVersion, Dashboard, DashboardShare, Share, User };

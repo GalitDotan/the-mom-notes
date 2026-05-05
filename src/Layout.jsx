@@ -1,158 +1,187 @@
 
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-import { User } from "@/entities/User";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  LayoutDashboard,
-  HelpCircle,
-  User as UserIcon,
-  LogOut,
-  Wifi,
-  WifiOff,
-  Menu,
-  X,
-  Heart,
-  Info,
-  Loader2,
-  StickyNote,
-  Accessibility,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { User } from "@/entities/all";
+import { createPageUrl } from "@/utils";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+    Accessibility,
+    Heart,
+    HelpCircle,
+    Info,
+    LayoutDashboard,
+    Loader2,
+    LogOut,
+    Menu,
+    StickyNote,
+    User as UserIcon,
+    Wifi,
+    WifiOff,
+    X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import AccessibilityModal from "../components/AccessibilityModal";
 
 const navigationItems = [
-  {
-    title: "Dashboards",
-    url: createPageUrl("DashboardsPage"),
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Explanation",
-    url: createPageUrl("Explanation"),
-    icon: HelpCircle,
-  },
-  {
-    title: "Credits",
-    url: createPageUrl("Credits"),
-    icon: Heart,
-  },
-  {
-    title: "About",
-    url: createPageUrl("About"),
-    icon: Info,
-  },
+    {
+        title: "Dashboards",
+        url: createPageUrl("DashboardsPage"),
+        icon: LayoutDashboard,
+    },
+    {
+        title: "Explanation",
+        url: createPageUrl("Explanation"),
+        icon: HelpCircle,
+    },
+    {
+        title: "Credits",
+        url: createPageUrl("Credits"),
+        icon: Heart,
+    },
+    {
+        title: "About",
+        url: createPageUrl("About"),
+        icon: Info,
+    },
 ];
 
 const pageVariants = {
-  initial: {
-    opacity: 0,
-  },
-  in: {
-    opacity: 1,
-  },
-  out: {
-    opacity: 0,
-  }
+    initial: {
+        opacity: 0,
+    },
+    in: {
+        opacity: 1,
+    },
+    out: {
+        opacity: 0,
+    }
 };
 
 const pageTransition = {
-  type: "tween",
-  ease: "anticipate",
-  duration: 0.3
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.3
 };
 
 
 export default function Layout({ children, currentPageName }) {
-  const location = useLocation();
-  const [user, setUser] = useState(undefined);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const location = useLocation();
+    const [user, setUser] = useState(undefined);
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Accessibility State
-  const [isAccessibilityModalOpen, setIsAccessibilityModalOpen] = useState(false);
-  const [fontSize, setFontSize] = useState(100);
-  const [isHighContrast, setIsHighContrast] = useState(false);
+    // Accessibility State
+    const [isAccessibilityModalOpen, setIsAccessibilityModalOpen] = useState(false);
+    const [fontSize, setFontSize] = useState(100);
+    const [isHighContrast, setIsHighContrast] = useState(false);
 
-  // Effect to load accessibility settings from localStorage on mount
-  useEffect(() => {
-    const savedFontSize = localStorage.getItem('accessibility-font-size');
-    const savedHighContrast = localStorage.getItem('accessibility-high-contrast');
+    // Effect to load accessibility settings from localStorage on mount
+    useEffect(() => {
+        const savedFontSize = localStorage.getItem('accessibility-font-size');
+        const savedHighContrast = localStorage.getItem('accessibility-high-contrast');
 
-    if (savedFontSize) {
-      setFontSize(parseInt(savedFontSize, 10));
-    }
-    if (savedHighContrast) {
-      setIsHighContrast(savedHighContrast === 'true');
-    }
-  }, []);
+        if (savedFontSize) {
+            setFontSize(parseInt(savedFontSize, 10));
+        }
+        if (savedHighContrast) {
+            setIsHighContrast(savedHighContrast === 'true');
+        }
+    }, []);
 
-  // Effect to apply and save accessibility settings whenever they change
-  useEffect(() => {
-    document.documentElement.style.fontSize = `${fontSize}%`;
-    localStorage.setItem('accessibility-font-size', fontSize);
+    // Effect to apply and save accessibility settings whenever they change
+    useEffect(() => {
+        document.documentElement.style.fontSize = `${fontSize}%`;
+        localStorage.setItem('accessibility-font-size', fontSize);
 
-    if (isHighContrast) {
-      document.documentElement.classList.add('high-contrast');
-    } else {
-      document.documentElement.classList.remove('high-contrast');
-    }
-    localStorage.setItem('accessibility-high-contrast', isHighContrast);
-  }, [fontSize, isHighContrast]);
+        if (isHighContrast) {
+            document.documentElement.classList.add('high-contrast');
+        } else {
+            document.documentElement.classList.remove('high-contrast');
+        }
+        localStorage.setItem('accessibility-high-contrast', isHighContrast);
+    }, [fontSize, isHighContrast]);
 
-  useEffect(() => {
-    // Set a default title, can be overridden by specific pages
-    document.title = "The Mom Notes";
-    loadUser();
+    useEffect(() => {
+        // Set a default title, can be overridden by specific pages
+        document.title = "The Mom Notes";
+        loadUser();
 
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
 
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
+    useEffect(() => {
+        // When page changes, close mobile menu
+        setIsMobileMenuOpen(false);
+    }, [location.pathname]);
+
+    const loadUser = async () => {
+        try {
+            const userData = await User.me();
+            setUser(userData);
+        } catch (error) {
+            setUser(null);
+        }
     };
-  }, []);
 
-  useEffect(() => {
-    // When page changes, close mobile menu
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
+    const handleLogout = async () => {
+        await User.logout();
+        setUser(null);
+    };
 
-  const loadUser = async () => {
-    try {
-      const userData = await User.me();
-      setUser(userData);
-    } catch (error) {
-      setUser(null);
+    const handleLogin = async () => {
+        await User.login();
+    };
+
+    if (user === undefined) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)] flex items-center justify-center p-4">
+                <style>
+                    {`
+            :root {
+              --ruby-dust-50: #fef2f7;
+              --ruby-dust-100: #fce6ee;
+              --ruby-dust-200: #f8cde0;
+              --ruby-dust-300: #f5b3d1;
+              --ruby-dust-400: #f08cbc;
+              --ruby-dust-500: #d81768;
+              --ruby-dust-600: #c0155d;
+              --ruby-dust-700: #a91352;
+              --ruby-dust-800: #911147;
+              --ruby-dust-900: #7f103e;
+              --ruby-dust-text-on-primary: white;
+              --ruby-dust-text-interactive: var(--ruby-dust-600);
+              --ruby-dust-focus-ring: var(--ruby-dust-400);
+            }
+          `}
+                </style>
+                <Loader2 className="w-16 h-16 text-[var(--ruby-dust-500)] animate-spin" />
+            </div>
+        );
     }
-  };
 
-  const handleLogout = async () => {
-    await User.logout();
-    setUser(null);
-  };
-
-  const handleLogin = async () => {
-    await User.login();
-  };
-
-  if (user === undefined) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)] flex items-center justify-center p-4">
-        <style>
-          {`
+    if (user === null) {
+        // Set title for login page
+        document.title = "Login - The Mom Notes";
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)] flex items-center justify-center p-4">
+                <style>
+                    {`
             :root {
               --ruby-dust-50: #fef2f7;
               --ruby-dust-100: #fce6ee;
@@ -169,83 +198,54 @@ export default function Layout({ children, currentPageName }) {
               --ruby-dust-focus-ring: var(--ruby-dust-400);
             }
           `}
-        </style>
-        <Loader2 className="w-16 h-16 text-[var(--ruby-dust-500)] animate-spin" />
-      </div>
-    );
-  }
+                </style>
+                <div className="max-w-md w-full">
+                    <div className="text-center mb-8">
+                        <div className="w-20 h-20 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12">
+                            <StickyNote className="w-10 h-10 text-white" />
+                        </div>
+                        <h1 className="text-4xl font-bold text-gray-900 mb-3">Welcome to The Mom Notes</h1>
+                        <p className="text-gray-600 text-lg leading-relaxed">
+                            Capture insights with emoji-coded research notes.
+                            <br />Perfect for user interviews and feedback.
+                        </p>
+                    </div>
 
-  if (user === null) {
-    // Set title for login page
-    document.title = "Login - The Mom Notes";
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
+                        <Button
+                            onClick={handleLogin}
+                            className="w-full bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] hover:from-[var(--ruby-dust-600)] hover:to-[var(--ruby-dust-800)] text-[var(--ruby-dust-text-on-primary)] py-4 rounded-xl text-lg font-medium transition-all duration-200 transform hover:scale-105"
+                        >
+                            <UserIcon className="w-5 h-5 mr-3" />
+                            Continue with Google
+                        </Button>
+
+                        <div className="mt-6 pt-6 border-t border-gray-100">
+                            <div className="grid grid-cols-3 gap-4 text-center">
+                                <div>
+                                    <div className="text-2xl mb-1">🙂</div>
+                                    <div className="text-xs text-gray-500">Excited</div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl mb-1">💥⚡</div>
+                                    <div className="text-xs text-gray-500">Pain Point</div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl mb-1">🥅</div>
+                                    <div className="text-xs text-gray-500">Goal</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)] flex items-center justify-center p-4">
-        <style>
-          {`
-            :root {
-              --ruby-dust-50: #fef2f7;
-              --ruby-dust-100: #fce6ee;
-              --ruby-dust-200: #f8cde0;
-              --ruby-dust-300: #f5b3d1;
-              --ruby-dust-400: #f08cbc;
-              --ruby-dust-500: #d81768;
-              --ruby-dust-600: #c0155d;
-              --ruby-dust-700: #a91352;
-              --ruby-dust-800: #911147;
-              --ruby-dust-900: #7f103e;
-              --ruby-dust-text-on-primary: white;
-              --ruby-dust-text-interactive: var(--ruby-dust-600);
-              --ruby-dust-focus-ring: var(--ruby-dust-400);
-            }
-          `}
-        </style>
-        <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12">
-              <StickyNote className="w-10 h-10 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-3">Welcome to The Mom Notes</h1>
-            <p className="text-gray-600 text-lg leading-relaxed">
-              Capture insights with emoji-coded research notes.
-              <br />Perfect for user interviews and feedback.
-            </p>
-          </div>
-
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
-            <Button
-              onClick={handleLogin}
-              className="w-full bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] hover:from-[var(--ruby-dust-600)] hover:to-[var(--ruby-dust-800)] text-[var(--ruby-dust-text-on-primary)] py-4 rounded-xl text-lg font-medium transition-all duration-200 transform hover:scale-105"
-            >
-              <UserIcon className="w-5 h-5 mr-3" />
-              Continue with Google
-            </Button>
-
-            <div className="mt-6 pt-6 border-t border-gray-100">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl mb-1">🙂</div>
-                  <div className="text-xs text-gray-500">Excited</div>
-                </div>
-                <div>
-                  <div className="text-2xl mb-1">💥⚡</div>
-                  <div className="text-xs text-gray-500">Pain Point</div>
-                </div>
-                <div>
-                  <div className="text-2xl mb-1">🥅</div>
-                  <div className="text-xs text-gray-500">Goal</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)] flex flex-col">
-       <style>
-          {`
+        <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)] flex flex-col">
+            <style>
+                {`
             :root {
               --ruby-dust-50: #fef2f7;
               --ruby-dust-100: #fce6ee;
@@ -539,179 +539,176 @@ export default function Layout({ children, currentPageName }) {
               grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
             }
           `}
-        </style>
-      <header className="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-4">
-              <Link to={createPageUrl("DashboardsPage")} className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-xl flex items-center justify-center transform rotate-12">
-                  <StickyNote className="w-5 h-5 text-white" />
+            </style>
+            <header className="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex items-center gap-4">
+                            <Link to={createPageUrl("DashboardsPage")} className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-xl flex items-center justify-center transform rotate-12">
+                                    <StickyNote className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="text-xl font-bold text-gray-900 hidden sm:block">The Mom Notes</span>
+                            </Link>
+
+                            <nav className="hidden md:flex items-center gap-1 ml-8">
+                                {navigationItems.map((item) => (
+                                    <Link
+                                        key={item.title}
+                                        to={item.url}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${location.pathname === item.url
+                                            ? 'bg-[var(--ruby-dust-100)] text-[var(--ruby-dust-text-interactive)]'
+                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <item.icon className="w-4 h-4" />
+                                        {item.title}
+                                    </Link>
+                                ))}
+                            </nav>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${isOnline
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-orange-100 text-orange-700'
+                                }`}>
+                                {isOnline ? (
+                                    <>
+                                        <Wifi className="w-4 h-4" />
+                                        <span className="hidden sm:inline">Online</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <WifiOff className="w-4 h-4" />
+                                        <span className="hidden sm:inline">Offline</span>
+                                    </>
+                                )}
+                            </div>
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="md:hidden"
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
+                            >
+                                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            </Button>
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" className="hidden md:flex items-center gap-2 px-3 py-2">
+                                        <div className="w-8 h-8 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-full flex items-center justify-center">
+                                            <span className="text-white text-sm font-medium">
+                                                {user.full_name?.charAt(0).toUpperCase() || 'U'}
+                                            </span>
+                                        </div>
+                                        <span className="font-medium text-gray-700">{user.full_name}</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56">
+                                    <div className="px-3 py-2">
+                                        <p className="font-medium">{user.full_name}</p>
+                                        <p className="text-sm text-gray-500">{user.email}</p>
+                                    </div>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                        <LogOut className="w-4 h-4 mr-2" />
+                                        Sign out
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </div>
+
+                    {isMobileMenuOpen && (
+                        <div className="md:hidden py-4 border-t border-gray-100">
+                            <nav className="space-y-2">
+                                {navigationItems.map((item) => (
+                                    <Link
+                                        key={item.title}
+                                        to={item.url}
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${location.pathname === item.url
+                                            ? 'bg-[var(--ruby-dust-100)] text-[var(--ruby-dust-text-interactive)]'
+                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                            }`}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        <item.icon className="w-5 h-5" />
+                                        {item.title}
+                                    </Link>
+                                ))}
+                                <div className="px-4 py-3 border-t border-gray-100 mt-4">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className="w-10 h-10 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-full flex items-center justify-center">
+                                            <span className="text-white font-medium">
+                                                {user.full_name?.charAt(0).toUpperCase() || 'U'}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-gray-900">{user.full_name}</p>
+                                            <p className="text-sm text-gray-500">{user.email}</p>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        onClick={handleLogout}
+                                        variant="outline"
+                                        className="w-full text-red-600 border-red-200 hover:bg-red-50 focus:bg-red-100"
+                                    >
+                                        <LogOut className="w-4 h-4 mr-2" />
+                                        Sign out
+                                    </Button>
+                                </div>
+                            </nav>
+                        </div>
+                    )}
                 </div>
-                <span className="text-xl font-bold text-gray-900 hidden sm:block">The Mom Notes</span>
-              </Link>
+            </header>
 
-              <nav className="hidden md:flex items-center gap-1 ml-8">
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.title}
-                    to={item.url}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-                      location.pathname === item.url
-                        ? 'bg-[var(--ruby-dust-100)] text-[var(--ruby-dust-text-interactive)]'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
-                  >
-                    <item.icon className="w-4 h-4" />
-                    {item.title}
-                  </Link>
-                ))}
-              </nav>
-            </div>
+            <AnimatePresence mode="wait">
+                <motion.main
+                    key={location.pathname}
+                    className="flex-1"
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                    transition={pageTransition}
+                >
+                    {children}
+                </motion.main>
+            </AnimatePresence>
 
-            <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                isOnline
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-orange-100 text-orange-700'
-              }`}>
-                {isOnline ? (
-                  <>
-                    <Wifi className="w-4 h-4" />
-                    <span className="hidden sm:inline">Online</span>
-                  </>
-                ) : (
-                  <>
-                    <WifiOff className="w-4 h-4" />
-                    <span className="hidden sm:inline">Offline</span>
-                  </>
-                )}
-              </div>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
-              >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hidden md:flex items-center gap-2 px-3 py-2">
-                    <div className="w-8 h-8 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">
-                        {user.full_name?.charAt(0).toUpperCase() || 'U'}
-                      </span>
+            <footer className="bg-white/70 backdrop-blur-sm border-t border-gray-100/80 mt-auto">
+                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 md:flex md:items-center md:justify-between">
+                    <div className="flex justify-center space-x-6 md:order-2">
+                        <Link to={createPageUrl("PrivacyPolicy")} className="text-gray-500 hover:text-gray-600 text-sm">Privacy Policy</Link>
+                        <Link to={createPageUrl("TermsOfUse")} className="text-gray-500 hover:text-gray-600 text-sm">Terms of Use</Link>
+                        <Link to={createPageUrl("AccessibilityStatement")} className="text-gray-500 hover:text-gray-600 text-sm">Accessibility</Link>
                     </div>
-                    <span className="font-medium text-gray-700">{user.full_name}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-3 py-2">
-                    <p className="font-medium">{user.full_name}</p>
-                    <p className="text-sm text-gray-500">{user.email}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-
-          {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-100">
-              <nav className="space-y-2">
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.title}
-                    to={item.url}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-                      location.pathname === item.url
-                        ? 'bg-[var(--ruby-dust-100)] text-[var(--ruby-dust-text-interactive)]'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    {item.title}
-                  </Link>
-                ))}
-                <div className="px-4 py-3 border-t border-gray-100 mt-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-full flex items-center justify-center">
-                      <span className="text-white font-medium">
-                        {user.full_name?.charAt(0).toUpperCase() || 'U'}
-                      </span>
+                    <div className="mt-8 md:mt-0 md:order-1 flex items-center justify-center gap-4">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setIsAccessibilityModalOpen(true)}
+                            className="text-gray-500 hover:text-gray-600"
+                        >
+                            <Accessibility className="w-5 h-5 mr-2" />
+                            Accessibility Settings
+                        </Button>
+                        <p className="text-center text-sm text-gray-500">&copy; {new Date().getFullYear()} The Mom Notes. All rights reserved.</p>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{user.full_name}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={handleLogout}
-                    variant="outline"
-                    className="w-full text-red-600 border-red-200 hover:bg-red-50 focus:bg-red-100"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign out
-                  </Button>
                 </div>
-              </nav>
-            </div>
-          )}
+            </footer>
+
+            <AccessibilityModal
+                isOpen={isAccessibilityModalOpen}
+                onClose={() => setIsAccessibilityModalOpen(false)}
+                fontSize={fontSize}
+                setFontSize={setFontSize}
+                isHighContrast={isHighContrast}
+                setIsHighContrast={setIsHighContrast}
+            />
         </div>
-      </header>
-
-      <AnimatePresence mode="wait">
-        <motion.main
-          key={location.pathname}
-          className="flex-1"
-          variants={pageVariants}
-          initial="initial"
-          animate="in"
-          exit="out"
-          transition={pageTransition}
-        >
-          {children}
-        </motion.main>
-      </AnimatePresence>
-
-      <footer className="bg-white/70 backdrop-blur-sm border-t border-gray-100/80 mt-auto">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 md:flex md:items-center md:justify-between">
-          <div className="flex justify-center space-x-6 md:order-2">
-            <Link to={createPageUrl("PrivacyPolicy")} className="text-gray-500 hover:text-gray-600 text-sm">Privacy Policy</Link>
-            <Link to={createPageUrl("TermsOfUse")} className="text-gray-500 hover:text-gray-600 text-sm">Terms of Use</Link>
-            <Link to={createPageUrl("AccessibilityStatement")} className="text-gray-500 hover:text-gray-600 text-sm">Accessibility</Link>
-          </div>
-          <div className="mt-8 md:mt-0 md:order-1 flex items-center justify-center gap-4">
-             <Button
-                variant="ghost"
-                onClick={() => setIsAccessibilityModalOpen(true)}
-                className="text-gray-500 hover:text-gray-600"
-              >
-                <Accessibility className="w-5 h-5 mr-2" />
-                Accessibility Settings
-              </Button>
-            <p className="text-center text-sm text-gray-500">&copy; {new Date().getFullYear()} The Mom Notes. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-
-      <AccessibilityModal
-        isOpen={isAccessibilityModalOpen}
-        onClose={() => setIsAccessibilityModalOpen(false)}
-        fontSize={fontSize}
-        setFontSize={setFontSize}
-        isHighContrast={isHighContrast}
-        setIsHighContrast={setIsHighContrast}
-      />
-    </div>
-  );
+    );
 }

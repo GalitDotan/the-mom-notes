@@ -1,39 +1,73 @@
-**Welcome to your Base44 project** 
+# The Mom Notes
 
-**About**
+The Mom Notes is a standalone, browser-first app for capturing customer conversation insights using the symbol system from Rob Fitzpatrick’s book, *The Mom Test*.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+This version is built to run fully in the browser without any Base44 backend. Your notes, dashboards, and sharing metadata are stored locally in the browser, making the app fast, simple, and offline-capable.
 
-This project contains everything you need to run your app locally.
+## Why this app exists
 
-**Edit the code in your local development environment**
+This project is inspired by and gives full credit to Rob Fitzpatrick, author of *The Mom Test* — a must-read book for anyone doing customer development, product interviews, or startup validation.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+We highly recommend you buy the book and support Rob’s work:
+👉 https://momtestbook.com
 
-**Prerequisites:** 
+> This project is not affiliated with, endorsed by, or officially connected to Rob Fitzpatrick or The Mom Test. It is a tribute tool for founders, product teams, and researchers who want to apply the lessons in their own workflows.
 
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
+## What it does
 
+- 📝 Create text-only notes using Mom Test symbols
+- 🔎 Search, filter, and sort insights quickly
+- 📜 Track note version history
+- 🚪 Local browser authentication with Name + Email
+- 🖥️ Offline-capable behavior with browser storage persistence
+- 🤝 Local sharing metadata for dashboards and notes
+
+## Features
+
+- Minimal research note editor with emoji-coded categories
+- Dashboard organization for related interview notes
+- Version history for every note
+- Local user sign-in with browser-based persistence
+- Export-friendly note and dashboard workflows
+
+## Getting started
+
+1. Install dependencies:
+
+```bash
+npm install
 ```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
 
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+2. Run the app locally:
+
+```bash
+npm run dev
 ```
 
-Run the app: `npm run dev`
+3. Build for production:
 
-**Publish your changes**
+```bash
+npm run build
+```
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+4. Preview the production build:
 
-**Docs & Support**
+```bash
+npm run preview
+```
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
+## Notes on storage
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+This standalone version stores data in `localStorage` inside your browser. That means:
+
+- Data persists across refreshes on the same browser and device
+- There is no remote sync or server backend
+- Shared dashboards and notes are stored locally and are not sent to an external service
+
+## Development notes
+
+The app is based on a Vite + React stack with Tailwind-style components and local storage persistence for data.
+
+## License
+
+See the `LICENSE` file for more details.

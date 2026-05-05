@@ -16,52 +16,50 @@ import TermsOfUse from './pages/TermsOfUse';
 import AccessibilityStatement from './pages/AccessibilityStatement';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+    const { isLoadingAuth, authError, navigateToLogin } = useAuth();
 
-  if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
+    if (isLoadingAuth) {
+        return (
+            <div className="fixed inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+            </div>
+        );
     }
-  }
 
-  return (
-    <Routes>
-      <Route path="/" element={<DashboardsPage />} />
-      <Route path="/DashboardsPage" element={<DashboardsPage />} />
-      <Route path="/DashboardDetailPage" element={<DashboardDetailPage />} />
-      <Route path="/Explanation" element={<Explanation />} />
-      <Route path="/Credits" element={<Credits />} />
-      <Route path="/About" element={<About />} />
-      <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
-      <Route path="/TermsOfUse" element={<TermsOfUse />} />
-      <Route path="/AccessibilityStatement" element={<AccessibilityStatement />} />
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
-  );
+    if (authError) {
+        if (authError.type === 'auth_required') {
+            navigateToLogin();
+            return null;
+        }
+    }
+
+    return (
+        <Routes>
+            <Route path="/" element={<DashboardsPage />} />
+            <Route path="/DashboardsPage" element={<DashboardsPage />} />
+            <Route path="/DashboardDetailPage" element={<DashboardDetailPage />} />
+            <Route path="/Explanation" element={<Explanation />} />
+            <Route path="/Credits" element={<Credits />} />
+            <Route path="/About" element={<About />} />
+            <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+            <Route path="/TermsOfUse" element={<TermsOfUse />} />
+            <Route path="/AccessibilityStatement" element={<AccessibilityStatement />} />
+            <Route path="*" element={<PageNotFound />} />
+        </Routes>
+    );
 };
 
 function App() {
-  return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
-    </AuthProvider>
-  )
+    return (
+        <AuthProvider>
+            <QueryClientProvider client={queryClientInstance}>
+                <Router>
+                    <AuthenticatedApp />
+                </Router>
+                <Toaster />
+            </QueryClientProvider>
+        </AuthProvider>
+    )
 }
 
 export default App

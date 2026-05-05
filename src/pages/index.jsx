@@ -13,17 +13,17 @@ import DashboardDetailPage from "./DashboardDetailPage";
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
-    
+
     Explanation: Explanation,
-    
+
     Credits: Credits,
-    
+
     About: About,
-    
+
     DashboardsPage: DashboardsPage,
-    
+
     DashboardDetailPage: DashboardDetailPage,
-    
+
 }
 
 function _getCurrentPage(url) {
@@ -43,24 +43,24 @@ function _getCurrentPage(url) {
 function PagesContent() {
     const location = useLocation();
     const currentPage = _getCurrentPage(location.pathname);
-    
+
     return (
         <Layout currentPageName={currentPage}>
-            <Routes>            
-                
-                    <Route path="/" element={<Explanation />} />
-                
-                
+            <Routes>
+
+                <Route path="/" element={<Explanation />} />
+
+
                 <Route path="/Explanation" element={<Explanation />} />
-                
+
                 <Route path="/Credits" element={<Credits />} />
-                
+
                 <Route path="/About" element={<About />} />
-                
+
                 <Route path="/DashboardsPage" element={<DashboardsPage />} />
-                
+
                 <Route path="/DashboardDetailPage" element={<DashboardDetailPage />} />
-                
+
             </Routes>
         </Layout>
     );
