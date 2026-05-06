@@ -18,6 +18,10 @@ const writeUser = (user) => {
   localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
 };
 
+const clearUser = () => {
+  localStorage.removeItem(USER_STORAGE_KEY);
+};
+
 const login = async (email, name) => {
   if (!email || !name) {
     throw new Error('Email and name are required');
@@ -38,9 +42,13 @@ const login = async (email, name) => {
   return user;
 };
 
+const logout = async () => {
+  clearUser();
+};
+
 const me = async () => {
   return readUser();
 };
 
-export const User = { login, me };
+export const User = { login, logout, me };
 export default User;

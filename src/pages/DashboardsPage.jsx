@@ -5,22 +5,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Dashboard, DashboardShare, User } from "@/entities/all";
+import { badgeLabels, messages, pageTitle, animations } from "@/lib/constants";
+import { css, icons } from "@/lib/theme";
 import { createPageUrl } from "@/utils";
-import { formatDistanceToNow } from "date-fns"; // This will format in local time by default
+import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, FolderOpen, FolderPlus, Loader2, Plus, Sparkles, Star, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+/**
+ * @type {React.FC<{dashboard: Dashboard & {permission_level?: string}, isOwner: boolean, permission?: string}>}
+ */
 const DashboardCard = ({ dashboard, isOwner, permission }) => {
     const navigate = useNavigate();
+    
     return (
         <motion.div
             layout
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            initial={animations.variants.fadeIn.initial}
+            animate={animations.variants.fadeIn.animate}
+            exit={animations.variants.fadeIn.exit}
             className="cursor-pointer"
             onClick={() => navigate(createPageUrl(`DashboardDetailPage?id=${dashboard.id}`))}
         >
@@ -29,25 +35,28 @@ const DashboardCard = ({ dashboard, isOwner, permission }) => {
                     <div className="flex justify-between items-start">
                         <div className="flex items-center gap-3 mb-2">
                             {isOwner ? (
-                                <FolderPlus className="w-8 h-8 text-[var(--ruby-dust-500)]" />
+                                <FolderPlus className={`${icons.sizes.xl} text-[var(--ruby-dust-500)]`} />
                             ) : (
-                                <FolderOpen className="w-8 h-8 text-purple-500" />
+                                <FolderOpen className={`${icons.sizes.xl} text-purple-500`} />
                             )}
-                            <CardTitle className="text-xl group-hover:text-[var(--ruby-dust-600)] transition-colors">{dashboard.name}</CardTitle>
+                            <CardTitle className="text-xl group-hover:text-[var(--ruby-dust-600)] transition-colors">
+                                {dashboard.name}
+                            </CardTitle>
                         </div>
                         <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[var(--ruby-dust-600)] transition-transform group-hover:translate-x-1" />
                     </div>
                     {isOwner ? (
-                        <Badge variant="outline" className="border-green-200 text-green-700 bg-green-50">Owned by you</Badge>
+                        <Badge variant="outline" className="border-green-200 text-green-700 bg-green-50">
+                            {badgeLabels.ownedByYou}
+                        </Badge>
                     ) : (
-                        <Badge variant="outline" className={`border-purple-200 text-purple-700 bg-purple-50`}>
-                            Shared with you ({permission})
+                        <Badge variant="outline" className="border-purple-200 text-purple-700 bg-purple-50">
+                            {badgeLabels.sharedWithYou} ({permission})
                         </Badge>
                     )}
                 </CardHeader>
                 <CardContent>
                     <CardDescription>
-                        {/* Ensured new Date() is used; formatDistanceToNow() will use client's local timezone */}
                         Last updated: {formatDistanceToNow(new Date(dashboard.updated_date), { addSuffix: true })}
                     </CardDescription>
                 </CardContent>
@@ -63,20 +72,19 @@ export default function DashboardsPage() {
     const [currentUser, setCurrentUser] = useState(null);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newDashboardName, setNewDashboardName] = useState("");
+    const [isCreating, setIsCreating] = useState(false);
 
     useEffect(() => {
-        document.title = "Your Dashboards - The Mom Notes"; // Added this line
+        document.title = pageTitle.dashboards;
         const fetchUserAndDashboards = async () => {
             setIsLoading(true);
             try {
                 const user = await User.me();
                 setCurrentUser(user);
                 if (user && user.email) {
-                    // Fetch owned dashboards
                     const owned = await Dashboard.filter({ owner_email: user.email }, "-updated_date");
                     setOwnedDashboards(owned);
 
-                    // Fetch shared dashboards
                     const shares = await DashboardShare.filter({ shared_with_email: user.email });
                     const sharedDashDetails = await Promise.all(
                         shares.map(async (share) => {
@@ -88,37 +96,74 @@ export default function DashboardsPage() {
                 }
             } catch (error) {
                 console.error("Failed to load user or dashboards:", error);
-                toast.error("Could not load your dashboards.");
+                toast.error(messages.errors.loadDashboards);
             }
             setIsLoading(false);
         };
         fetchUserAndDashboards();
     }, []);
 
+    /**
+     * Handles creating a new dashboard
+     */
     const handleCreateDashboard = async () => {
-        if (!newDashboardName.trim() || !currentUser || !currentUser.email) {
-            toast.error("Dashboard name cannot be empty.");
+        const dashboardName = newDashboardName.trim();
+        
+        // Validation
+        if (!dashboardName) {
+            toast.error(messages.errors.emptyDashboardName);
             return;
         }
+        
+        if (!currentUser) {
+            toast.error("No user logged in.");
+            return;
+        }
+        
+        if (!currentUser.email) {
+            toast.error("User email not available.");
+            return;
+        }
+        
+        // Prevent double submission
+        if (isCreating) {
+            return;
+        }
+        
         try {
+            setIsCreating(true);
+            console.log("Creating dashboard with name:", dashboardName, "and owner:", currentUser.email);
+            
             const newDashboard = await Dashboard.create({
-                name: newDashboardName.trim(),
+                name: dashboardName,
                 owner_email: currentUser.email,
             });
-            setOwnedDashboards(prev => [newDashboard, ...prev].sort((a, b) => new Date(b.updated_date) - new Date(a.updated_date)));
+            
+            console.log("Dashboard created:", newDashboard);
+            
+            // Update state
+            setOwnedDashboards(prev => 
+                [newDashboard, ...prev].sort((a, b) => new Date(b.updated_date) - new Date(a.updated_date))
+            );
+            
+            // Reset form
             setNewDashboardName("");
             setIsCreateDialogOpen(false);
-            toast.success(`Dashboard "${newDashboard.name}" created!`);
+            
+            // Show success
+            toast.success(messages.success.dashboardCreated);
         } catch (error) {
             console.error("Failed to create dashboard:", error);
-            toast.error("Failed to create dashboard.");
+            toast.error(messages.errors.saveDashboard);
+        } finally {
+            setIsCreating(false);
         }
     };
 
     if (isLoading) {
         return (
             <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-                <Loader2 className="w-12 h-12 text-[var(--ruby-dust-500)] animate-spin" />
+                <Loader2 className={`${icons.sizes['2xl']} text-[var(--ruby-dust-500)] animate-spin`} />
             </div>
         );
     }
@@ -126,7 +171,7 @@ export default function DashboardsPage() {
     const allDashboardsPresent = ownedDashboards.length > 0 || sharedDashboards.length > 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)]">
+        <div className={css.pageGradient}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
                     <div>
@@ -135,7 +180,7 @@ export default function DashboardsPage() {
                     </div>
                     <Button
                         onClick={() => setIsCreateDialogOpen(true)}
-                        className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] hover:from-[var(--ruby-dust-600)] hover:to-[var(--ruby-dust-800)] text-[var(--ruby-dust-text-on-primary)] shadow-lg transform hover:scale-105 transition-all duration-200"
+                        className={css.gradientButtonSecondary}
                     >
                         <Plus className="w-5 h-5 mr-2" />
                         New Dashboard
@@ -145,7 +190,7 @@ export default function DashboardsPage() {
                 {!allDashboardsPresent && !isLoading && (
                     <div className="text-center py-16">
                         <div className="w-24 h-24 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12">
-                            <Sparkles className="w-12 h-12 text-white" />
+                            <Sparkles className={`${icons.sizes['3xl']} text-white`} />
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">
                             Create your first dashboard
@@ -155,7 +200,7 @@ export default function DashboardsPage() {
                         </p>
                         <Button
                             onClick={() => setIsCreateDialogOpen(true)}
-                            className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] hover:from-[var(--ruby-dust-600)] hover:to-[var(--ruby-dust-800)] text-[var(--ruby-dust-text-on-primary)]"
+                            className={css.gradientButton}
                         >
                             <Plus className="w-5 h-5 mr-2" />
                             Create Dashboard
@@ -166,12 +211,14 @@ export default function DashboardsPage() {
                 {ownedDashboards.length > 0 && (
                     <section className="mb-12">
                         <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
-                            <Star className="w-6 h-6 text-yellow-500" />
+                            <Star className={`${icons.sizes.lg} text-yellow-500`} />
                             Owned by you
                         </h2>
                         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <AnimatePresence>
-                                {ownedDashboards.map(d => <DashboardCard key={d.id} dashboard={d} isOwner={true} />)}
+                                {ownedDashboards.map(d => (
+                                    <DashboardCard key={d.id} dashboard={d} isOwner={true} />
+                                ))}
                             </AnimatePresence>
                         </motion.div>
                     </section>
@@ -180,12 +227,19 @@ export default function DashboardsPage() {
                 {sharedDashboards.length > 0 && (
                     <section>
                         <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
-                            <Users className="w-6 h-6 text-purple-500" />
+                            <Users className={`${icons.sizes.lg} text-purple-500`} />
                             Shared with you
                         </h2>
                         <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <AnimatePresence>
-                                {sharedDashboards.map(d => <DashboardCard key={d.id} dashboard={d} isOwner={false} permission={d.permission_level} />)}
+                                {sharedDashboards.map(d => (
+                                    <DashboardCard 
+                                        key={d.id} 
+                                        dashboard={d} 
+                                        isOwner={false} 
+                                        permission={d.permission_level} 
+                                    />
+                                ))}
                             </AnimatePresence>
                         </motion.div>
                     </section>
@@ -210,9 +264,24 @@ export default function DashboardsPage() {
                         </div>
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button type="button" variant="outline">Cancel</Button>
+                                <Button type="button" variant="outline" disabled={isCreating}>
+                                    Cancel
+                                </Button>
                             </DialogClose>
-                            <Button type="submit" onClick={handleCreateDashboard} disabled={!newDashboardName.trim()} className="bg-[var(--ruby-dust-600)] hover:bg-[var(--ruby-dust-700)] text-[var(--ruby-dust-text-on-primary)]">Create Dashboard</Button>
+                            <Button 
+                                type="button" 
+                                onClick={handleCreateDashboard} 
+                                disabled={isCreating}
+                            >
+                                {isCreating ? (
+                                    <>
+                                        <Loader2 className={`${icons.sizes.sm} mr-2 animate-spin`} />
+                                        Creating...
+                                    </>
+                                ) : (
+                                    "Create Dashboard"
+                                )}
+                            </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

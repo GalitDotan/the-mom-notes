@@ -7,19 +7,14 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { navigationItems } from "@/lib/constants";
+import { icons, css } from "@/lib/theme";
 import { User } from "@/entities/all";
-import { createPageUrl } from "@/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-    Accessibility,
-    Heart,
-    HelpCircle,
-    Info,
-    LayoutDashboard,
     Loader2,
     LogOut,
     Menu,
-    StickyNote,
     User as UserIcon,
     Wifi,
     WifiOff,
@@ -28,29 +23,6 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import AccessibilityModal from "../components/AccessibilityModal";
-
-const navigationItems = [
-    {
-        title: "Dashboards",
-        url: createPageUrl("DashboardsPage"),
-        icon: LayoutDashboard,
-    },
-    {
-        title: "Explanation",
-        url: createPageUrl("Explanation"),
-        icon: HelpCircle,
-    },
-    {
-        title: "Credits",
-        url: createPageUrl("Credits"),
-        icon: Heart,
-    },
-    {
-        title: "About",
-        url: createPageUrl("About"),
-        icon: Info,
-    },
-];
 
 const pageVariants = {
     initial: {
@@ -170,7 +142,7 @@ export default function Layout({ children, currentPageName }) {
             }
           `}
                 </style>
-                <Loader2 className="w-16 h-16 text-[var(--ruby-dust-500)] animate-spin" />
+                <Loader2 className={`${icons.sizes['3xl']} text-[var(--ruby-dust-500)] animate-spin`} />
             </div>
         );
     }

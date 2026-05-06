@@ -1,11 +1,12 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
+import Login from './pages/Login';
 import DashboardsPage from './pages/DashboardsPage';
 import DashboardDetailPage from './pages/DashboardDetailPage';
 import Explanation from './pages/Explanation';
@@ -16,7 +17,7 @@ import TermsOfUse from './pages/TermsOfUse';
 import AccessibilityStatement from './pages/AccessibilityStatement';
 
 const AuthenticatedApp = () => {
-    const { isLoadingAuth, authError, navigateToLogin } = useAuth();
+    const { isLoadingAuth, isAuthenticated, navigateToLogin } = useAuth();
 
     if (isLoadingAuth) {
         return (
@@ -26,11 +27,8 @@ const AuthenticatedApp = () => {
         );
     }
 
-    if (authError) {
-        if (authError.type === 'auth_required') {
-            navigateToLogin();
-            return null;
-        }
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
     }
 
     return (
@@ -54,7 +52,10 @@ function App() {
         <AuthProvider>
             <QueryClientProvider client={queryClientInstance}>
                 <Router>
-                    <AuthenticatedApp />
+                    <Routes>
+                        <Route path="/login" element={<Login />} />
+                        <Route path="*" element={<AuthenticatedApp />} />
+                    </Routes>
                 </Router>
                 <Toaster />
             </QueryClientProvider>
