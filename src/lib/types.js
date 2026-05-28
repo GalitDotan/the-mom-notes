@@ -109,4 +109,4 @@
  * @property {Function} navigateToLogin - Function to navigate to login
  */
 
-export {};
+export { };

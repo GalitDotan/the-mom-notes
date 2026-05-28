@@ -12,43 +12,32 @@ export default function About() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)]">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
-                <div className="mb-8">
-                    <Link to={createPageUrl("Dashboard")}>
-                        <Button variant="outline" className="mb-6 bg-white/80 border-0">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Notes
-                        </Button>
-                    </Link>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Main Content */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-center mb-12"
+            >
+                <div className="w-24 h-24 bg-gradient-to-r from-[var(--ruby-dust-400)] to-[var(--ruby-dust-600)] rounded-3xl mx-auto mb-8 flex items-center justify-center transform rotate-12">
+                    <User className="w-12 h-12 text-white" />
                 </div>
+                <h1 className="text-4xl font-bold text-gray-900 mb-6">
+                    About The Creator
+                </h1>
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                    Meet the person behind The Mom Notes
+                </p>
+            </motion.div>
 
-                {/* Main Content */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-12"
-                >
-                    <div className="w-24 h-24 bg-gradient-to-r from-[var(--ruby-dust-400)] to-[var(--ruby-dust-600)] rounded-3xl mx-auto mb-8 flex items-center justify-center transform rotate-12">
-                        <User className="w-12 h-12 text-white" />
-                    </div>
-                    <h1 className="text-4xl font-bold text-gray-900 mb-6">
-                        About The Creator
-                    </h1>
-                    <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                        Meet the person behind The Mom Notes
-                    </p>
-                </motion.div>
-
-                {/* Creator Profile */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="mb-8"
-                >
+            {/* Creator Profile */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="mb-8"
+            >
                     <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl overflow-hidden">
                         <CardContent className="p-8">
                             <div className="flex flex-col md:flex-row items-center gap-8">
@@ -118,25 +107,24 @@ export default function About() {
                     </Card>
                 </motion.div>
 
-                {/* Mission Statement */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.6 }}
-                >
-                    <Card className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] text-white border-0 shadow-xl">
-                        <CardContent className="p-8 text-center">
-                            <h3 className="text-2xl font-bold mb-4">Project Mission</h3>
-                            <p className="text-lg text-[var(--ruby-dust-100)] leading-relaxed max-w-2xl mx-auto">
-                                The Mom Notes was created to help entrepreneurs, product managers, and researchers
-                                systematically capture and organize customer insights using Rob Fitzpatrick's proven
-                                methodology. By making good customer development practices more accessible, we hope
-                                to help more people build products that truly matter.
-                            </p>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-            </div>
+            {/* Mission Statement */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+            >
+                <Card className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] text-white border-0 shadow-xl">
+                    <CardContent className="p-8 text-center">
+                        <h3 className="text-2xl font-bold mb-4">Project Mission</h3>
+                        <p className="text-lg text-[var(--ruby-dust-100)] leading-relaxed max-w-2xl mx-auto">
+                            The Mom Notes was created to help entrepreneurs, product managers, and researchers
+                            systematically capture and organize customer insights using Rob Fitzpatrick's proven
+                            methodology. By making good customer development practices more accessible, we hope
+                            to help more people build products that truly matter.
+                        </p>
+                    </CardContent>
+                </Card>
+            </motion.div>
         </div>
     );
 }

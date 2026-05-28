@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import Layout from './Layout';
 
 import Login from './pages/Login';
 import DashboardsPage from './pages/DashboardsPage';
@@ -32,18 +33,20 @@ const AuthenticatedApp = () => {
     }
 
     return (
-        <Routes>
-            <Route path="/" element={<DashboardsPage />} />
-            <Route path="/DashboardsPage" element={<DashboardsPage />} />
-            <Route path="/DashboardDetailPage" element={<DashboardDetailPage />} />
-            <Route path="/Explanation" element={<Explanation />} />
-            <Route path="/Credits" element={<Credits />} />
-            <Route path="/About" element={<About />} />
-            <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
-            <Route path="/TermsOfUse" element={<TermsOfUse />} />
-            <Route path="/AccessibilityStatement" element={<AccessibilityStatement />} />
-            <Route path="*" element={<PageNotFound />} />
-        </Routes>
+        <Layout>
+            <Routes>
+                <Route path="/" element={<DashboardsPage />} />
+                <Route path="/DashboardsPage" element={<DashboardsPage />} />
+                <Route path="/DashboardDetailPage" element={<DashboardDetailPage />} />
+                <Route path="/Explanation" element={<Explanation />} />
+                <Route path="/Credits" element={<Credits />} />
+                <Route path="/About" element={<About />} />
+                <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+                <Route path="/TermsOfUse" element={<TermsOfUse />} />
+                <Route path="/AccessibilityStatement" element={<AccessibilityStatement />} />
+                <Route path="*" element={<PageNotFound />} />
+            </Routes>
+        </Layout>
     );
 };
 

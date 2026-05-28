@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import AccessibilityModal from "../components/AccessibilityModal";
+import AccessibilityModal from "@/components/AccessibilityModal";
 
 const pageVariants = {
     initial: {
