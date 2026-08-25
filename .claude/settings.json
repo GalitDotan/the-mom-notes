@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(npm test *)",
+      "Bash(npm run test *)",
+      "Bash(npm run lint *)",
+      "Bash(npm run build *)",
+      "Bash(npx tsc *)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "Bash(tasklist //FI \"IMAGENAME eq electron.exe\" //FI \"IMAGENAME eq node.exe\")",
+      "Bash(netstat -ano)",
+      "Bash(npm start *)",
+      "Bash(timeout 90 bash -c ' *)",
+      "Bash(npx eslint *)",
+      "Bash(npx --yes playwright --version)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)"
+    ]
+  }
+}
