@@ -3,9 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User } from "@/entities/all";
 import { useAuth } from "@/lib/AuthContext";
-import { messages } from "@/lib/constants";
-import { css, icons } from "@/lib/theme";
-import { Sparkles } from "lucide-react";
+import { StickyNote } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -38,11 +36,9 @@ export default function Login() {
 
     try {
       setIsLoading(true);
-      console.log("Logging in with email:", email, "and name:", name);
 
+      // No logging here: email and name are personal data.
       await User.login(email, name);
-
-      console.log("Login successful, checking auth...");
       await checkUserAuth();
 
       toast.success("Welcome! Redirecting to dashboards...");
@@ -56,15 +52,15 @@ export default function Login() {
   };
 
   return (
-    <div className={css.pageGradient}>
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <Card className="w-full max-w-md bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-2xl mx-auto mb-4 flex items-center justify-center">
-              <Sparkles className={`${icons.sizes['2xl']} text-white`} />
+    <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex items-center justify-center px-4 py-10">
+        <Card className="w-full max-w-sm shadow-overlay border-border/60">
+          <CardHeader className="text-center pb-4">
+            <div className="size-14 bg-gradient-to-br from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-2xl mx-auto mb-4 flex items-center justify-center rotate-12 shadow-sm" aria-hidden>
+              <StickyNote className="w-7 h-7 text-white" />
             </div>
-            <CardTitle className="text-2xl">Welcome to Mom Notes</CardTitle>
-            <CardDescription className="mt-2">
+            <CardTitle className="text-2xl font-semibold tracking-tight">Welcome to The Mom Notes</CardTitle>
+            <CardDescription className="mt-1.5">
               Get started by entering your information
             </CardDescription>
           </CardHeader>
@@ -72,7 +68,7 @@ export default function Login() {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="text-sm font-medium text-foreground/80">
                   Email
                 </label>
                 <Input
@@ -87,7 +83,7 @@ export default function Login() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-gray-700">
+                <label htmlFor="name" className="text-sm font-medium text-foreground/80">
                   Name
                 </label>
                 <Input
@@ -104,14 +100,15 @@ export default function Login() {
               <Button
                 type="submit"
                 disabled={isLoading || !email.trim() || !name.trim()}
-                className={`${css.gradientButton} w-full`}
+                size="lg"
+                className="w-full"
               >
                 {isLoading ? "Logging in..." : "Continue"}
               </Button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-xs text-gray-600 text-center leading-relaxed">
+            <div className="mt-6 pt-5 border-t border-border/70">
+              <p className="text-xs text-muted-foreground text-center leading-relaxed">
                 Based on <strong>The Mom Test</strong> methodology by Rob Fitzpatrick. 
                 This app helps you organize customer research into focused dashboards.
               </p>

@@ -10,8 +10,10 @@ import {
 import { useAuth } from "@/lib/AuthContext";
 import { navigationItems } from "@/lib/constants";
 import { createPageUrl } from "@/utils";
-import { motion } from "framer-motion";
-import { Accessibility, LogOut, Menu, StickyNote, Wifi, WifiOff, X } from "lucide-react";
+import { ENTER_FROM_BELOW, SPRING_SNAPPY } from "@/lib/motion";
+import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "motion/react";
+import { Accessibility, LogOut, Menu, StickyNote, WifiOff, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigationType } from "react-router-dom";
 
@@ -24,15 +26,13 @@ const DEFAULT_FONT_SIZE_PERCENT = 100;
  * The palette variables these rules use are defined in index.css.
  */
 const ACCESSIBILITY_STYLES = `
-            /* Focus outlines for accessibility */
-            button:focus-visible, 
-            a:focus-visible, 
-            input:focus-visible, 
-            select:focus-visible,
-            textarea:focus-visible,
-            [tabindex]:focus-visible {
-              outline: 3px solid var(--ruby-dust-focus-ring) !important;
-              outline-offset: 2px !important;
+            /* Focus outlines for accessibility: a default for anything focusable.
+               Zero specificity and no !important, so components that draw their
+               own focus ring (buttons, inputs, nav) show one ring, not two.
+               High-contrast mode below still forces its outlines. */
+            :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+              outline: 2px solid hsl(var(--ring));
+              outline-offset: 2px;
             }
 
             /* High contrast mode - COMPLETE OVERHAUL */
@@ -291,7 +291,7 @@ const ACCESSIBILITY_STYLES = `
             .responsive-notes-grid {
               display: grid;
               gap: 1.5rem; /* Corresponds to Tailwind's gap-6 */
-              grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
+              grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); /* auto-fill: a lone note keeps card width */
             }
 `;
 
@@ -302,11 +302,10 @@ const ACCESSIBILITY_STYLES = `
  * page, and could get stuck with the new page at opacity 0 (a blank page).
  * Responding immediately is also what a tab switch should do.
  */
-const PAGE_ENTER = {
-    initial: { opacity: 0, y: 6 },
-    animate: { opacity: 1, y: 0 },
-    transition: { type: "spring", bounce: 0, duration: 0.35 },
-};
+const PAGE_ENTER = ENTER_FROM_BELOW;
+
+/** Routes that belong to the Dashboards tab (the list and a single dashboard). */
+const DASHBOARD_SECTION_PATHS = ["/", createPageUrl("DashboardsPage"), createPageUrl("DashboardDetailPage")];
 
 const readStoredFontSize = () => {
     const stored = Number.parseInt(localStorage.getItem(FONT_SIZE_STORAGE_KEY) ?? "", 10);
@@ -325,6 +324,15 @@ export default function Layout({ children }: LayoutProps) {
     const { user, logout } = useAuth();
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    // The header's hairline only appears once content scrolls under it.
+    useEffect(() => {
+        const handleScroll = () => setIsScrolled(window.scrollY > 4);
+        handleScroll();
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     // Accessibility State
     const [isAccessibilityModalOpen, setIsAccessibilityModalOpen] = useState(false);
@@ -377,88 +385,98 @@ export default function Layout({ children }: LayoutProps) {
     const userName = user?.name ?? "";
     const userInitial = userName.charAt(0).toUpperCase() || "U";
 
-    const navLinkClassName = (url: string) =>
-        location.pathname === url
-            ? "bg-[var(--ruby-dust-100)] text-[var(--ruby-dust-text-interactive)]"
-            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50";
+    // A dashboard's own page still lives under the Dashboards tab.
+    const isNavItemActive = (url: string) =>
+        url === createPageUrl("DashboardsPage")
+            ? DASHBOARD_SECTION_PATHS.includes(location.pathname)
+            : location.pathname === url;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)] flex flex-col">
+        <div className="min-h-screen bg-background flex flex-col">
             <style>{ACCESSIBILITY_STYLES}</style>
-            <header className="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
+            <header
+                className={cn(
+                    "material-chrome sticky top-0 z-50 border-b transition-colors duration-200",
+                    isScrolled || isMobileMenuOpen ? "border-border/70" : "border-transparent"
+                )}
+            >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-4">
-                            <Link to={createPageUrl("DashboardsPage")} className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-xl flex items-center justify-center transform rotate-12">
-                                    <StickyNote className="w-5 h-5 text-white" aria-hidden="true" />
+                        <div className="flex items-center gap-4 min-w-0">
+                            <Link to={createPageUrl("DashboardsPage")} className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="The Mom Notes, go to dashboards">
+                                <div className="size-9 bg-gradient-to-br from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-[10px] flex items-center justify-center rotate-12 shadow-sm">
+                                    <StickyNote className="w-[18px] h-[18px] text-white" aria-hidden="true" />
                                 </div>
-                                <span className="text-xl font-bold text-gray-900 hidden sm:block">The Mom Notes</span>
+                                <span className="text-[17px] font-semibold tracking-tight text-foreground hidden sm:block">The Mom Notes</span>
                             </Link>
 
-                            <nav className="hidden md:flex items-center gap-1 ms-8" aria-label="Main">
-                                {navigationItems.map((item) => (
-                                    <Link
-                                        key={item.title}
-                                        to={item.url}
-                                        aria-current={location.pathname === item.url ? "page" : undefined}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${navLinkClassName(item.url)}`}
-                                    >
-                                        <item.icon className="w-4 h-4" aria-hidden="true" />
-                                        {item.title}
-                                    </Link>
-                                ))}
+                            <nav className="hidden md:flex items-center gap-0.5 ms-6" aria-label="Main">
+                                {navigationItems.map((item) => {
+                                    const isActive = isNavItemActive(item.url);
+                                    return (
+                                        <Link
+                                            key={item.title}
+                                            to={item.url}
+                                            aria-current={isActive ? "page" : undefined}
+                                            className={cn(
+                                                "relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                                            )}
+                                        >
+                                            {/* One shared pill that springs from the old tab to the new one. */}
+                                            {isActive && (
+                                                <motion.span
+                                                    layoutId="main-nav-active"
+                                                    className="absolute inset-0 rounded-full bg-accent"
+                                                    transition={SPRING_SNAPPY}
+                                                    aria-hidden
+                                                />
+                                            )}
+                                            <item.icon className="relative w-4 h-4" aria-hidden="true" />
+                                            <span className="relative">{item.title}</span>
+                                        </Link>
+                                    );
+                                })}
                             </nav>
                         </div>
 
-                        <div className="flex items-center gap-4">
-                            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${isOnline
-                                ? "bg-green-100 text-green-700"
-                                : "bg-orange-100 text-orange-700"
-                                }`}>
-                                {isOnline ? (
-                                    <>
-                                        <Wifi className="w-4 h-4" aria-hidden="true" />
-                                        <span className="hidden sm:inline">Online</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <WifiOff className="w-4 h-4" aria-hidden="true" />
-                                        <span className="hidden sm:inline">Offline</span>
-                                    </>
-                                )}
-                            </div>
+                        <div className="flex items-center gap-2">
+                            {/* Connection status only when it matters: being online is the normal case. */}
+                            {!isOnline && (
+                                <span role="status" className="flex items-center gap-1.5 rounded-full bg-tag-action/10 px-2.5 py-1 text-xs font-medium text-tag-action">
+                                    <WifiOff className="w-3.5 h-3.5" aria-hidden="true" />
+                                    Offline
+                                </span>
+                            )}
 
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="md:hidden"
+                                className="md:hidden rounded-full"
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
                                 aria-expanded={isMobileMenuOpen}
                                 aria-controls="mobile-menu"
                             >
-                                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                                {isMobileMenuOpen ? <X className="!w-5 !h-5" /> : <Menu className="!w-5 !h-5" />}
                             </Button>
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="hidden md:flex items-center gap-2 px-3 py-2">
-                                        <div className="w-8 h-8 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-full flex items-center justify-center">
-                                            <span className="text-white text-sm font-medium" aria-hidden="true">
-                                                {userInitial}
-                                            </span>
-                                        </div>
-                                        <span className="font-medium text-gray-700">{userName}</span>
+                                    <Button variant="ghost" className="hidden md:flex items-center gap-2 ps-1.5 pe-3 rounded-full" aria-label={`Account: ${userName}`}>
+                                        <span className="size-7 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[13px] font-semibold" aria-hidden="true">
+                                            {userInitial}
+                                        </span>
+                                        <span className="text-sm font-medium text-foreground/80 max-w-[10rem] truncate">{userName}</span>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-56">
                                     <div className="px-3 py-2">
-                                        <p className="font-medium">{userName}</p>
-                                        <p className="text-sm text-gray-500">{user?.email}</p>
+                                        <p className="font-medium truncate">{userName}</p>
+                                        <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
                                     </div>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                    <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                                         <LogOut className="w-4 h-4 me-2" aria-hidden="true" />
                                         Sign out
                                     </DropdownMenuItem>
@@ -467,45 +485,58 @@ export default function Layout({ children }: LayoutProps) {
                         </div>
                     </div>
 
-                    {isMobileMenuOpen && (
-                        <div id="mobile-menu" className="md:hidden py-4 border-t border-gray-100">
-                            <nav className="space-y-2" aria-label="Main">
-                                {navigationItems.map((item) => (
-                                    <Link
-                                        key={item.title}
-                                        to={item.url}
-                                        aria-current={location.pathname === item.url ? "page" : undefined}
-                                        className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${navLinkClassName(item.url)}`}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                        <item.icon className="w-5 h-5" aria-hidden="true" />
-                                        {item.title}
-                                    </Link>
-                                ))}
-                                <div className="px-4 py-3 border-t border-gray-100 mt-4">
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="w-10 h-10 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-full flex items-center justify-center">
-                                            <span className="text-white font-medium" aria-hidden="true">
+                    <AnimatePresence initial={false}>
+                        {isMobileMenuOpen && (
+                            <motion.div
+                                id="mobile-menu"
+                                className="md:hidden overflow-hidden"
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={SPRING_SNAPPY}
+                            >
+                                <nav className="space-y-1 py-3 border-t border-border/70" aria-label="Main">
+                                    {navigationItems.map((item) => {
+                                        const isActive = isNavItemActive(item.url);
+                                        return (
+                                            <Link
+                                                key={item.title}
+                                                to={item.url}
+                                                aria-current={isActive ? "page" : undefined}
+                                                className={cn(
+                                                    "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-colors duration-150",
+                                                    isActive ? "bg-accent text-primary" : "text-foreground/80 hover:bg-secondary"
+                                                )}
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                            >
+                                                <item.icon className="w-5 h-5" aria-hidden="true" />
+                                                {item.title}
+                                            </Link>
+                                        );
+                                    })}
+                                    <div className="px-3 pt-3 mt-3 border-t border-border/70">
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <span className="size-9 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-semibold" aria-hidden="true">
                                                 {userInitial}
                                             </span>
+                                            <div className="min-w-0">
+                                                <p className="font-medium text-foreground truncate">{userName}</p>
+                                                <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-gray-900">{userName}</p>
-                                            <p className="text-sm text-gray-500">{user?.email}</p>
-                                        </div>
+                                        <Button
+                                            onClick={handleLogout}
+                                            variant="outline"
+                                            className="w-full text-destructive hover:text-destructive"
+                                        >
+                                            <LogOut aria-hidden="true" />
+                                            Sign out
+                                        </Button>
                                     </div>
-                                    <Button
-                                        onClick={handleLogout}
-                                        variant="outline"
-                                        className="w-full text-red-600 border-red-200 hover:bg-red-50 focus:bg-red-100"
-                                    >
-                                        <LogOut className="w-4 h-4 me-2" aria-hidden="true" />
-                                        Sign out
-                                    </Button>
-                                </div>
-                            </nav>
-                        </div>
-                    )}
+                                </nav>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </header>
 
@@ -519,24 +550,25 @@ export default function Layout({ children }: LayoutProps) {
                 {children}
             </motion.main>
 
-            <footer className="bg-white/70 backdrop-blur-sm border-t border-gray-100/80 mt-auto">
-                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 md:flex md:items-center md:justify-between">
-                    <div className="flex justify-center gap-6 md:order-2">
-                        <Link to={createPageUrl("PrivacyPolicy")} className="text-gray-500 hover:text-gray-600 text-sm">Privacy Policy</Link>
-                        <Link to={createPageUrl("TermsOfUse")} className="text-gray-500 hover:text-gray-600 text-sm">Terms of Use</Link>
-                        <Link to={createPageUrl("AccessibilityStatement")} className="text-gray-500 hover:text-gray-600 text-sm">Accessibility</Link>
-                    </div>
-                    <div className="mt-8 md:mt-0 md:order-1 flex items-center justify-center gap-4">
+            <footer className="border-t border-border/70 mt-auto">
+                <div className="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8 flex flex-col-reverse gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
                         <Button
                             variant="ghost"
+                            size="sm"
                             onClick={() => setIsAccessibilityModalOpen(true)}
-                            className="text-gray-500 hover:text-gray-600"
+                            className="text-muted-foreground"
                         >
-                            <Accessibility className="w-5 h-5 me-2" aria-hidden="true" />
+                            <Accessibility aria-hidden="true" />
                             Accessibility Settings
                         </Button>
-                        <p className="text-center text-sm text-gray-500">&copy; {new Date().getFullYear()} The Mom Notes. All rights reserved.</p>
+                        <p className="text-center text-[13px] text-muted-foreground">&copy; {new Date().getFullYear()} The Mom Notes. All rights reserved.</p>
                     </div>
+                    <nav className="flex flex-wrap justify-center gap-x-5 gap-y-1" aria-label="Legal">
+                        <Link to={createPageUrl("PrivacyPolicy")} className="text-muted-foreground hover:text-foreground text-[13px]">Privacy Policy</Link>
+                        <Link to={createPageUrl("TermsOfUse")} className="text-muted-foreground hover:text-foreground text-[13px]">Terms of Use</Link>
+                        <Link to={createPageUrl("AccessibilityStatement")} className="text-muted-foreground hover:text-foreground text-[13px]">Accessibility</Link>
+                    </nav>
                 </div>
             </footer>
 

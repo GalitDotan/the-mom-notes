@@ -4,31 +4,32 @@
 
 @layer base {
     :root {
-        --background: 0 0% 100%;
-        --foreground: 0 0% 3.9%;
+        /* Neutral canvas with white surfaces; brand ruby is the accent, not the backdrop. */
+        --background: 240 12% 97.5%;
+        --foreground: 240 10% 10%;
         --card: 0 0% 100%;
-        --card-foreground: 0 0% 3.9%;
+        --card-foreground: 240 10% 10%;
         --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 3.9%;
-        --primary: 0 0% 9%;
-        --primary-foreground: 0 0% 98%;
-        --secondary: 0 0% 96.1%;
-        --secondary-foreground: 0 0% 9%;
-        --muted: 0 0% 96.1%;
-        --muted-foreground: 0 0% 45.1%;
-        --accent: 0 0% 96.1%;
-        --accent-foreground: 0 0% 9%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 89.8%;
-        --input: 0 0% 89.8%;
-        --ring: 0 0% 3.9%;
+        --popover-foreground: 240 10% 10%;
+        --primary: 335 80% 42%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 240 6% 94%;
+        --secondary-foreground: 240 10% 14%;
+        --muted: 240 6% 94%;
+        --muted-foreground: 240 4% 40%;
+        --accent: 335 75% 96%;
+        --accent-foreground: 335 80% 32%;
+        --destructive: 0 72% 46%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 240 6% 89%;
+        --input: 240 6% 86%;
+        --ring: 335 80% 47%;
         --chart-1: 12 76% 61%;
         --chart-2: 173 58% 39%;
         --chart-3: 197 37% 24%;
         --chart-4: 43 74% 66%;
         --chart-5: 27 87% 67%;
-        --radius: 0.5rem;
+        --radius: 0.75rem;
         --sidebar-background: 0 0% 98%;
         --sidebar-foreground: 240 5.3% 26.1%;
         --sidebar-primary: 240 5.9% 10%;
@@ -37,6 +38,16 @@
         --sidebar-accent-foreground: 240 5.9% 10%;
         --sidebar-border: 220 13% 91%;
         --sidebar-ring: 217.2 91.2% 59.8%;
+
+        /* Note tag categories (see features/notes/note-tags.ts). Each reads at
+           >= 4.5:1 as text on white and on its own 10% tint. */
+        --tag-emotional: 32 95% 30%;
+        --tag-problem: 0 72% 45%;
+        --tag-outcome: 221 83% 45%;
+        --tag-behavior: 262 70% 50%;
+        --tag-context: 215 19% 38%;
+        --tag-business: 160 84% 26%;
+        --tag-action: 22 90% 38%;
 
         /* Brand palette. Global so pages outside Layout (e.g. /login) get it too. */
         --ruby-dust-50: #fef2f7;
@@ -91,7 +102,7 @@
         --sidebar-primary: 224.3 76.3% 48%;
         --sidebar-primary-foreground: 0 0% 100%;
         --sidebar-accent: 240 3.7% 15.9%;
-        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
         --sidebar-border: 240 3.7% 15.9%;
         --sidebar-ring: 217.2 91.2% 59.8%;
     }
@@ -105,6 +116,109 @@
     }
 
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground antialiased;
+        font-feature-settings: "cv11", "ss01";
+        text-rendering: optimizeLegibility;
+    }
+
+    /* Tracking is size-specific: tighten large type, leave body text at 0. */
+    h1 {
+        letter-spacing: -0.025em;
+    }
+
+    h2 {
+        letter-spacing: -0.02em;
+    }
+
+    h3 {
+        letter-spacing: -0.01em;
+    }
+}
+
+@layer components {
+    /* Translucent chrome that content scrolls under (header, toolbars). */
+    .material-chrome {
+        background-color: hsl(var(--card) / 0.72);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        backdrop-filter: blur(20px) saturate(180%);
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+        .material-chrome {
+            background-color: hsl(var(--card));
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+    }
+
+    /*
+     * Markdown rendering for research notes. The app uses `prose` classes but
+     * does not ship @tailwindcss/typography, so without these rules lists lost
+     * their bullets and headings rendered as body text.
+     */
+    .prose {
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .prose > * + * {
+        margin-top: 0.6em;
+    }
+
+    .prose :where(h1, h2, h3, h4) {
+        font-weight: 600;
+        line-height: 1.3;
+        color: hsl(var(--foreground));
+    }
+
+    .prose :where(h1) {
+        font-size: 1.25em;
+    }
+
+    .prose :where(h2) {
+        font-size: 1.125em;
+    }
+
+    .prose :where(h3, h4) {
+        font-size: 1em;
+    }
+
+    .prose :where(strong) {
+        font-weight: 600;
+        color: hsl(var(--foreground));
+    }
+
+    .prose :where(ul) {
+        list-style: disc;
+        padding-inline-start: 1.25em;
+    }
+
+    .prose :where(ol) {
+        list-style: decimal;
+        padding-inline-start: 1.25em;
+    }
+
+    .prose :where(li + li) {
+        margin-top: 0.25em;
+    }
+
+    .prose :where(a) {
+        color: hsl(var(--primary));
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    .prose :where(blockquote) {
+        border-inline-start: 3px solid hsl(var(--border));
+        padding-inline-start: 0.85em;
+        color: hsl(var(--muted-foreground));
+        font-style: italic;
+    }
+
+    .prose :where(code) {
+        font-size: 0.875em;
+        background-color: hsl(var(--secondary));
+        border-radius: 0.375rem;
+        padding: 0.1em 0.35em;
     }
 }

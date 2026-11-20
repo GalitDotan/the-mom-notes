@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ExternalLink, Github, Linkedin, User } from "lucide-react";
 import { useEffect } from "react";
 
@@ -111,10 +111,10 @@ export default function About() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
             >
-                <Card className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] text-white border-0 shadow-xl">
+                <Card className="bg-primary text-primary-foreground border-0 shadow-card">
                     <CardContent className="p-8 text-center">
-                        <h3 className="text-2xl font-bold mb-4">Project Mission</h3>
-                        <p className="text-lg text-[var(--ruby-dust-100)] leading-relaxed max-w-2xl mx-auto">
+                        <h3 className="text-2xl font-semibold mb-4">Project Mission</h3>
+                        <p className="text-lg text-primary-foreground/90 leading-relaxed max-w-2xl mx-auto">
                             The Mom Notes was created to help entrepreneurs, product managers, and researchers
                             systematically capture and organize customer insights using Rob Fitzpatrick's proven
                             methodology. By making good customer development practices more accessible, we hope

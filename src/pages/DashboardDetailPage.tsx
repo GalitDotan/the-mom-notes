@@ -27,47 +27,24 @@ import {
 import { Dashboard, DashboardShare, Note, NoteVersion, User } from "@/entities/all";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowDownWideNarrow, ArrowLeft, ArrowUpNarrowWide, Edit3, FileSpreadsheet, Filter, Grid3X3, List, Loader2, MoreVertical, Plus, Search, SortAsc, Sparkles, Star as StarIcon, Tag as TopicFilterIcon, Trash2, UserCircle as UserFilterIcon, Users } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { ArrowDownWideNarrow, ArrowLeft, ArrowUpNarrowWide, Edit3, FileSpreadsheet, Filter, Grid3X3, List, Loader2, MoreHorizontal, Plus, Search, SortAsc, Star as StarIcon, Tag as TopicFilterIcon, Trash2, UserCircle as UserFilterIcon, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+import { List as AllNotesIcon } from "@/components/animate-ui/icons/list";
+import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
+import { NOTE_TAGS, findNoteTagBySymbol, noteHasTag } from "@/features/notes/note-tags";
+import { LIST_ITEM_MOTION } from "@/lib/motion";
 
 import DashboardShareDialog from "../components/dashboards/DashboardShareDialog";
 import NoteCard from "../components/notes/NoteCard";
 import NoteEditor from "../components/notes/NoteEditor";
 import VersionHistory from "../components/notes/VersionHistory";
 
-const EMOJI_LABELS = {
-    "🙂": "Excited",
-    "🙁": "Angry",
-    "😳": "Embarrassed",
-    "💥": "Pain/Problem",
-    "🥅": "Goal",
-    "🟥": "Obstacle",
-    "↪️": "Workaround",
-    "🏔": "Context",
-    "☑️": "Feature Request",
-    "💲": "Budget",
-    "♀️": "Person/Company",
-    "⭐": "Follow-up"
-};
-
-const EMOJI_FILTERS = [
-    { value: "all", label: "All Notes", emoji: "📝" },
-    { emoji: "🙂", label: "Excited" },
-    { emoji: "🙁", label: "Angry" },
-    { emoji: "😳", label: "Embarrassed" },
-    { emoji: "💥", label: "Pain/Problem" },
-    { emoji: "🥅", label: "Goal" },
-    { emoji: "🟥", label: "Obstacle" },
-    { emoji: "↪️", label: "Workaround" },
-    { emoji: "🏔", label: "Context" },
-    { emoji: "☑️", label: "Feature Request" },
-    { emoji: "💲", label: "Budget" },
-    { emoji: "♀️", label: "Person/Company" },
-    { emoji: "⭐", label: "Follow-up" },
-];
+/** "all" or a note tag id. Matching goes through the tag catalog, not exact emoji strings. */
+const ALL_TAGS_FILTER = "all";
 
 const IMPORTANCE_FILTER_OPTIONS = [
     { value: "all", label: "All Importance" },
@@ -119,7 +96,7 @@ export default function DashboardDetailPage() {
     const [notes, setNotes] = useState([]);
     const [filteredNotes, setFilteredNotes] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [emojiFilter, setEmojiFilter] = useState("all");
+    const [tagFilter, setTagFilter] = useState(ALL_TAGS_FILTER);
     const [clientFilter, setClientFilter] = useState("all");
     const [importanceFilter, setImportanceFilter] = useState("all");
     const [topicFilter, setTopicFilter] = useState("all");
@@ -271,8 +248,8 @@ export default function DashboardDetailPage() {
                     return contentMatch || clientTagMatch || topicTagMatch || commentsMatch || imageMatch;
                 });
             }
-            if (emojiFilter !== "all") {
-                tempNotes = tempNotes.filter(note => note.symbol === emojiFilter);
+            if (tagFilter !== ALL_TAGS_FILTER) {
+                tempNotes = tempNotes.filter(note => noteHasTag(note.symbol, tagFilter));
             }
             if (clientFilter !== "all") {
                 tempNotes = tempNotes.filter(note =>
@@ -296,7 +273,7 @@ export default function DashboardDetailPage() {
             setFilteredNotes(tempNotes);
         };
         applyFilters();
-    }, [notes, searchTerm, emojiFilter, clientFilter, importanceFilter, topicFilter]);
+    }, [notes, searchTerm, tagFilter, clientFilter, importanceFilter, topicFilter]);
 
     const handleSaveNote = async (noteData) => {
         if (!currentDashboard || (userPermission !== "owner" && userPermission !== "editor")) {
@@ -453,7 +430,7 @@ export default function DashboardDetailPage() {
             const csvData = filteredNotes.map((note) => {
                 const imageUrls = (note.images || []).map(img => img.url).join('; ');
                 return [
-                    sanitizeCsvField(EMOJI_LABELS[note.symbol] || note.symbol || "Unknown"),
+                    sanitizeCsvField(findNoteTagBySymbol(note.symbol)?.label || note.symbol || "Unknown"),
                     sanitizeCsvField(note.content || ""),
                     sanitizeCsvField(note.internal_comments || ""),
                     sanitizeCsvField(note.client_reference || []),
@@ -515,73 +492,72 @@ export default function DashboardDetailPage() {
 
     if (isLoading || !currentUser || !currentDashboard) {
         return (
-            <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-                <Loader2 className="w-12 h-12 text-[var(--ruby-dust-500)] animate-spin" />
+            <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center" role="status" aria-label="Loading dashboard">
+                <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
             </div>
         );
     }
 
     const canEditDashboard = userPermission === "owner";
     const canAddEditNotes = userPermission === "owner" || userPermission === "editor";
+    const hasActiveFilters = Boolean(searchTerm) || tagFilter !== ALL_TAGS_FILTER || clientFilter !== "all" || topicFilter !== "all" || importanceFilter !== "all";
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)]">
+        <div>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header section */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
-                    <div className="flex items-center gap-3">
-                        <Button variant="outline" size="icon" onClick={() => navigate(createPageUrl("DashboardsPage"))} className="bg-white/80 border-0">
-                            <ArrowLeft className="w-5 h-5" />
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 mb-6">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <Button variant="ghost" size="icon" onClick={() => navigate(createPageUrl("DashboardsPage"))} className="rounded-full shrink-0 rtl:rotate-180" aria-label="Back to dashboards">
+                            <ArrowLeft className="!w-5 !h-5" />
                         </Button>
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-                                {currentDashboard.name}
+                        <div className="min-w-0">
+                            <h1 className="text-[28px] leading-tight font-semibold text-foreground flex items-center gap-1.5">
+                                <span className="truncate">{currentDashboard.name}</span>
                                 {canEditDashboard && (
-                                    <Button variant="ghost" size="icon" onClick={() => setIsRenameDialogOpen(true)} className="h-8 w-8">
-                                        <Edit3 className="w-4 h-4 text-gray-500 hover:text-[var(--ruby-dust-600)]" />
+                                    <Button variant="ghost" size="icon" onClick={() => setIsRenameDialogOpen(true)} className="h-8 w-8 rounded-full text-muted-foreground shrink-0" aria-label="Rename dashboard">
+                                        <Edit3 />
                                     </Button>
                                 )}
                             </h1>
-                            <p className="text-gray-600">
-                                {userPermission === "owner" ? "You own this dashboard." : `Shared with you as ${userPermission}.`}
+                            <p className="text-sm text-muted-foreground">
+                                {userPermission === "owner" ? "You own this dashboard" : `Shared with you as ${userPermission}`}
+                                {!isNotesLoading && ` · ${notes.length} ${notes.length === 1 ? "note" : "notes"}`}
                             </p>
                         </div>
                     </div>
 
-                    <div className="flex gap-3 items-center flex-wrap">
-                        <Button variant="outline" onClick={handleExportToExcel} className="bg-white/80 border-0 shadow-sm">
-                            <FileSpreadsheet className="w-4 h-4 mr-2" />
-                            Export Notes
+                    <div className="flex gap-2 items-center flex-wrap">
+                        <Button variant="outline" onClick={handleExportToExcel} aria-label="Export notes as CSV" className="max-sm:w-9 max-sm:px-0">
+                            <FileSpreadsheet aria-hidden />
+                            <span className="hidden sm:inline">Export</span>
                         </Button>
                         {canEditDashboard && (
-                            <Button variant="outline" onClick={() => setIsShareDialogOpen(true)} className="bg-white/80 border-0 shadow-sm">
-                                <Users className="w-4 h-4 mr-2" />
-                                Share
+                            <Button variant="outline" onClick={() => setIsShareDialogOpen(true)} aria-label="Share dashboard" className="max-sm:w-9 max-sm:px-0">
+                                <Users aria-hidden />
+                                <span className="hidden sm:inline">Share</span>
                             </Button>
                         )}
                         {canAddEditNotes && (
-                            <Button
-                                onClick={handleNewNote}
-                                className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] hover:from-[var(--ruby-dust-600)] hover:to-[var(--ruby-dust-800)] text-[var(--ruby-dust-text-on-primary)] shadow-lg transform hover:scale-105 transition-all duration-200"
-                            >
-                                <Plus className="w-5 h-5 mr-2" />
+                            <Button onClick={handleNewNote}>
+                                <Plus aria-hidden />
                                 New Note
                             </Button>
                         )}
                         {canEditDashboard && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="icon" className="bg-white/80 border-0 shadow-sm">
-                                        <MoreVertical className="w-5 h-5" />
+                                    <Button variant="outline" size="icon" aria-label="More dashboard actions">
+                                        <MoreHorizontal />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={() => setIsRenameDialogOpen(true)}>
-                                        <Edit3 className="w-4 h-4 mr-2" /> Rename Dashboard
+                                        <Edit3 className="w-4 h-4 me-2" /> Rename Dashboard
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={handleDeleteDashboard} className="text-red-600 focus:text-red-600">
-                                        <Trash2 className="w-4 h-4 mr-2" /> Delete Dashboard
+                                    <DropdownMenuItem onClick={handleDeleteDashboard} className="text-destructive focus:text-destructive">
+                                        <Trash2 className="w-4 h-4 me-2" /> Delete Dashboard
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -590,36 +566,45 @@ export default function DashboardDetailPage() {
                 </div>
 
                 {/* Filters and Search */}
-                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-8 border border-white/20 shadow-lg">
-                    <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
+                <div className="rounded-2xl border border-border/70 bg-card shadow-card p-3 mb-6">
+                    <div className="flex flex-col lg:flex-row gap-2.5">
                         <div className="flex-1">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" aria-hidden />
                                 <Input
-                                    placeholder="Search notes, client tags, or topics..."
+                                    type="search"
+                                    placeholder="Search notes, comments, client tags, or topics"
+                                    aria-label="Search notes"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10 bg-white/80 border-0 focus:bg-white h-10"
+                                    className="ps-9 h-9 bg-secondary/60 border-transparent focus-visible:bg-card"
                                 />
                             </div>
                         </div>
-                        <div className="flex gap-3 sm:gap-4 flex-wrap">
-                            <Select value={emojiFilter} onValueChange={setEmojiFilter}>
-                                <SelectTrigger className="w-full sm:w-[150px] lg:w-auto bg-white/80 border-0 h-10">
-                                    <div className="flex items-center gap-2"> <Filter className="w-4 h-4" /> <SelectValue placeholder="Filter by Emoji" /> </div>
+                        {/* One scrollable row on small screens instead of five stacked full-width rows. */}
+                        <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-0.5 lg:overflow-visible lg:flex-wrap [&>*]:shrink-0">
+                            <Select value={tagFilter} onValueChange={setTagFilter}>
+                                <SelectTrigger className="w-auto h-9" aria-label="Filter by note tag">
+                                    <div className="flex items-center gap-2"> <Filter className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder="Filter by tag" /> </div>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {EMOJI_FILTERS.map((filter) => (
-                                        <SelectItem key={filter.value || filter.emoji} value={filter.value || filter.emoji}>
-                                            <div className="flex items-center gap-2"><span>{filter.emoji}</span><span>{filter.label}</span></div>
+                                    <SelectItem value={ALL_TAGS_FILTER}>
+                                        <div className="flex items-center gap-2">
+                                            <span className="inline-flex size-7 items-center justify-center rounded-lg bg-secondary text-muted-foreground" aria-hidden><AllNotesIcon size={15} /></span>
+                                            <span>All Notes</span>
+                                        </div>
+                                    </SelectItem>
+                                    {NOTE_TAGS.map((tag) => (
+                                        <SelectItem key={tag.id} value={tag.id}>
+                                            <div className="flex items-center gap-2"><NoteTagIcon tag={tag} size="sm" decorative /><span>{tag.label}</span></div>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
 
                             <Select value={clientFilter} onValueChange={setClientFilter} disabled={uniqueClients.length <= 1}>
-                                <SelectTrigger className="w-full sm:w-[150px] lg:w-auto bg-white/80 border-0 h-10">
-                                    <div className="flex items-center gap-2"> <UserFilterIcon className="w-4 h-4" /> <SelectValue placeholder="Filter by Client Tag" /> </div>
+                                <SelectTrigger className="w-auto h-9" aria-label="Filter by client tag">
+                                    <div className="flex items-center gap-2"> <UserFilterIcon className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder="Filter by Client Tag" /> </div>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {uniqueClients.map((client) => (
@@ -631,8 +616,8 @@ export default function DashboardDetailPage() {
                             </Select>
 
                             <Select value={topicFilter} onValueChange={setTopicFilter} disabled={uniqueTopics.length <= 1}>
-                                <SelectTrigger className="w-full sm:w-[150px] lg:w-auto bg-white/80 border-0 h-10">
-                                    <div className="flex items-center gap-2"> <TopicFilterIcon className="w-4 h-4" /> <SelectValue placeholder="Filter by Topic" /> </div>
+                                <SelectTrigger className="w-auto h-9" aria-label="Filter by topic">
+                                    <div className="flex items-center gap-2"> <TopicFilterIcon className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder="Filter by Topic" /> </div>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {uniqueTopics.map((topic) => (
@@ -644,8 +629,8 @@ export default function DashboardDetailPage() {
                             </Select>
 
                             <Select value={importanceFilter} onValueChange={setImportanceFilter}>
-                                <SelectTrigger className="w-full sm:w-[160px] lg:w-auto bg-white/80 border-0 h-10">
-                                    <div className="flex items-center gap-2"> <StarIcon className="w-4 h-4 text-yellow-500" /> <SelectValue placeholder="Filter by Importance" /> </div>
+                                <SelectTrigger className="w-auto h-9" aria-label="Filter by importance">
+                                    <div className="flex items-center gap-2"> <StarIcon className="w-4 h-4 text-amber-500" aria-hidden /> <SelectValue placeholder="Filter by Importance" /> </div>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {IMPORTANCE_FILTER_OPTIONS.map((opt) => (
@@ -658,8 +643,8 @@ export default function DashboardDetailPage() {
 
                             <div className="flex gap-1">
                                 <Select value={sortBy} onValueChange={(value) => { setSortBy(value); }}>
-                                    <SelectTrigger className="w-full sm:w-auto lg:w-[160px] bg-white/80 border-0 h-10">
-                                        <div className="flex items-center gap-2"> <SortAsc className="w-4 h-4" /> <SelectValue placeholder="Sort by..." /> </div>
+                                    <SelectTrigger className="w-auto h-9" aria-label="Sort notes by">
+                                        <div className="flex items-center gap-2"> <SortAsc className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder="Sort by..." /> </div>
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="updated_date">Last Updated</SelectItem>
@@ -671,13 +656,23 @@ export default function DashboardDetailPage() {
                                         <SelectItem value="downvote_count">Downvotes</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <Button variant="outline" size="icon" onClick={toggleSortOrder} className="bg-white/80 border-0 h-10 w-10">
-                                    {sortOrder === 'asc' ? <ArrowUpNarrowWide className="w-4 h-4 text-gray-600" /> : <ArrowDownWideNarrow className="w-4 h-4 text-gray-600" />}
+                                <Button variant="outline" size="icon" onClick={toggleSortOrder} aria-label={sortOrder === 'asc' ? "Sorted ascending; switch to descending" : "Sorted descending; switch to ascending"}>
+                                    {sortOrder === 'asc' ? <ArrowUpNarrowWide /> : <ArrowDownWideNarrow />}
                                 </Button>
                             </div>
-                            <Button variant="outline" size="icon" onClick={toggleViewMode} className="bg-white/80 border-0 h-10 w-10">
-                                {viewMode === "grid" ? <Grid3X3 className="w-4 h-4 text-gray-600" /> : <List className="w-4 h-4 text-gray-600" />}
+                            {/* Shows the view you'd switch to, as its label says. */}
+                            <Button variant="outline" size="icon" onClick={toggleViewMode} aria-label={viewMode === "grid" ? "Switch to list view" : "Switch to grid view"}>
+                                {viewMode === "grid" ? <List /> : <Grid3X3 />}
                             </Button>
+                            {hasActiveFilters && (
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => { setSearchTerm(""); setTagFilter(ALL_TAGS_FILTER); setClientFilter("all"); setTopicFilter("all"); setImportanceFilter("all"); }}
+                                    className="text-primary hover:text-primary"
+                                >
+                                    Clear filters
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -685,39 +680,51 @@ export default function DashboardDetailPage() {
                 {/* Notes Grid/List */}
                 <div className="mb-8">
                     {isNotesLoading ? (
-                        <div className={`grid ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"} gap-6`}>
-                            {Array(viewMode === "grid" ? 6 : 3).fill(0).map((_, i) => (<div key={i} className="animate-pulse"><div className="bg-white/50 rounded-xl h-72 p-6"><div className="w-8 h-8 bg-gray-200 rounded-lg mb-4"></div><div className="space-y-2"><div className="h-4 bg-gray-200 rounded w-3/4"></div><div className="h-4 bg-gray-200 rounded w-1/2"></div><div className="h-4 bg-gray-200 rounded w-5/6 mt-3"></div><div className="h-3 bg-gray-200 rounded w-1/3 mt-4"></div><div className="h-3 bg-gray-200 rounded w-1/4 mt-1"></div></div></div></div>))}
+                        <div className={viewMode === "grid" ? "responsive-notes-grid" : "space-y-4"} role="status" aria-label="Loading notes">
+                            {Array(viewMode === "grid" ? 6 : 3).fill(0).map((_, i) => (<div key={i} className="motion-safe:animate-pulse"><div className="rounded-2xl border border-border/60 bg-card h-64 p-5"><div className="size-7 bg-secondary rounded-lg mb-4"></div><div className="space-y-2"><div className="h-4 bg-secondary rounded w-3/4"></div><div className="h-4 bg-secondary rounded w-1/2"></div><div className="h-4 bg-secondary rounded w-5/6 mt-3"></div><div className="h-3 bg-secondary rounded w-1/3 mt-4"></div></div></div></div>))}
                         </div>
                     ) : filteredNotes.length === 0 ? (
-                        <div className="text-center py-16">
-                            <div className="w-24 h-24 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12"> <Sparkles className="w-12 h-12 text-white" /> </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                                {searchTerm || emojiFilter !== "all" || clientFilter !== "all" || topicFilter !== "all" || importanceFilter !== "all" ? "No matching notes" : "This dashboard is empty"}
-                            </h3>
-                            <p className="text-gray-600 mb-6">
-                                {searchTerm || emojiFilter !== "all" || clientFilter === "all" || topicFilter !== "all" || importanceFilter !== "all" ? "Try adjusting your search or filters" : "Start by adding your first research note to this dashboard."}
+                        <div className="text-center py-16 max-w-md mx-auto">
+                            <div className="size-14 rounded-2xl bg-accent text-primary mx-auto mb-5 flex items-center justify-center" aria-hidden>
+                                {hasActiveFilters ? <Search className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
+                            </div>
+                            <h2 className="text-lg font-semibold text-foreground mb-1.5">
+                                {hasActiveFilters ? "No matching notes" : "This dashboard is empty"}
+                            </h2>
+                            <p className="text-sm text-muted-foreground mb-6">
+                                {hasActiveFilters ? "Try adjusting your search or filters." : "Start by adding your first research note to this dashboard."}
                             </p>
-                            {canAddEditNotes && (!searchTerm && emojiFilter === "all" && clientFilter === "all" && topicFilter === "all" && importanceFilter === "all") && (
-                                <Button onClick={handleNewNote} className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] hover:from-[var(--ruby-dust-600)] hover:to-[var(--ruby-dust-800)] text-[var(--ruby-dust-text-on-primary)]"> <Plus className="w-5 h-5 mr-2" /> Add Your First Note </Button>
+                            {canAddEditNotes && !hasActiveFilters && (
+                                <Button onClick={handleNewNote}><Plus aria-hidden /> Add Your First Note</Button>
                             )}
                         </div>
                     ) : (
-                        <motion.div className={viewMode === "grid" ? "responsive-notes-grid" : "space-y-4"} layout>
-                            <AnimatePresence mode="popLayout">
+                        <div className={viewMode === "grid" ? "responsive-notes-grid" : "space-y-4"}>
+                            <AnimatePresence mode="popLayout" initial={false}>
                                 {filteredNotes.map((note) => (
-                                    <NoteCard
+                                    // The list owns each card's motion: enter, exit and
+                                    // re-flow when filters or sorting change.
+                                    <motion.div
                                         key={note.id}
-                                        note={note}
-                                        onEdit={canAddEditNotes ? handleEditNote : undefined}
-                                        onViewHistory={handleViewHistory}
-                                        onDelete={canAddEditNotes ? handleDeleteNote : undefined}
-                                        onNoteDataChanged={handleNoteDataChangedOnCard}
-                                        onTopicClick={handleTopicBadgeClick}
-                                        onClientClick={handleClientBadgeClick}
-                                    />
+                                        layout
+                                        initial={LIST_ITEM_MOTION.initial}
+                                        animate={LIST_ITEM_MOTION.animate}
+                                        exit={LIST_ITEM_MOTION.exit}
+                                        transition={LIST_ITEM_MOTION.transition}
+                                    >
+                                        <NoteCard
+                                            note={note}
+                                            onEdit={canAddEditNotes ? handleEditNote : undefined}
+                                            onViewHistory={handleViewHistory}
+                                            onDelete={canAddEditNotes ? handleDeleteNote : undefined}
+                                            onNoteDataChanged={handleNoteDataChangedOnCard}
+                                            onTopicClick={handleTopicBadgeClick}
+                                            onClientClick={handleClientBadgeClick}
+                                        />
+                                    </motion.div>
                                 ))}
                             </AnimatePresence>
-                        </motion.div>
+                        </div>
                     )}
                 </div>
             </div>
@@ -758,7 +765,7 @@ export default function DashboardDetailPage() {
                     />
                     <DialogFooter>
                         <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-                        <Button onClick={handleRenameDashboard} disabled={!newDashboardName.trim() || newDashboardName.trim() === currentDashboard?.name} className="bg-[var(--ruby-dust-600)] hover:bg-[var(--ruby-dust-700)] text-[var(--ruby-dust-text-on-primary)]">Save Changes</Button>
+                        <Button onClick={handleRenameDashboard} disabled={!newDashboardName.trim() || newDashboardName.trim() === currentDashboard?.name}>Save Changes</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

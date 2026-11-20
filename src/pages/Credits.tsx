@@ -1,9 +1,19 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { BookOpen, ExternalLink, Heart } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { CircleCheck } from "@/components/animate-ui/icons/circle-check";
+import { Compass } from "@/components/animate-ui/icons/compass";
+import { Lightbulb } from "@/components/animate-ui/icons/lightbulb";
+
+/** The three Mom Test benefits, each with an icon that animates while hovered. */
+const METHOD_BENEFITS = [
+    { id: "questions", title: "Better Questions", text: "Learn to ask questions that reveal actual behavior, not just opinions", Icon: CircleCheck, chip: "bg-tag-business/10 text-tag-business" },
+    { id: "insights", title: "Real Insights", text: "Discover what customers actually do, not what they say they'll do", Icon: Lightbulb, chip: "bg-accent text-primary" },
+    { id: "build", title: "Build Better", text: "Create products people actually want by understanding real problems", Icon: Compass, chip: "bg-tag-behavior/10 text-tag-behavior" },
+] as const;
 
 export default function Credits() {
     useEffect(() => {
@@ -112,38 +122,28 @@ export default function Credits() {
                         <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
                             Why The Mom Test Methodology Matters
                         </h3>
-                        <div className="grid md:grid-cols-3 gap-6 text-center">
-                            <div>
-                                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <span className="text-2xl">✅</span>
-                                </div>
-                                <h4 className="font-semibold text-gray-900 mb-2">Better Questions</h4>
-                                <p className="text-sm text-gray-600">
-                                    Learn to ask questions that reveal actual behavior, not just opinions
-                                </p>
-                            </div>
-                            <div>
-                                <div className="w-12 h-12 bg-[var(--ruby-dust-100)] rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <span className="text-2xl">💡</span>
-                                </div>
-                                <h4 className="font-semibold text-gray-900 mb-2">Real Insights</h4>
-                                <p className="text-sm text-gray-600">
-                                    Discover what customers actually do, not what they say they'll do
-                                </p>
-                            </div>
-                            <div>
-                                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <span className="text-2xl">🎯</span>
-                                </div>
-                                <h4 className="font-semibold text-gray-900 mb-2">Build Better</h4>
-                                <p className="text-sm text-gray-600">
-                                    Create products people actually want by understanding real problems
-                                </p>
-                            </div>
-                        </div>
+                        <MethodBenefits />
                     </CardContent>
                 </Card>
             </motion.div>
+        </div>
+    );
+}
+
+function MethodBenefits() {
+    const [hovered, setHovered] = useState<string | null>(null);
+
+    return (
+        <div className="grid md:grid-cols-3 gap-6 text-center">
+            {METHOD_BENEFITS.map(({ id, title, text, Icon, chip }) => (
+                <div key={id} onPointerEnter={() => setHovered(id)} onPointerLeave={() => setHovered(null)}>
+                    <div className={`size-12 rounded-full flex items-center justify-center mx-auto mb-3 ${chip}`} aria-hidden>
+                        <Icon size={22} animate={hovered === id} />
+                    </div>
+                    <h4 className="font-semibold text-foreground mb-2">{title}</h4>
+                    <p className="text-sm text-muted-foreground">{text}</p>
+                </div>
+            ))}
         </div>
     );
 }

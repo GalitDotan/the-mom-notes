@@ -14,7 +14,26 @@ module.exports = {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+  		fontFamily: {
+  			// Platform system fonts first: they ship optical sizing and tuned tracking.
+  			sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"Segoe UI Variable Text"', '"Segoe UI"', 'system-ui', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"']
+  		},
+  		boxShadow: {
+  			// Surface elevation scale: resting card, hovered card, floating overlay.
+  			card: '0 1px 2px rgb(16 16 24 / 0.05), 0 1px 1px rgb(16 16 24 / 0.03)',
+  			'card-hover': '0 10px 30px -10px rgb(16 16 24 / 0.16), 0 2px 6px rgb(16 16 24 / 0.05)',
+  			overlay: '0 24px 64px -16px rgb(16 16 24 / 0.30), 0 4px 12px rgb(16 16 24 / 0.08)'
+  		},
   		colors: {
+  			tag: {
+  				emotional: 'hsl(var(--tag-emotional) / <alpha-value>)',
+  				problem: 'hsl(var(--tag-problem) / <alpha-value>)',
+  				outcome: 'hsl(var(--tag-outcome) / <alpha-value>)',
+  				behavior: 'hsl(var(--tag-behavior) / <alpha-value>)',
+  				context: 'hsl(var(--tag-context) / <alpha-value>)',
+  				business: 'hsl(var(--tag-business) / <alpha-value>)',
+  				action: 'hsl(var(--tag-action) / <alpha-value>)'
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

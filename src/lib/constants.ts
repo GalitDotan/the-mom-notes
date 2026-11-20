@@ -6,7 +6,6 @@
 
 import { createPageUrl } from '@/utils';
 import {
-    Accessibility,
     Heart,
     HelpCircle,
     LayoutDashboard,
@@ -70,11 +69,7 @@ export const navigationItems: NavigationItem[] = [
         url: createPageUrl('About'),
         icon: StickyNote,
     },
-    {
-        title: 'Accessibility',
-        url: createPageUrl('AccessibilityStatement'),
-        icon: Accessibility,
-    },
+    // The accessibility statement is linked from the footer, next to Accessibility Settings.
 ];
 
 /**

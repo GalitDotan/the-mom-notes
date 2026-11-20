@@ -1,12 +1,14 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X, Save, Loader2, Star, Plus, Minus, ThumbsUp, ThumbsDown, Link as LinkIcon, Tag as TopicIcon, MessageSquare, Trash2 as TrashIcon, ImagePlus, Download, Maximize2 } from "lucide-react";
-import EmojiPicker from "./EmojiPicker";
+import { NoteTagPicker } from "@/features/notes/NoteTagPicker";
+import { DEFAULT_NOTE_TAG } from "@/features/notes/note-tags";
+import { SPRING_SNAPPY } from "@/lib/motion";
 import TagSelector from "./TagSelector";
 import { Badge } from "@/components/ui/badge";
 import MarkdownEditor from "./MarkdownEditor";
@@ -98,6 +100,35 @@ const isValidUrl = (string) => {
     }
 };
 
+type EditorState = {
+    content: string;
+    symbol: string;
+    importance: number;
+    clientTags: string[];
+    upvotes: number;
+    downvotes: number;
+    references: string[];
+    topics: string[];
+    internalComments: string;
+    images: unknown[];
+};
+
+const EMPTY_EDITOR_STATE: EditorState = {
+    content: "",
+    symbol: DEFAULT_NOTE_TAG.emoji,
+    importance: 1,
+    clientTags: [],
+    upvotes: 0,
+    downvotes: 0,
+    references: [],
+    topics: [],
+    internalComments: "",
+    images: [],
+};
+
+/** Comparable form of the editor's fields; only computed when closing. */
+const snapshotOf = (state: EditorState) => JSON.stringify(state);
+
 export default function NoteEditor({
     note,
     onSave,
@@ -108,7 +139,7 @@ export default function NoteEditor({
     availableTopics = []
 }) {
     const [content, setContent] = useState("");
-    const [symbol, setSymbol] = useState("🙂");
+    const [symbol, setSymbol] = useState<string>(DEFAULT_NOTE_TAG.emoji);
     const [importance, setImportance] = useState(1);
     const [clientTags, setClientTags] = useState([]);
     const [editableUpvotes, setEditableUpvotes] = useState(0);
@@ -126,12 +157,14 @@ export default function NoteEditor({
     const textareaRef = useRef(null);
     const isInitialEditLoadRef = useRef(false);
     const isDraggingRef = useRef(false);
+    // What the editor held when it opened, to tell whether closing would discard edits.
+    const openedSnapshotRef = useRef("");
 
     useEffect(() => {
         if (isOpen) {
             if (note) {
                 setContent(note.content || "");
-                setSymbol(note.symbol || "🙂");
+                setSymbol(note.symbol || DEFAULT_NOTE_TAG.emoji);
                 setImportance(note.importance || 1);
                 setClientTags(Array.isArray(note.client_reference) ? note.client_reference : []);
                 setEditableUpvotes(note.upvote_count || 0);
@@ -144,7 +177,7 @@ export default function NoteEditor({
                 isInitialEditLoadRef.current = true;
             } else {
                 setContent("");
-                setSymbol("🙂");
+                setSymbol(DEFAULT_NOTE_TAG.emoji);
                 setImportance(1);
                 setClientTags([]);
                 setEditableUpvotes(0);
@@ -157,10 +190,45 @@ export default function NoteEditor({
                 isInitialEditLoadRef.current = false;
             }
             setIsUploadingImages(false);
+            openedSnapshotRef.current = snapshotOf(note ? {
+                content: note.content || "",
+                symbol: note.symbol || DEFAULT_NOTE_TAG.emoji,
+                importance: note.importance || 1,
+                clientTags: Array.isArray(note.client_reference) ? note.client_reference : [],
+                upvotes: note.upvote_count || 0,
+                downvotes: note.downvote_count || 0,
+                references: Array.isArray(note.references) ? note.references : [],
+                topics: Array.isArray(note.topics) ? note.topics : [],
+                internalComments: note.internal_comments || "",
+                images: Array.isArray(note.images) ? note.images : [],
+            } : EMPTY_EDITOR_STATE);
         } else {
             isInitialEditLoadRef.current = false;
         }
     }, [note, isOpen]);
+
+    const hasUnsavedChanges = () => snapshotOf({
+        content,
+        symbol,
+        importance,
+        clientTags,
+        upvotes: editableUpvotes,
+        downvotes: editableDownvotes,
+        references: currentReferences,
+        topics: currentTopics,
+        internalComments,
+        images: currentImages,
+    }) !== openedSnapshotRef.current;
+
+    /**
+     * Closing via Escape, the close button or a click outside used to discard
+     * edits silently; now it asks first whenever something would be lost.
+     */
+    const requestClose = () => {
+        if (isSaving || isUploadingImages) return;
+        if (hasUnsavedChanges() && !window.confirm("Discard your unsaved changes to this note?")) return;
+        handleCancel();
+    };
 
     useEffect(() => {
         if (isOpen && textareaRef.current) {
@@ -269,7 +337,7 @@ export default function NoteEditor({
     const handleCancel = () => {
         if (note) {
             setContent(note.content || "");
-            setSymbol(note.symbol || "🙂");
+            setSymbol(note.symbol || DEFAULT_NOTE_TAG.emoji);
             setImportance(note.importance || 1);
             setClientTags(Array.isArray(note.client_reference) ? note.client_reference : []);
             setEditableUpvotes(note.upvote_count || 0);
@@ -280,7 +348,7 @@ export default function NoteEditor({
             setShowInternalComments(!!note.internal_comments);
             setCurrentImages(Array.isArray(note.images) ? note.images : []);
         } else {
-            setContent(""); setSymbol("🙂"); setImportance(1); setClientTags([]);
+            setContent(""); setSymbol(DEFAULT_NOTE_TAG.emoji); setImportance(1); setClientTags([]);
             setEditableUpvotes(0); setEditableDownvotes(0); setCurrentReferences([]); setCurrentTopics([]);
             setInternalComments(""); setShowInternalComments(false); setCurrentImages([]);
         }
@@ -289,7 +357,7 @@ export default function NoteEditor({
 
     const handleKeyDown = (e) => {
         if (e.key === 'Escape') {
-            handleCancel();
+            requestClose();
         } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
             e.preventDefault();
             handleSave();
@@ -305,7 +373,7 @@ export default function NoteEditor({
 
     const handleBackdropClick = (e) => {
         if (e.target === e.currentTarget && !isDraggingRef.current && !isSaving) {
-            handleCancel();
+            requestClose();
         }
     };
 
@@ -323,50 +391,58 @@ export default function NoteEditor({
         }, 100);
     };
 
-    if (!isOpen) return null;
-
     return (
+        <>
+        {/* Always mounted so the editor can animate out; it renders nothing while closed. */}
         <AnimatePresence>
+            {isOpen && (
             <motion.div
+                key="note-editor"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center p-4 pt-12 overflow-y-auto"
+                transition={SPRING_SNAPPY}
+                className="fixed inset-0 bg-black/40 z-50 flex items-start justify-center p-4 pt-12 overflow-y-auto overscroll-contain"
                 onClick={handleBackdropClick}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
             >
                 <motion.div
-                    initial={{ scale: 0.95, opacity: 0, y: -20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.95, opacity: 0, y: -20 }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="note-editor-title"
+                    initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 16, scale: 0.98 }}
+                    transition={SPRING_SNAPPY}
                     className="w-full max-w-2xl mb-12"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <Card className="shadow-2xl border-0 bg-white">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 px-6 pt-6">
-                            <div className="flex items-center gap-4">
-                                <EmojiPicker
-                                    selectedEmoji={symbol}
-                                    onSelect={setSymbol}
-                                    size="large"
-                                />
+                    <Card className="shadow-overlay border-border/60">
+                        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0 pb-4 px-6 pt-6">
+                            <div className="space-y-3">
                                 <div>
-                                    <h2 className="text-xl font-semibold">
+                                    <h2 id="note-editor-title" className="text-xl font-semibold">
                                         {note ? 'Edit Note' : 'New Note'}
                                     </h2>
-                                    <p className="text-sm text-gray-500">
-                                        {note ? 'Update your research note' : 'Capture your insights'}
+                                    <p className="text-sm text-muted-foreground">
+                                        {note ? 'Update your research note' : 'Capture what you heard, then tag it'}
                                     </p>
                                 </div>
+                                <NoteTagPicker
+                                    value={symbol}
+                                    onChange={setSymbol}
+                                    disabled={isSaving || isUploadingImages}
+                                />
                             </div>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={handleCancel}
-                                className="text-gray-400 hover:text-gray-600"
+                                onClick={requestClose}
+                                className="-me-2 -mt-1 rounded-full text-muted-foreground"
                                 disabled={isSaving || isUploadingImages}
+                                aria-label="Close editor"
                             >
                                 <X className="w-5 h-5" />
                             </Button>
@@ -584,10 +660,10 @@ export default function NoteEditor({
                                 />
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                            <div className="flex justify-end gap-3 pt-4 border-t border-border/70">
                                 <Button
                                     variant="outline"
-                                    onClick={handleCancel}
+                                    onClick={requestClose}
                                     disabled={isSaving || isUploadingImages}
                                 >
                                     Cancel
@@ -595,16 +671,15 @@ export default function NoteEditor({
                                 <Button
                                     onClick={handleSave}
                                     disabled={!content.trim() || isSaving || isUploadingImages}
-                                    className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] hover:from-[var(--ruby-dust-600)] hover:to-[var(--ruby-dust-800)] text-[var(--ruby-dust-text-on-primary)]"
                                 >
                                     {isSaving ? (
                                         <>
-                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            <Loader2 className="animate-spin" aria-hidden />
                                             Saving...
                                         </>
                                     ) : (
                                         <>
-                                            <Save className="w-4 h-4 mr-2" />
+                                            <Save aria-hidden />
                                             {note ? 'Update Note' : 'Save Note'}
                                         </>
                                     )}
@@ -614,6 +689,8 @@ export default function NoteEditor({
                     </Card>
                 </motion.div>
             </motion.div>
+            )}
+        </AnimatePresence>
 
             {/* Image Lightbox */}
             <ImageLightbox
@@ -621,6 +698,6 @@ export default function NoteEditor({
                 isOpen={!!lightboxImage}
                 onClose={() => setLightboxImage(null)}
             />
-        </AnimatePresence>
+        </>
     );
 }

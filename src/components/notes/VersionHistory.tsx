@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,12 +8,8 @@ import ReactMarkdown from 'react-markdown';
 import { X, History, Clock, ArrowLeft, Star, UserCircle, ThumbsUp, ThumbsDown, Link as LinkIcon, Tag as TopicIcon, MessageSquare, Image as ImageIcon, Download } from "lucide-react";
 import { NoteVersion } from "@/entities/NoteVersion";
 import { format } from "date-fns";
-
-const EMOJI_LABELS = {
-    "🙂": "Excited", "🙁": "Angry", "😳": "Embarrassed", "💥": "Pain/Problem",
-    "🥅": "Goal", "🟥": "Obstacle", "↪️": "Workaround", "🏔": "Context",
-    "☑️": "Feature Request", "💲": "Budget", "♀️": "Person/Company", "⭐": "Follow-up"
-};
+import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
+import { findNoteTagBySymbol } from "@/features/notes/note-tags";
 
 // Utility to get domain from URL for display (same as in NoteCard)
 const getDomainFromUrl = (url) => {
@@ -108,18 +104,18 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                                         <button
                                             key={version.id}
                                             onClick={() => setSelectedVersion(version)}
-                                            className={`w-full text-left p-3 rounded-lg transition-all duration-150 ${selectedVersion?.id === version.id
-                                                    ? 'bg-[var(--ruby-dust-100)] border border-[var(--ruby-dust-300)] shadow-sm'
-                                                    : 'hover:bg-gray-100'
+                                            className={`w-full text-start p-3 rounded-xl border transition-colors duration-150 ${selectedVersion?.id === version.id
+                                                    ? 'bg-accent border-primary/25'
+                                                    : 'border-transparent hover:bg-secondary'
                                                 }`}
                                         >
                                             <div className="flex items-start gap-2.5 mb-1.5">
-                                                <span className="text-xl mt-0.5">{version.symbol}</span>
+                                                <NoteTagIcon symbol={version.symbol} size="sm" className="mt-0.5" />
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between">
                                                         <Badge
                                                             variant={selectedVersion?.id === version.id ? "default" : "secondary"}
-                                                            className={`text-xs px-1.5 py-0.5 ${selectedVersion?.id === version.id ? 'bg-[var(--ruby-dust-600)] text-white' : 'bg-gray-200 text-gray-700'}`}
+                                                            className="text-xs"
                                                         >
                                                             {note.current_version_id === version.id ? "Current" : `Version ${versions.length - index}`}
                                                         </Badge>
@@ -129,7 +125,7 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                                                     </p>
                                                 </div>
                                             </div>
-                                            <p className="text-xs text-gray-500 ml-[34px]">
+                                            <p className="text-xs text-muted-foreground ms-[38px]">
                                                 {version.created_date ? format(new Date(version.created_date), "MMM d, yyyy, h:mm a") : 'No date'}
                                             </p>
                                         </button>
@@ -144,10 +140,10 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                         <CardHeader className="p-4 border-b">
                             {selectedVersion ? (
                                 <div className="flex items-start gap-3">
-                                    <div className="text-3xl">{selectedVersion.symbol}</div>
+                                    <NoteTagIcon symbol={selectedVersion.symbol} size="md" decorative={Boolean(findNoteTagBySymbol(selectedVersion.symbol))} />
                                     <div className="flex-1 space-y-1.5">
                                         <h3 className="text-lg font-semibold">
-                                            {EMOJI_LABELS[selectedVersion.symbol] || "Note Details"}
+                                            {findNoteTagBySymbol(selectedVersion.symbol)?.label || "Note Details"}
                                         </h3>
                                         <p className="text-xs text-gray-500">
                                             Saved on: {selectedVersion.created_date ? format(new Date(selectedVersion.created_date), "MMMM d, yyyy 'at' h:mm a") : 'No Date'}

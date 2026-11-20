@@ -1,15 +1,14 @@
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { badgeVariants } from "@/components/ui/badge";
 import { format } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import {
     Edit3,
     History,
-    MoreVertical,
+    MoreHorizontal,
     Trash2,
     Copy,
     ThumbsUp,
@@ -31,22 +30,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { Note, NoteVersion } from "@/entities/all";
+import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
+import { findNoteTagBySymbol } from "@/features/notes/note-tags";
+import { cn } from "@/lib/utils";
 import ImageLightbox from "./ImageLightbox";
-
-const EMOJI_LABELS = {
-    "🙂": "Excited",
-    "🙁": "Angry",
-    "😳": "Embarrassed",
-    "💥": "Pain/Problem",
-    "🥅": "Goal",
-    "🟥": "Obstacle",
-    "↪️": "Workaround",
-    "🏔": "Context",
-    "☑️": "Feature Request",
-    "💲": "Budget",
-    "♀️": "Person/Company",
-    "⭐": "Follow-up"
-};
 
 // Utility to get domain from URL for display
 const getDomainFromUrl = (url) => {
@@ -58,6 +45,15 @@ const getDomainFromUrl = (url) => {
     }
 };
 
+// Actions that appear on hover are always shown on touch screens (no hover)
+// and whenever focus is inside the card, so they never depend on a mouse.
+const REVEAL_ON_INTERACTION =
+    "opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100";
+
+/**
+ * A research note. The list that renders it owns its enter/exit/layout
+ * animation (see DashboardDetailPage), so this component is a plain element.
+ */
 export default function NoteCard({
     note,
     onEdit,
@@ -75,6 +71,8 @@ export default function NoteCard({
 
     const [isProcessing, setIsProcessing] = useState(false); // To prevent rapid multi-clicks during async
     const [lightboxImage, setLightboxImage] = useState(null);
+
+    const tag = findNoteTagBySymbol(note.symbol);
 
     useEffect(() => {
         setCurrentUpvotes(note.upvote_count || 0);
@@ -213,30 +211,25 @@ export default function NoteCard({
 
     return (
         <>
-            <motion.div
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-                onHoverStart={() => setIsHovered(true)}
-                onHoverEnd={() => setIsHovered(false)}
-                className="w-full max-w-lg mx-auto"
+            <div
+                className="h-full"
+                onPointerEnter={() => setIsHovered(true)}
+                onPointerLeave={() => setIsHovered(false)}
             >
                 <Card
-                    className="group transition-all duration-200 hover:shadow-lg hover:shadow-[var(--ruby-dust-100)] border-0 bg-white/70 backdrop-blur-sm h-full flex flex-col justify-between"
+                    className={cn(
+                        "group h-full flex flex-col justify-between transition-shadow duration-200 hover:shadow-card-hover",
+                        onEdit && "cursor-pointer"
+                    )}
                     onClick={onEdit ? () => onEdit(note) : undefined}
                 >
-                    <CardContent className="p-6 flex-grow">
-                        <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                                <div className="text-3xl">{note.symbol}</div>
-                                <Badge
-                                    variant="secondary"
-                                    className="text-xs bg-gray-100 text-gray-600 font-medium"
-                                >
-                                    {EMOJI_LABELS[note.symbol] || "Note"}
-                                </Badge>
+                    <CardContent className="p-5 flex-grow">
+                        <div className="flex items-center justify-between gap-3 mb-3">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                                <NoteTagIcon symbol={note.symbol} tag={tag} size="sm" animate={isHovered} decorative={!!tag} />
+                                <span className="text-[13px] font-medium text-muted-foreground truncate">
+                                    {tag?.label ?? "Note"}
+                                </span>
                             </div>
 
                             {(canPerformActions || onViewHistory) && (
@@ -245,29 +238,30 @@ export default function NoteCard({
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 -mr-2 -mt-2"
+                                            className={cn("h-8 w-8 -me-2 rounded-full text-muted-foreground", REVEAL_ON_INTERACTION, "data-[state=open]:opacity-100")}
                                             onClick={(e) => e.stopPropagation()}
+                                            aria-label="Note actions"
                                         >
-                                            <MoreVertical className="w-4 h-4" />
+                                            <MoreHorizontal className="w-4 h-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                                         {onEdit && <DropdownMenuItem onClick={() => onEdit(note)} disabled={isProcessing}>
-                                            <Edit3 className="w-4 h-4 mr-2" /> Edit
+                                            <Edit3 className="w-4 h-4 me-2" /> Edit
                                         </DropdownMenuItem>}
                                         <DropdownMenuItem onClick={handleCopyContent} disabled={isProcessing}>
-                                            <Copy className="w-4 h-4 mr-2" /> Copy content
+                                            <Copy className="w-4 h-4 me-2" /> Copy content
                                         </DropdownMenuItem>
                                         {onViewHistory && <DropdownMenuItem onClick={() => onViewHistory(note)} disabled={isProcessing}>
-                                            <History className="w-4 h-4 mr-2" /> Version history
+                                            <History className="w-4 h-4 me-2" /> Version history
                                         </DropdownMenuItem>}
                                         {onDelete && <DropdownMenuSeparator />}
                                         {onDelete && <DropdownMenuItem
                                             onClick={() => onDelete(note)}
-                                            className="text-red-600 focus:text-red-600"
+                                            className="text-destructive focus:text-destructive"
                                             disabled={isProcessing}
                                         >
-                                            <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                            <Trash2 className="w-4 h-4 me-2" /> Delete
                                         </DropdownMenuItem>}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -275,28 +269,28 @@ export default function NoteCard({
                         </div>
 
                         <div
-                            className="text-gray-700 mb-4 prose prose-sm max-w-none"
-                            title={note.content}
+                            className="text-[15px] text-foreground/90 prose max-w-none"
+                            dir="auto"
                         >
                             <ReactMarkdown>{note.content}</ReactMarkdown>
                         </div>
 
                         {note.internal_comments && (
-                            <div className="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-300 rounded-r-lg">
-                                <div className="flex items-center gap-2 mb-2 text-xs font-semibold text-yellow-800">
-                                    <MessageSquare className="w-3.5 h-3.5" />
-                                    Internal Comments
+                            <div className="mt-4 rounded-lg border-s-2 border-tag-emotional/50 bg-secondary/60 px-3 py-2.5">
+                                <div className="flex items-center gap-1.5 mb-1.5 text-xs font-medium text-muted-foreground">
+                                    <MessageSquare className="w-3.5 h-3.5" aria-hidden />
+                                    Internal comments (researcher)
                                 </div>
-                                <div className="prose prose-sm max-w-none text-yellow-900">
+                                <div className="prose text-sm max-w-none text-foreground/80" dir="auto">
                                     <ReactMarkdown>{note.internal_comments}</ReactMarkdown>
                                 </div>
                             </div>
                         )}
 
                         {note.images && note.images.length > 0 && (
-                            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {note.images.map((image, index) => (
-                                    <div key={`${image.url}-${index}`} className="relative group overflow-hidden rounded-lg border border-gray-200">
+                                    <div key={`${image.url}-${index}`} className="relative group/image overflow-hidden rounded-lg border border-border/70">
                                         <img
                                             src={image.url}
                                             alt={image.alt || `Note image ${index + 1}`}
@@ -305,14 +299,14 @@ export default function NoteCard({
                                             title="Double-click to view full size"
                                         />
                                         <div className="high-contrast-alt-text">
-                                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm italic h-full flex items-center justify-center">
-                                                <p><span className="font-bold mr-1">[Image]</span>{image.alt || 'No description provided.'}</p>
+                                            <div className="p-3 bg-secondary border border-border rounded-lg text-sm italic h-full flex items-center justify-center">
+                                                <p><span className="font-bold me-1">[Image]</span>{image.alt || 'No description provided.'}</p>
                                             </div>
                                         </div>
-                                        <div className="absolute top-0 right-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded-bl-lg flex gap-1">
+                                        <div className="absolute top-0 end-0 p-1 opacity-0 group-hover/image:opacity-100 focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity bg-black/50 rounded-es-lg flex gap-1">
                                             <button
                                                 onClick={(e) => handleImageDoubleClick(image, e)}
-                                                title="View full size"
+                                                aria-label="View image full size"
                                                 className="block p-1 hover:bg-black/70 rounded"
                                             >
                                                 <Maximize2 className="w-4 h-4 text-white" />
@@ -323,7 +317,7 @@ export default function NoteCard({
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 onClick={(e) => e.stopPropagation()}
-                                                title="Download image"
+                                                aria-label="Download image"
                                                 className="block p-1 hover:bg-black/70 rounded"
                                             >
                                                 <Download className="w-4 h-4 text-white" />
@@ -335,21 +329,22 @@ export default function NoteCard({
                         )}
                     </CardContent>
 
-                    <div className="p-6 pt-2 border-t border-gray-100/80">
-                        <div className="flex flex-col gap-3">
+                    <div className="px-5 pb-4 pt-3 border-t border-border/60">
+                        <div className="flex flex-col gap-2.5">
                             {/* Client Tags */}
                             {note.client_reference && Array.isArray(note.client_reference) && note.client_reference.length > 0 && (
                                 <div className="flex flex-wrap gap-1.5 items-center">
-                                    <UserCircle className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                                    {note.client_reference.map((tag, index) => (
-                                        <Badge
-                                            key={`client-${tag}-${index}`}
-                                            variant="outline"
-                                            className="text-xs bg-[var(--ruby-dust-50)] text-[var(--ruby-dust-700)] border-[var(--ruby-dust-200)] cursor-pointer hover:bg-[var(--ruby-dust-100)]"
-                                            onClick={(e) => handleClientBadgeClick(e, tag)}
+                                    <UserCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" aria-label="Client tags" />
+                                    {note.client_reference.map((clientTag, index) => (
+                                        <button
+                                            type="button"
+                                            key={`client-${clientTag}-${index}`}
+                                            className={cn(badgeVariants({ variant: "secondary" }), "bg-accent text-accent-foreground hover:bg-accent/70")}
+                                            onClick={(e) => handleClientBadgeClick(e, clientTag)}
+                                            aria-label={`Filter by client ${clientTag}`}
                                         >
-                                            {tag}
-                                        </Badge>
+                                            {clientTag}
+                                        </button>
                                     ))}
                                 </div>
                             )}
@@ -357,16 +352,17 @@ export default function NoteCard({
                             {/* Topics */}
                             {note.topics && Array.isArray(note.topics) && note.topics.length > 0 && (
                                 <div className="flex flex-wrap gap-1.5 items-center">
-                                    <TopicIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                                    <TopicIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" aria-label="Topics" />
                                     {note.topics.map((topic, index) => (
-                                        <Badge
+                                        <button
+                                            type="button"
                                             key={`topic-${topic}-${index}`}
-                                            variant="outline"
-                                            className="text-xs bg-sky-50 text-sky-700 border-sky-200 cursor-pointer hover:bg-sky-100"
+                                            className={cn(badgeVariants({ variant: "secondary" }), "hover:bg-secondary/70")}
                                             onClick={(e) => handleTopicBadgeClick(e, topic)}
+                                            aria-label={`Filter by topic ${topic}`}
                                         >
                                             {topic}
-                                        </Badge>
+                                        </button>
                                     ))}
                                 </div>
                             )}
@@ -374,14 +370,14 @@ export default function NoteCard({
                             {/* References */}
                             {note.references && Array.isArray(note.references) && note.references.length > 0 && (
                                 <div className="flex flex-wrap gap-1.5 items-center">
-                                    <LinkIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                                    <LinkIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" aria-label="References" />
                                     {note.references.map((refUrl, index) => (
                                         <a
                                             key={`ref-${index}`}
                                             href={refUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-xs text-blue-600 hover:underline bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200 max-w-[150px] truncate"
+                                            className="text-xs text-primary hover:underline bg-secondary px-2 py-0.5 rounded-full max-w-[160px] truncate"
                                             title={refUrl}
                                             onClick={(e) => e.stopPropagation()}
                                         >
@@ -392,20 +388,21 @@ export default function NoteCard({
                             )}
 
                             {/* Importance and Votes */}
-                            <div className="flex items-center gap-3 text-xs text-gray-500">
-                                <div className="flex items-center gap-0.5" title={`Importance: ${currentImportance}/7`}>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                <div className="flex items-center" role="group" aria-label={`Importance: ${currentImportance} of 7`}>
                                     {Array.from({ length: 7 }).map((_, i) => {
                                         const starValue = i + 1;
                                         return (
                                             <button
                                                 key={`star-${i}`}
                                                 onClick={(e) => { e.stopPropagation(); handleImportanceChange(starValue); }}
-                                                className={`p-0.5 rounded-sm transition-colors ${isProcessing ? 'cursor-not-allowed' : 'hover:bg-yellow-100'}`}
+                                                className={cn("p-0.5 rounded-sm transition-colors motion-safe:active:scale-90", isProcessing ? 'cursor-not-allowed' : 'hover:bg-amber-100')}
                                                 aria-label={`Set importance to ${starValue}`}
+                                                aria-pressed={starValue <= currentImportance}
                                                 disabled={isProcessing}
                                             >
                                                 <Star
-                                                    className={`w-3.5 h-3.5 ${starValue <= currentImportance ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                                                    className={cn("w-3.5 h-3.5", starValue <= currentImportance ? 'text-amber-400 fill-amber-400' : 'text-border')}
                                                 />
                                             </button>
                                         );
@@ -414,50 +411,49 @@ export default function NoteCard({
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="h-auto px-1 py-0.5 flex items-center gap-1 text-green-500 hover:text-green-600"
+                                    className="h-7 px-1.5 gap-1 text-muted-foreground hover:text-tag-business"
                                     onClick={(e) => { e.stopPropagation(); handleVote('up'); }}
-                                    title="Upvote"
+                                    aria-label={`Upvote (${currentUpvotes})`}
                                     disabled={isProcessing}
                                 >
-                                    <ThumbsUp className="w-3.5 h-3.5" />
-                                    <span>{currentUpvotes}</span>
+                                    <ThumbsUp className="!w-3.5 !h-3.5" />
+                                    <span className="tabular-nums">{currentUpvotes}</span>
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="h-auto px-1 py-0.5 flex items-center gap-1 text-red-500 hover:text-red-600"
+                                    className="h-7 px-1.5 gap-1 text-muted-foreground hover:text-tag-problem"
                                     onClick={(e) => { e.stopPropagation(); handleVote('down'); }}
-                                    title="Downvote"
+                                    aria-label={`Downvote (${currentDownvotes})`}
                                     disabled={isProcessing}
                                 >
-                                    <ThumbsDown className="w-3.5 h-3.5" />
-                                    <span>{currentDownvotes}</span>
+                                    <ThumbsDown className="!w-3.5 !h-3.5" />
+                                    <span className="tabular-nums">{currentDownvotes}</span>
                                 </Button>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-sm text-gray-500 mt-3">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
                             <span>
                                 {note.updated_date ? format(new Date(note.updated_date), "MMM d, h:mm a") : 'No date'}
                             </span>
 
-                            {onEdit && <div className={`flex items-center gap-2 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'
-                                }`}>
+                            {onEdit && <div className={REVEAL_ON_INTERACTION}>
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={(e) => { e.stopPropagation(); onEdit(note) }}
-                                    className="h-8 px-3 text-[var(--ruby-dust-600)] hover:text-[var(--ruby-dust-700)] hover:bg-[var(--ruby-dust-50)]"
+                                    className="h-7 px-2.5 text-primary hover:bg-accent hover:text-primary"
                                     disabled={isProcessing}
                                 >
-                                    <Edit3 className="w-3 h-3 mr-1" />
+                                    <Edit3 className="!w-3.5 !h-3.5" />
                                     Edit
                                 </Button>
                             </div>}
                         </div>
                     </div>
                 </Card>
-            </motion.div>
+            </div>
 
             {/* Image Lightbox */}
             <ImageLightbox
