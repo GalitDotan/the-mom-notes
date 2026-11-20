@@ -37,6 +37,28 @@
         --sidebar-accent-foreground: 240 5.9% 10%;
         --sidebar-border: 220 13% 91%;
         --sidebar-ring: 217.2 91.2% 59.8%;
+
+        /* Brand palette. Global so pages outside Layout (e.g. /login) get it too. */
+        --ruby-dust-50: #fef2f7;
+        --ruby-dust-100: #fce6ee;
+        --ruby-dust-200: #f8cde0;
+        --ruby-dust-300: #f5b3d1;
+        --ruby-dust-400: #f08cbc;
+        --ruby-dust-500: #d81768;
+        --ruby-dust-600: #c0155d;
+        --ruby-dust-700: #a91352;
+        --ruby-dust-800: #911147;
+        --ruby-dust-900: #7f103e;
+        --ruby-dust-text-on-primary: white;
+        --ruby-dust-text-interactive: var(--ruby-dust-600);
+        --ruby-dust-focus-ring: var(--ruby-dust-400);
+
+        /* High-contrast mode palette (rules live in Layout.tsx) */
+        --hc-bg: #000000;
+        --hc-text: #ffffff;
+        --hc-accent: #666666;
+        --hc-accent-light: #aaaaaa;
+        --hc-border: #666666;
     }
 
     .dark {
