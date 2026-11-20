@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from '@/App.jsx'
+import App from '@/App'
 import { createDebugHelper } from '@/lib/debug'
 import '@/index.css'
 
@@ -11,6 +11,8 @@ if (import.meta.env.DEV) {
   console.log('Try: DEBUG.viewStorage(), DEBUG.getUser(), DEBUG.getDashboards(), DEBUG.testStorage()');
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-    <App />
-)
+const rootElement = document.getElementById('root');
+
+if (rootElement !== null) {
+  ReactDOM.createRoot(rootElement as HTMLElement).render(<App />);
+}
