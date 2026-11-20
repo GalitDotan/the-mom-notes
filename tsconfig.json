@@ -36,5 +36,8 @@
     "include": [
         "src"
     ],
-    "references": []
+    "references": [],
+    "exclude": [
+        "src/components copy"
+    ]
 }

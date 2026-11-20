@@ -10,10 +10,10 @@ import {
 import { useAuth } from "@/lib/AuthContext";
 import { navigationItems } from "@/lib/constants";
 import { createPageUrl } from "@/utils";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Accessibility, LogOut, Menu, StickyNote, Wifi, WifiOff, X } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
+import { Link, useLocation, useNavigationType } from "react-router-dom";
 
 const FONT_SIZE_STORAGE_KEY = "accessibility-font-size";
 const HIGH_CONTRAST_STORAGE_KEY = "accessibility-high-contrast";
@@ -295,16 +295,17 @@ const ACCESSIBILITY_STYLES = `
             }
 `;
 
-const pageVariants = {
-    initial: { opacity: 0 },
-    in: { opacity: 1 },
-    out: { opacity: 0 },
-};
-
-const pageTransition = {
-    type: "tween",
-    ease: "anticipate",
-    duration: 0.3,
+/**
+ * Pages only animate in; there is no exit animation. The previous
+ * AnimatePresence mode="wait" setup waited for the old page to fade out
+ * before showing the new one, rendered the *new* route inside the exiting
+ * page, and could get stuck with the new page at opacity 0 (a blank page).
+ * Responding immediately is also what a tab switch should do.
+ */
+const PAGE_ENTER = {
+    initial: { opacity: 0, y: 6 },
+    animate: { opacity: 1, y: 0 },
+    transition: { type: "spring", bounce: 0, duration: 0.35 },
 };
 
 const readStoredFontSize = () => {
@@ -358,6 +359,15 @@ export default function Layout({ children }: LayoutProps) {
         // When page changes, close mobile menu
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
+
+    // A newly opened page starts at the top. Back/forward (POP) keeps the
+    // browser's restored position, and in-page #anchors scroll themselves.
+    const navigationType = useNavigationType();
+    useLayoutEffect(() => {
+        if (navigationType !== "POP" && !location.hash) {
+            window.scrollTo(0, 0);
+        }
+    }, [location.pathname, location.hash, navigationType]);
 
     // Signing out clears the auth context, and App.tsx then redirects to /login.
     const handleLogout = () => {
@@ -499,19 +509,15 @@ export default function Layout({ children }: LayoutProps) {
                 </div>
             </header>
 
-            <AnimatePresence mode="wait">
-                <motion.main
-                    key={location.pathname}
-                    className="flex-1"
-                    variants={pageVariants}
-                    initial="initial"
-                    animate="in"
-                    exit="out"
-                    transition={pageTransition}
-                >
-                    {children}
-                </motion.main>
-            </AnimatePresence>
+            <motion.main
+                key={location.pathname}
+                className="flex-1"
+                initial={PAGE_ENTER.initial}
+                animate={PAGE_ENTER.animate}
+                transition={PAGE_ENTER.transition}
+            >
+                {children}
+            </motion.main>
 
             <footer className="bg-white/70 backdrop-blur-sm border-t border-gray-100/80 mt-auto">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 md:flex md:items-center md:justify-between">
