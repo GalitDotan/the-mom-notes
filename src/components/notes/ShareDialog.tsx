@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Mail, Trash2, Users, Send } from "lucide-react";
 import { Share } from "@/entities/Share";
+import type { NoteShareRecord } from "@/entities/all";
 import { toast } from "sonner";
 
 export default function ShareDialog({ note, isOpen, onClose }) {
     const [email, setEmail] = useState("");
-    const [shares, setShares] = useState([]);
+    const [shares, setShares] = useState<NoteShareRecord[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isSending, setIsSending] = useState(false);
 

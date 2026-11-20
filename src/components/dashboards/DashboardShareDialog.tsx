@@ -6,16 +6,17 @@ import { Badge } from "@/components/ui/badge"; // Added missing import
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Users, Send, UserCheck, UserX, Edit, Eye, UserPlus } from "lucide-react"; // Added Eye and UserPlus imports
-import { DashboardShare } from "@/entities/DashboardShare"; // Assuming DashboardShare entity exists
+import { DashboardShare } from "@/entities/DashboardShare";
+import type { DashboardPermissionLevel, DashboardShareRecord } from "@/entities/all"; // Assuming DashboardShare entity exists
 import { toast } from "sonner";
 
 export default function DashboardShareDialog({ dashboard, currentUserEmail, isOpen, onClose }) {
     const [email, setEmail] = useState("");
-    const [permissionLevel, setPermissionLevel] = useState("viewer");
-    const [shares, setShares] = useState([]);
+    const [permissionLevel, setPermissionLevel] = useState<DashboardPermissionLevel>("viewer");
+    const [shares, setShares] = useState<DashboardShareRecord[]>([]);
     const [isSending, setIsSending] = useState(false);
-    const [editingShareId, setEditingShareId] = useState(null);
-    const [editPermissionLevel, setEditPermissionLevel] = useState("viewer");
+    const [editingShareId, setEditingShareId] = useState<string | null>(null);
+    const [editPermissionLevel, setEditPermissionLevel] = useState<DashboardPermissionLevel>("viewer");
 
 
     const loadShares = async () => {

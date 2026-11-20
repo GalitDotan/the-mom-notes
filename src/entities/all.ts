@@ -4,3 +4,5 @@ export { default as Dashboard } from './Dashboard';
 export { default as DashboardShare } from './DashboardShare';
 export { default as Share } from './Share';
 export { default as User } from './User';
+export type { StoredUser } from './User';
+export type * from './types';

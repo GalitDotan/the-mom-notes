@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import ReactMarkdown from 'react-markdown';
 import { X, History, Clock, ArrowLeft, Star, UserCircle, ThumbsUp, ThumbsDown, Link as LinkIcon, Tag as TopicIcon, MessageSquare, Image as ImageIcon, Download } from "lucide-react";
 import { NoteVersion } from "@/entities/NoteVersion";
+import type { NoteVersionRecord } from "@/entities/all";
 import { format } from "date-fns";
 import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
 import { findNoteTagBySymbol } from "@/features/notes/note-tags";
@@ -22,8 +23,8 @@ const getDomainFromUrl = (url) => {
 };
 
 export default function VersionHistory({ note, isOpen, onClose }) {
-    const [versions, setVersions] = useState([]);
-    const [selectedVersion, setSelectedVersion] = useState(null);
+    const [versions, setVersions] = useState<NoteVersionRecord[]>([]);
+    const [selectedVersion, setSelectedVersion] = useState<NoteVersionRecord | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {

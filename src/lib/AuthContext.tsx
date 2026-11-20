@@ -1,13 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { User } from '@/entities/all';
+import { User, type StoredUser } from '@/entities/all';
 
-/** The signed-in user, as stored by the local `User` entity. */
-export type AuthUser = {
-    id: string;
-    email: string;
-    name: string;
-    created_at: string;
-};
+/** The signed-in user, as stored (and validated on read) by the local `User` entity. */
+export type AuthUser = StoredUser;
 
 type AuthContextValue = {
     user: AuthUser | null;
@@ -20,12 +15,6 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const isAuthUser = (value: unknown): value is AuthUser => {
-    if (typeof value !== 'object' || value === null) return false;
-    const candidate = value as Record<string, unknown>;
-    return ['id', 'email', 'name', 'created_at'].every((field) => typeof candidate[field] === 'string');
-};
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<AuthUser | null>(null);
     const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -34,11 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const checkUserAuth = useCallback(async () => {
         setIsLoadingAuth(true);
         try {
-            const storedUser: unknown = await User.me();
-            if (storedUser !== null && !isAuthUser(storedUser)) {
-                console.warn('Ignoring stored user record with an unexpected shape.');
-            }
-            setUser(isAuthUser(storedUser) ? storedUser : null);
+            setUser(await User.me());
         } catch (error) {
             console.error('Auth check failed:', error);
             setUser(null);

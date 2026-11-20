@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Dashboard, DashboardShare, User } from "@/entities/all";
+import type { DashboardPermissionLevel, DashboardRecord, StoredUser } from "@/entities/all";
 import { badgeLabels, messages, pageTitle } from "@/lib/constants";
 import { LIST_ITEM_MOTION } from "@/lib/motion";
 import { createPageUrl } from "@/utils";
@@ -57,10 +58,10 @@ const DashboardCard = ({ dashboard, isOwner, permission }) => (
 );
 
 export default function DashboardsPage() {
-    const [ownedDashboards, setOwnedDashboards] = useState([]);
-    const [sharedDashboards, setSharedDashboards] = useState([]);
+    const [ownedDashboards, setOwnedDashboards] = useState<DashboardRecord[]>([]);
+    const [sharedDashboards, setSharedDashboards] = useState<Array<DashboardRecord & { permission_level: DashboardPermissionLevel }>>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [currentUser, setCurrentUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState<StoredUser | null>(null);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [newDashboardName, setNewDashboardName] = useState("");
     const [isCreating, setIsCreating] = useState(false);

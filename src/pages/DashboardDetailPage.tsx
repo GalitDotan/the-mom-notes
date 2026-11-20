@@ -25,6 +25,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Dashboard, DashboardShare, Note, NoteVersion, User } from "@/entities/all";
+import type { DashboardRecord, NoteRecord, StoredUser } from "@/entities/all";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
@@ -92,9 +93,9 @@ export default function DashboardDetailPage() {
     const location = useLocation();
     const dashboardId = new URLSearchParams(location.search).get("id");
 
-    const [currentDashboard, setCurrentDashboard] = useState(null);
-    const [notes, setNotes] = useState([]);
-    const [filteredNotes, setFilteredNotes] = useState([]);
+    const [currentDashboard, setCurrentDashboard] = useState<DashboardRecord | null>(null);
+    const [notes, setNotes] = useState<NoteRecord[]>([]);
+    const [filteredNotes, setFilteredNotes] = useState<NoteRecord[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [tagFilter, setTagFilter] = useState(ALL_TAGS_FILTER);
     const [clientFilter, setClientFilter] = useState("all");
@@ -102,9 +103,9 @@ export default function DashboardDetailPage() {
     const [topicFilter, setTopicFilter] = useState("all");
 
     const [uniqueClients, setUniqueClients] = useState(["all"]);
-    const [availableClientTags, setAvailableClientTags] = useState([]);
+    const [availableClientTags, setAvailableClientTags] = useState<string[]>([]);
     const [uniqueTopics, setUniqueTopics] = useState(["all"]);
-    const [availableTopics, setAvailableTopics] = useState([]);
+    const [availableTopics, setAvailableTopics] = useState<string[]>([]);
 
     const [sortBy, setSortBy] = useState("updated_date");
     const [sortOrder, setSortOrder] = useState("desc");
@@ -113,14 +114,14 @@ export default function DashboardDetailPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isNotesLoading, setIsNotesLoading] = useState(true);
     const [isSavingNote, setIsSavingNote] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
-    const [userPermission, setUserPermission] = useState("viewer");
+    const [currentUser, setCurrentUser] = useState<StoredUser | null>(null);
+    const [userPermission, setUserPermission] = useState<string>("viewer");
 
     const [isEditorOpen, setIsEditorOpen] = useState(false);
-    const [editingNote, setEditingNote] = useState(null);
+    const [editingNote, setEditingNote] = useState<NoteRecord | null>(null);
 
     const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-    const [historyDialogNote, setHistoryDialogNote] = useState(null);
+    const [historyDialogNote, setHistoryDialogNote] = useState<NoteRecord | null>(null);
     const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
     const [newDashboardName, setNewDashboardName] = useState("");
 
