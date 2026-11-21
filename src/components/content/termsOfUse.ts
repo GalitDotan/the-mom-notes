@@ -6,14 +6,14 @@ export const termsOfUse: LegalDocument = {
     title: "Terms of Use",
     lastUpdated: "May 5, 2026",
     intro:
-        "Welcome to The Mom Notes. By using this application, you agree to these Terms of Use. Please read them carefully.",
+        "Welcome to Saga's Scout. By using this application, you agree to these Terms of Use. Please read them carefully.",
     sections: [
         {
             title: "Acceptance of Terms",
             blocks: [
                 {
                     type: "paragraph",
-                    text: "By accessing and using The Mom Notes, you accept and agree to be bound by the terms and provisions of this agreement.",
+                    text: "By accessing and using Saga's Scout, you accept and agree to be bound by the terms and provisions of this agreement.",
                 },
             ],
         },
@@ -22,7 +22,7 @@ export const termsOfUse: LegalDocument = {
             blocks: [
                 {
                     type: "paragraph",
-                    text: 'The Mom Notes is a free, non-commercial tool designed to help users organize research notes and customer insights using methodologies inspired by "The Mom Test" by Rob Fitzpatrick.',
+                    text: 'Saga's Scout is a free, non-commercial tool designed to help users organize research notes and customer insights using methodologies inspired by "The Mom Test" by Rob Fitzpatrick.',
                 },
             ],
         },

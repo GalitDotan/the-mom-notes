@@ -1,6 +1,6 @@
-# The Mom Notes
+# Saga's Scout
 
-The Mom Notes is a standalone, browser-first app for capturing customer conversation insights using the symbol system from Rob Fitzpatrick’s book, *The Mom Test*.
+Saga's Scout is a standalone, browser-first app for capturing customer conversation insights using the symbol system from Rob Fitzpatrick’s book, *The Mom Test*.
 
 This version is built to run fully in the browser without any Base44 backend. Your notes, dashboards, and sharing metadata are stored locally in the browser, making the app fast, simple, and offline-capable.
 

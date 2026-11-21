@@ -77,7 +77,7 @@ export default function Layout({ children, currentPageName }) {
 
     useEffect(() => {
         // Set a default title, can be overridden by specific pages
-        document.title = "The Mom Notes";
+        document.title = "Saga's Scout";
         loadUser();
 
         const handleOnline = () => setIsOnline(true);
@@ -125,7 +125,7 @@ export default function Layout({ children, currentPageName }) {
 
     if (user === null) {
         // Set title for login page
-        document.title = "Login - The Mom Notes";
+        document.title = "Login - Saga's Scout";
         return (
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
                 <div className="max-w-md w-full">
@@ -133,7 +133,7 @@ export default function Layout({ children, currentPageName }) {
                         <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12">
                             <StickyNote className="w-10 h-10 text-white" />
                         </div>
-                        <h1 className="text-4xl font-bold text-gray-900 mb-3">Welcome to The Mom Notes</h1>
+                        <h1 className="text-4xl font-bold text-gray-900 mb-3">Welcome to Saga's Scout</h1>
                         <p className="text-gray-600 text-lg leading-relaxed">
                             Capture insights with emoji-coded research notes.
                             <br />Perfect for user interviews and feedback.
@@ -181,7 +181,7 @@ export default function Layout({ children, currentPageName }) {
                                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center transform rotate-12">
                                     <StickyNote className="w-5 h-5 text-white" />
                                 </div>
-                                <span className="text-xl font-bold text-gray-900 hidden sm:block">The Mom Notes</span>
+                                <span className="text-xl font-bold text-gray-900 hidden sm:block">Saga's Scout</span>
                             </Link>
 
                             <nav className="hidden md:flex items-center gap-1 ml-8">

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 export default function PrivacyPolicy() {
     useEffect(() => {
-        document.title = "Privacy Policy - The Mom Notes";
+        document.title = "Privacy Policy - Saga's Scout";
     }, []);
 
     return (
@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
                 <CardContent className="prose prose-lg max-w-none">
                     <div className="text-gray-800 space-y-6">
                         <p>
-                            Welcome to The Mom Notes. This Privacy Policy explains how we collect, use, and protect your information. Your privacy is important to us.
+                            Welcome to Saga's Scout. This Privacy Policy explains how we collect, use, and protect your information. Your privacy is important to us.
                         </p>
 
                         <div>
@@ -30,7 +30,7 @@ export default function PrivacyPolicy() {
                         <div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-3">2. How We Use Your Information</h3>
                             <ul className="list-disc list-inside space-y-2">
-                                <li><strong>To Provide the Service:</strong> Your information is used to operate, maintain, and provide you with the features and functionality of The Mom Notes.</li>
+                                <li><strong>To Provide the Service:</strong> Your information is used to operate, maintain, and provide you with the features and functionality of Saga's Scout.</li>
                                 <li><strong>Authentication:</strong> Your email is used to securely identify you and grant you access to your content.</li>
                                 <li><strong>Communication:</strong> We may use your email to send you important service-related notices, but we will never send you marketing emails.</li>
                             </ul>

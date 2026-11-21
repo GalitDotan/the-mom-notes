@@ -24,7 +24,7 @@ export default function Explanation() {
     const [hoveredCategory, setHoveredCategory] = useState<NoteTagCategoryId | null>(null);
 
     useEffect(() => {
-        document.title = "Explanation - The Mom Notes";
+        document.title = "Explanation - Saga's Scout";
 
         // Check if there's a category hash in the URL and scroll to it
         const hash = location.hash.replace('#', '') as NoteTagCategoryId;

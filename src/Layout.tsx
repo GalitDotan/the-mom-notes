@@ -349,7 +349,7 @@ export default function Layout({ children }: LayoutProps) {
 
     useEffect(() => {
         // Set a default title, can be overridden by specific pages
-        document.title = "The Mom Notes";
+        document.title = "Saga's Scout";
 
         const handleOnline = () => setIsOnline(true);
         const handleOffline = () => setIsOnline(false);
@@ -403,11 +403,11 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center gap-4 min-w-0">
-                            <Link to={createPageUrl("DashboardsPage")} className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="The Mom Notes, go to dashboards">
+                            <Link to={createPageUrl("DashboardsPage")} className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Saga's Scout, go to dashboards">
                                 <div className="size-9 bg-gradient-to-br from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-[10px] flex items-center justify-center rotate-12 shadow-sm">
                                     <StickyNote className="w-[18px] h-[18px] text-white" aria-hidden="true" />
                                 </div>
-                                <span className="text-[17px] font-semibold tracking-tight text-foreground hidden sm:block">The Mom Notes</span>
+                                <span className="text-[17px] font-semibold tracking-tight text-foreground hidden sm:block">Saga's Scout</span>
                             </Link>
 
                             <nav className="hidden md:flex items-center gap-0.5 ms-6" aria-label="Main">
@@ -562,7 +562,7 @@ export default function Layout({ children }: LayoutProps) {
                             <Accessibility aria-hidden="true" />
                             Accessibility Settings
                         </Button>
-                        <p className="text-center text-[13px] text-muted-foreground">&copy; {new Date().getFullYear()} The Mom Notes. All rights reserved.</p>
+                        <p className="text-center text-[13px] text-muted-foreground">&copy; {new Date().getFullYear()} Saga's Scout. All rights reserved.</p>
                     </div>
                     <nav className="flex flex-wrap justify-center gap-x-5 gap-y-1" aria-label="Legal">
                         <Link to={createPageUrl("PrivacyPolicy")} className="text-muted-foreground hover:text-foreground text-[13px]">Privacy Policy</Link>

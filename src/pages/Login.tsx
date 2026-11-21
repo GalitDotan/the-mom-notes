@@ -59,7 +59,7 @@ export default function Login() {
             <div className="size-14 bg-gradient-to-br from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-2xl mx-auto mb-4 flex items-center justify-center rotate-12 shadow-sm" aria-hidden>
               <StickyNote className="w-7 h-7 text-white" />
             </div>
-            <CardTitle className="text-2xl font-semibold tracking-tight">Welcome to The Mom Notes</CardTitle>
+            <CardTitle className="text-2xl font-semibold tracking-tight">Welcome to Saga's Scout</CardTitle>
             <CardDescription className="mt-1.5">
               Get started by entering your information
             </CardDescription>

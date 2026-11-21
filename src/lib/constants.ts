@@ -1,5 +1,5 @@
 /**
- * Centralized constants for The Mom Notes
+ * Centralized constants for Saga's Scout
  * Messages, navigation items, and other constants are defined here
  * to avoid duplication and make i18n easier in the future.
  */
@@ -76,14 +76,14 @@ export const navigationItems: NavigationItem[] = [
  * Page titles configuration
  */
 export const pageTitle = {
-    dashboards: 'Your Dashboards - The Mom Notes',
-    dashboard: 'Dashboard - The Mom Notes',
-    explanation: 'How It Works - The Mom Notes',
-    credits: 'Credits - The Mom Notes',
-    about: 'About - The Mom Notes',
-    accessibility: 'Accessibility - The Mom Notes',
-    privacy: 'Privacy Policy - The Mom Notes',
-    terms: 'Terms of Use - The Mom Notes',
+    dashboards: 'Your Dashboards - Saga\'s Scout',
+    dashboard: 'Dashboard - Saga\'s Scout',
+    explanation: 'How It Works - Saga\'s Scout',
+    credits: 'Credits - Saga\'s Scout',
+    about: 'About - Saga\'s Scout',
+    accessibility: 'Accessibility - Saga\'s Scout',
+    privacy: 'Privacy Policy - Saga\'s Scout',
+    terms: 'Terms of Use - Saga\'s Scout',
 };
 
 /**

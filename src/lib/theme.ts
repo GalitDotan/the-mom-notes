@@ -1,5 +1,5 @@
 /**
- * Centralized theme configuration for The Mom Notes
+ * Centralized theme configuration for Saga's Scout
  * All colors, spacing, and design tokens are defined here to maintain consistency
  * and avoid hard-coded values throughout the codebase.
  */

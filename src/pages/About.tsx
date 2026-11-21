@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 export default function About() {
     useEffect(() => {
-        document.title = "About - The Mom Notes";
+        document.title = "About - Saga's Scout";
     }, []);
 
     return (
@@ -25,7 +25,7 @@ export default function About() {
                     About The Creator
                 </h1>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                    Meet the person behind The Mom Notes
+                    Meet the person behind Saga's Scout
                 </p>
             </motion.div>
 
@@ -115,7 +115,7 @@ export default function About() {
                     <CardContent className="p-8 text-center">
                         <h3 className="text-2xl font-semibold mb-4">Project Mission</h3>
                         <p className="text-lg text-primary-foreground/90 leading-relaxed max-w-2xl mx-auto">
-                            The Mom Notes was created to help entrepreneurs, product managers, and researchers
+                            Saga's Scout was created to help entrepreneurs, product managers, and researchers
                             systematically capture and organize customer insights using Rob Fitzpatrick's proven
                             methodology. By making good customer development practices more accessible, we hope
                             to help more people build products that truly matter.

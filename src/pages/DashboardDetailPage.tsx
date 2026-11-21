@@ -127,9 +127,9 @@ export default function DashboardDetailPage() {
 
     useEffect(() => {
         if (currentDashboard) {
-            document.title = `${currentDashboard.name} - The Mom Notes`;
+            document.title = `${currentDashboard.name} - Saga's Scout`;
         } else {
-            document.title = "Dashboard - The Mom Notes";
+            document.title = "Dashboard - Saga's Scout";
         }
     }, [currentDashboard]);
 

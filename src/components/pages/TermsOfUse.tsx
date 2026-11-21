@@ -7,7 +7,7 @@ import { createPageUrl } from "@/utils";
 
 export default function TermsOfUse() {
     useEffect(() => {
-        document.title = `${termsOfUse.title} - The Mom Notes`;
+        document.title = `${termsOfUse.title} - Saga's Scout`;
     }, []);
 
     return (

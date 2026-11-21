@@ -17,7 +17,7 @@ const METHOD_BENEFITS = [
 
 export default function Credits() {
     useEffect(() => {
-        document.title = "Credits - The Mom Notes";
+        document.title = "Credits - Saga's Scout";
     }, []);
 
     return (
