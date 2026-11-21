@@ -59,7 +59,7 @@ export default function Guide() {
 
             <Card className="p-5 sm:p-6 mb-10">
                 <div className="flex items-start gap-4">
-                    <div className="size-11 shrink-0 rounded-xl bg-accent text-primary flex items-center justify-center" aria-hidden>
+                    <div className="size-11 shrink-0 rounded-xl bg-accent text-primary-fg flex items-center justify-center" aria-hidden>
                         <Lightbulb size={22} />
                     </div>
                     <div>
@@ -151,7 +151,7 @@ export default function Guide() {
                 <p className="text-primary-foreground/80 mb-6 max-w-xl mx-auto">
                     Now that you know the tags, start capturing insights from your user research and interviews.
                 </p>
-                <Button asChild variant="secondary" size="lg" className="bg-card text-primary hover:bg-card/90">
+                <Button asChild variant="secondary" size="lg" className="bg-card text-primary-fg hover:bg-card/90">
                     <Link to={routes.dashboards}>
                         Start taking notes
                         <ArrowRight className="rtl:rotate-180" aria-hidden />

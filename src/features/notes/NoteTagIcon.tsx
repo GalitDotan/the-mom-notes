@@ -46,7 +46,7 @@ export function NoteTagIcon({ tag, symbol, size = "md", animate = false, decorat
             <span
                 {...a11y}
                 title={typeof symbol === "string" ? symbol : undefined}
-                className={cn("inline-flex shrink-0 items-center justify-center bg-secondary text-foreground", dimensions.chip, dimensions.fallback, className)}
+                className={cn("inline-flex shrink-0 items-center justify-center bg-muted text-foreground", dimensions.chip, dimensions.fallback, className)}
             >
                 {stored}
             </span>

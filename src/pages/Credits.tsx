@@ -13,7 +13,7 @@ import { useState } from "react";
 /** The three Mom Test benefits, each with an icon that animates while hovered. */
 const METHOD_BENEFITS = [
     { id: "questions", title: "Better Questions", text: "Learn to ask questions that reveal actual behavior, not just opinions", Icon: CircleCheck, chip: "bg-tag-business/10 text-tag-business" },
-    { id: "insights", title: "Real Insights", text: "Discover what customers actually do, not what they say they'll do", Icon: Lightbulb, chip: "bg-accent text-primary" },
+    { id: "insights", title: "Real Insights", text: "Discover what customers actually do, not what they say they'll do", Icon: Lightbulb, chip: "bg-accent text-primary-fg" },
     { id: "build", title: "Build Better", text: "Create products people actually want by understanding real problems", Icon: Compass, chip: "bg-tag-behavior/10 text-tag-behavior" },
 ] as const;
 

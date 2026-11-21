@@ -33,6 +33,7 @@ import { Note, NoteVersion } from "@/entities/all";
 import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
 import { findNoteTagBySymbol } from "@/features/notes/note-tags";
 import { cn } from "@/lib/utils";
+import { NOTE_CHIP_CLASSES, NOTE_CHIP_HOVER_CLASSES } from "@/features/notes/note-chips";
 import ImageLightbox from "./ImageLightbox";
 
 // Utility to get domain from URL for display
@@ -276,7 +277,7 @@ export default function NoteCard({
                         </div>
 
                         {note.internal_comments && (
-                            <div className="mt-4 rounded-lg border-s-2 border-tag-emotional/50 bg-secondary/60 px-3 py-2.5">
+                            <div className="mt-4 rounded-lg border-s-2 border-tag-emotional/50 bg-muted/60 px-3 py-2.5">
                                 <div className="flex items-center gap-1.5 mb-1.5 text-xs font-medium text-muted-foreground">
                                     <MessageSquare className="w-3.5 h-3.5" aria-hidden />
                                     Internal comments (researcher)
@@ -299,7 +300,7 @@ export default function NoteCard({
                                             title="Double-click to view full size"
                                         />
                                         <div className="high-contrast-alt-text">
-                                            <div className="p-3 bg-secondary border border-border rounded-lg text-sm italic h-full flex items-center justify-center">
+                                            <div className="p-3 bg-muted border border-border rounded-lg text-sm italic h-full flex items-center justify-center">
                                                 <p><span className="font-bold me-1">[Image]</span>{image.alt || 'No description provided.'}</p>
                                             </div>
                                         </div>
@@ -339,7 +340,7 @@ export default function NoteCard({
                                         <button
                                             type="button"
                                             key={`client-${clientTag}-${index}`}
-                                            className={cn(badgeVariants({ variant: "secondary" }), "bg-accent text-accent-foreground hover:bg-accent/70")}
+                                            className={cn(badgeVariants({ variant: "outline" }), NOTE_CHIP_CLASSES.client, NOTE_CHIP_HOVER_CLASSES.client)}
                                             onClick={(e) => handleClientBadgeClick(e, clientTag)}
                                             aria-label={`Filter by client ${clientTag}`}
                                         >
@@ -357,7 +358,7 @@ export default function NoteCard({
                                         <button
                                             type="button"
                                             key={`topic-${topic}-${index}`}
-                                            className={cn(badgeVariants({ variant: "secondary" }), "hover:bg-secondary/70")}
+                                            className={cn(badgeVariants({ variant: "outline" }), NOTE_CHIP_CLASSES.topic, NOTE_CHIP_HOVER_CLASSES.topic)}
                                             onClick={(e) => handleTopicBadgeClick(e, topic)}
                                             aria-label={`Filter by topic ${topic}`}
                                         >
@@ -377,7 +378,7 @@ export default function NoteCard({
                                             href={refUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-xs text-primary hover:underline bg-secondary px-2 py-0.5 rounded-full max-w-[160px] truncate"
+                                            className={cn("text-xs hover:underline px-2 py-0.5 rounded-full max-w-[160px] truncate", NOTE_CHIP_CLASSES.reference)}
                                             title={refUrl}
                                             onClick={(e) => e.stopPropagation()}
                                         >
@@ -396,13 +397,13 @@ export default function NoteCard({
                                             <button
                                                 key={`star-${i}`}
                                                 onClick={(e) => { e.stopPropagation(); handleImportanceChange(starValue); }}
-                                                className={cn("p-0.5 rounded-sm transition-colors motion-safe:active:scale-90", isProcessing ? 'cursor-not-allowed' : 'hover:bg-amber-100')}
+                                                className={cn("p-0.5 rounded-sm transition-colors motion-safe:active:scale-90", isProcessing ? 'cursor-not-allowed' : 'hover:bg-warning-tint')}
                                                 aria-label={`Set importance to ${starValue}`}
                                                 aria-pressed={starValue <= currentImportance}
                                                 disabled={isProcessing}
                                             >
                                                 <Star
-                                                    className={cn("w-3.5 h-3.5", starValue <= currentImportance ? 'text-amber-400 fill-amber-400' : 'text-border')}
+                                                    className={cn("w-3.5 h-3.5", starValue <= currentImportance ? 'text-warning fill-warning' : 'text-border')}
                                                 />
                                             </button>
                                         );
@@ -443,7 +444,7 @@ export default function NoteCard({
                                     variant="ghost"
                                     size="sm"
                                     onClick={(e) => { e.stopPropagation(); onEdit(note) }}
-                                    className="h-7 px-2.5 text-primary hover:bg-accent hover:text-primary"
+                                    className="h-7 px-2.5 text-primary-fg hover:bg-accent hover:text-primary-fg"
                                     disabled={isProcessing}
                                 >
                                     <Edit3 className="!w-3.5 !h-3.5" />

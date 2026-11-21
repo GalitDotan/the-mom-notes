@@ -3,8 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User } from "@/entities/all";
 import { useAuth } from "@/lib/AuthContext";
-import { productName, routes } from "@/lib/constants";
-import { StickyNote } from "lucide-react";
+import { productLogoUrl, productName, routes } from "@/lib/constants";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -57,9 +56,8 @@ export default function Login() {
       <div className="min-h-screen flex items-center justify-center px-4 py-10">
         <Card className="w-full max-w-sm shadow-overlay border-border/60">
           <CardHeader className="text-center pb-4">
-            <div className="size-14 bg-gradient-to-br from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-2xl mx-auto mb-4 flex items-center justify-center rotate-12 shadow-xs" aria-hidden>
-              <StickyNote className="w-7 h-7 text-white" />
-            </div>
+            {/* Decorative: the heading below names the product. */}
+            <img src={productLogoUrl} alt="" className="size-14 mx-auto mb-4" />
             <CardTitle className="text-2xl font-semibold tracking-tight">Welcome to {productName}</CardTitle>
             <CardDescription className="mt-1.5">
               Get started by entering your information

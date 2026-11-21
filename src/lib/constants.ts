@@ -102,7 +102,7 @@ export const navigationItems: NavigationItem[] = [
         icon: HelpCircle,
     },
     // About, Credits and the legal pages are linked from the footer; the
-    // accessibility statement sits next to Accessibility Settings there.
+    // accessibility statement sits next to Appearance Settings there.
 ];
 
 /**
@@ -121,7 +121,7 @@ export const pageTitle = {
     explanation: `How It Works - ${productName}`,
     credits: `Credits - ${productName}`,
     about: `About - ${productName}`,
-    accessibility: `Accessibility - ${productName}`,
+    accessibility: `Accessibility Statement - ${productName}`,
     privacy: `Privacy Policy - ${productName}`,
     terms: `Terms of Use - ${productName}`,
 };
@@ -232,4 +232,6 @@ export const storageKeys = {
     user: 'momnotes_user',
     accessibilityFontSize: 'accessibility-font-size',
     accessibilityHighContrast: 'accessibility-high-contrast',
+    /** The chosen theme. index.html's startup script reads this key too. */
+    theme: 'theme',
 } as const;

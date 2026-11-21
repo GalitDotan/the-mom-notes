@@ -137,27 +137,27 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                                 </SelectContent>
                             </Select>
                         </div>
-                        <Button onClick={handleShare} disabled={!email.trim() || isSending} className="self-end bg-[var(--ruby-dust-600)] hover:bg-[var(--ruby-dust-700)] text-[var(--ruby-dust-text-on-primary)]">
+                        <Button onClick={handleShare} disabled={!email.trim() || isSending} className="self-end">
                             {isSending ? <Send className="w-4 h-4 animate-pulse" /> : <UserPlus className="w-4 h-4" />}
                         </Button>
                     </div>
 
                     {shares.length > 0 && (
                         <div className="space-y-3 pt-4 border-t">
-                            <h4 className="text-sm font-medium text-gray-700">Currently shared with:</h4>
+                            <h4 className="text-sm font-medium text-foreground">Currently shared with:</h4>
                             <div className="space-y-2 max-h-48 overflow-y-auto">
                                 {shares.map((share) => (
                                     <div
                                         key={share.id}
-                                        className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg"
+                                        className="flex items-center justify-between p-2.5 bg-muted rounded-lg"
                                     >
                                         <div className="flex items-center gap-2">
-                                            <div className="w-7 h-7 bg-[var(--ruby-dust-100)] rounded-full flex items-center justify-center">
-                                                <span className="text-sm text-[var(--ruby-dust-600)] font-medium">
+                                            <div className="w-7 h-7 bg-primary-tint rounded-full flex items-center justify-center">
+                                                <span className="text-sm text-primary-fg font-medium">
                                                     {share.shared_with_email.charAt(0).toUpperCase()}
                                                 </span>
                                             </div>
-                                            <span className="text-sm text-gray-800 truncate max-w-[150px]" title={share.shared_with_email}>
+                                            <span className="text-sm text-foreground truncate max-w-[150px]" title={share.shared_with_email}>
                                                 {share.shared_with_email}
                                             </span>
                                         </div>
@@ -180,11 +180,11 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                                             )}
 
                                             {editingShareId === share.id ? (
-                                                <Button variant="ghost" size="icon" onClick={() => handleUpdatePermission(share.id, editPermissionLevel)} className="h-7 w-7 text-green-600 hover:text-green-700">
+                                                <Button variant="ghost" size="icon" onClick={() => handleUpdatePermission(share.id, editPermissionLevel)} className="h-7 w-7 text-success hover:text-success">
                                                     <UserCheck className="w-4 h-4" />
                                                 </Button>
                                             ) : (
-                                                <Button variant="ghost" size="icon" onClick={() => startEditing(share)} className="h-7 w-7 text-gray-500 hover:text-[var(--ruby-dust-600)]">
+                                                <Button variant="ghost" size="icon" onClick={() => startEditing(share)} className="h-7 w-7 text-muted-foreground hover:text-primary-fg">
                                                     <Edit className="w-4 h-4" />
                                                 </Button>
                                             )}
@@ -193,7 +193,7 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => handleRemoveShare(share.id)}
-                                                className="h-7 w-7 text-gray-500 hover:text-red-600"
+                                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
                                             >
                                                 <UserX className="w-4 h-4" />
                                             </Button>
@@ -204,7 +204,7 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                         </div>
                     )}
                     {shares.length === 0 && (
-                        <div className="text-center py-4 text-gray-500">
+                        <div className="text-center py-4 text-muted-foreground">
                             <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
                             <p className="text-sm">This dashboard isn't shared yet.</p>
                         </div>

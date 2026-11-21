@@ -578,7 +578,7 @@ export default function DashboardDetailPage() {
                                     aria-label="Search notes"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="ps-9 h-9 bg-secondary/60 border-transparent focus-visible:bg-card"
+                                    className="ps-9 h-9 bg-muted/60 border-transparent focus-visible:bg-card"
                                 />
                             </div>
                         </div>
@@ -591,7 +591,7 @@ export default function DashboardDetailPage() {
                                 <SelectContent>
                                     <SelectItem value={ALL_TAGS_FILTER}>
                                         <div className="flex items-center gap-2">
-                                            <span className="inline-flex size-7 items-center justify-center rounded-lg bg-secondary text-muted-foreground" aria-hidden><AllNotesIcon size={15} /></span>
+                                            <span className="inline-flex size-7 items-center justify-center rounded-lg bg-muted text-muted-foreground" aria-hidden><AllNotesIcon size={15} /></span>
                                             <span>All Notes</span>
                                         </div>
                                     </SelectItem>
@@ -631,7 +631,7 @@ export default function DashboardDetailPage() {
 
                             <Select value={importanceFilter} onValueChange={setImportanceFilter}>
                                 <SelectTrigger className="w-auto h-9" aria-label="Filter by importance">
-                                    <div className="flex items-center gap-2"> <StarIcon className="w-4 h-4 text-amber-500" aria-hidden /> <SelectValue placeholder="Filter by Importance" /> </div>
+                                    <div className="flex items-center gap-2"> <StarIcon className="w-4 h-4 text-warning" aria-hidden /> <SelectValue placeholder="Filter by Importance" /> </div>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {IMPORTANCE_FILTER_OPTIONS.map((opt) => (
@@ -669,7 +669,7 @@ export default function DashboardDetailPage() {
                                 <Button
                                     variant="ghost"
                                     onClick={() => { setSearchTerm(""); setTagFilter(ALL_TAGS_FILTER); setClientFilter("all"); setTopicFilter("all"); setImportanceFilter("all"); }}
-                                    className="text-primary hover:text-primary"
+                                    className="text-primary-fg hover:text-primary-fg"
                                 >
                                     Clear filters
                                 </Button>
@@ -682,11 +682,11 @@ export default function DashboardDetailPage() {
                 <div className="mb-8">
                     {isNotesLoading ? (
                         <div className={viewMode === "grid" ? "responsive-notes-grid" : "space-y-4"} role="status" aria-label="Loading notes">
-                            {Array(viewMode === "grid" ? 6 : 3).fill(0).map((_, i) => (<div key={i} className="motion-safe:animate-pulse"><div className="rounded-2xl border border-border/60 bg-card h-64 p-5"><div className="size-7 bg-secondary rounded-lg mb-4"></div><div className="space-y-2"><div className="h-4 bg-secondary rounded w-3/4"></div><div className="h-4 bg-secondary rounded w-1/2"></div><div className="h-4 bg-secondary rounded w-5/6 mt-3"></div><div className="h-3 bg-secondary rounded w-1/3 mt-4"></div></div></div></div>))}
+                            {Array(viewMode === "grid" ? 6 : 3).fill(0).map((_, i) => (<div key={i} className="motion-safe:animate-pulse"><div className="rounded-2xl border border-border/60 bg-card h-64 p-5"><div className="size-7 bg-muted rounded-lg mb-4"></div><div className="space-y-2"><div className="h-4 bg-muted rounded w-3/4"></div><div className="h-4 bg-muted rounded w-1/2"></div><div className="h-4 bg-muted rounded w-5/6 mt-3"></div><div className="h-3 bg-muted rounded w-1/3 mt-4"></div></div></div></div>))}
                         </div>
                     ) : filteredNotes.length === 0 ? (
                         <div className="text-center py-16 max-w-md mx-auto">
-                            <div className="size-14 rounded-2xl bg-accent text-primary mx-auto mb-5 flex items-center justify-center" aria-hidden>
+                            <div className="size-14 rounded-2xl bg-accent text-primary-fg mx-auto mb-5 flex items-center justify-center" aria-hidden>
                                 {hasActiveFilters ? <Search className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
                             </div>
                             <h2 className="text-lg font-semibold text-foreground mb-1.5">

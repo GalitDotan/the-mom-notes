@@ -33,7 +33,7 @@ const DashboardCard = ({ dashboard, isOwner, permission }) => (
             <Card className="h-full p-5 transition-shadow duration-200 group-hover:shadow-card-hover">
                 <div className="flex items-center gap-3">
                     <span
-                        className={isOwner ? "size-10 shrink-0 rounded-xl bg-accent text-primary flex items-center justify-center" : "size-10 shrink-0 rounded-xl bg-tag-behavior/10 text-tag-behavior flex items-center justify-center"}
+                        className={isOwner ? "size-10 shrink-0 rounded-xl bg-accent text-primary-fg flex items-center justify-center" : "size-10 shrink-0 rounded-xl bg-tag-behavior/10 text-tag-behavior flex items-center justify-center"}
                         aria-hidden
                     >
                         {isOwner ? <FolderOpen className="w-5 h-5" /> : <Users className="w-5 h-5" />}
@@ -175,7 +175,7 @@ export default function DashboardsPage() {
 
             {!allDashboardsPresent && (
                 <div className="text-center py-16 max-w-md mx-auto">
-                    <div className="size-14 rounded-2xl bg-accent text-primary mx-auto mb-5 flex items-center justify-center" aria-hidden>
+                    <div className="size-14 rounded-2xl bg-accent text-primary-fg mx-auto mb-5 flex items-center justify-center" aria-hidden>
                         <FolderOpen className="w-6 h-6" />
                     </div>
                     <h2 className="text-lg font-semibold text-foreground mb-1.5">

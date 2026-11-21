@@ -11,6 +11,8 @@ import { DEFAULT_NOTE_TAG } from "@/features/notes/note-tags";
 import { SPRING_SNAPPY } from "@/lib/motion";
 import TagSelector from "./TagSelector";
 import { Badge } from "@/components/ui/badge";
+import { NOTE_CHIP_CLASSES } from "@/features/notes/note-chips";
+import { cn } from "@/lib/utils";
 import MarkdownEditor from "./MarkdownEditor";
 import { UploadFile } from "@/integrations/Core";
 import { toast } from "sonner";
@@ -22,7 +24,7 @@ const ImportanceStarSelector = ({ value, onChange, disabled }) => {
 
     return (
         <div className="space-y-2">
-            <Label htmlFor="importance-star-selector" className="text-sm font-medium text-gray-700">Importance</Label>
+            <Label htmlFor="importance-star-selector" className="text-sm font-medium text-foreground">Importance</Label>
             <div
                 id="importance-star-selector"
                 className="flex flex-wrap gap-1 items-center"
@@ -36,19 +38,19 @@ const ImportanceStarSelector = ({ value, onChange, disabled }) => {
                         size="icon"
                         onClick={() => !disabled && onChange(level)}
                         onMouseEnter={() => !disabled && setHoverValue(level)}
-                        className={`p-1 transition-all duration-150 rounded-md focus:ring-2 focus:ring-offset-1 focus:ring-[var(--ruby-dust-focus-ring)] ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+                        className={`p-1 transition-all duration-150 rounded-md focus:ring-2 focus:ring-offset-1 focus:ring-ring ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                         disabled={disabled}
                         aria-label={`Set importance to ${level}`}
                     >
                         <Star
                             className={`w-6 h-6 transition-colors duration-100 ${(hoverValue >= level || (!hoverValue && value >= level))
-                                    ? 'text-yellow-400 fill-yellow-400'
-                                    : 'text-gray-300 hover:text-yellow-300'
+                                    ? 'text-warning fill-warning'
+                                    : 'text-border hover:text-warning/70'
                                 }`}
                         />
                     </Button>
                 ))}
-                {value > 0 && <span className="ml-2 text-sm text-gray-600">({value}/7)</span>}
+                {value > 0 && <span className="ml-2 text-sm text-muted-foreground">({value}/7)</span>}
             </div>
         </div>
     );
@@ -56,8 +58,8 @@ const ImportanceStarSelector = ({ value, onChange, disabled }) => {
 
 const CounterInput = ({ label, count, onIncrement, onDecrement, disabled }) => (
     <div className="space-y-1">
-        <Label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
-            {label === "Upvotes" ? <ThumbsUp className="w-4 h-4 text-green-500" /> : <ThumbsDown className="w-4 h-4 text-red-500" />}
+        <Label className="text-sm font-medium text-foreground flex items-center gap-1.5">
+            {label === "Upvotes" ? <ThumbsUp className="w-4 h-4 text-success" /> : <ThumbsDown className="w-4 h-4 text-error" />}
             {label}
         </Label>
         <div className="flex items-center gap-2">
@@ -75,7 +77,7 @@ const CounterInput = ({ label, count, onIncrement, onDecrement, disabled }) => (
                 type="number"
                 value={count}
                 readOnly
-                className="w-16 text-center h-8 bg-gray-50 border-0 rounded-md text-sm outline-hidden"
+                className="w-16 text-center h-8 bg-muted border-0 rounded-md text-sm outline-hidden"
             />
             <Button
                 type="button"
@@ -460,7 +462,7 @@ export default function NoteEditor({
                                     height={calculateTextareaHeight(content)}
                                     disabled={isSaving || isUploadingImages}
                                 />
-                                <div className="text-xs text-gray-400 flex justify-between">
+                                <div className="text-xs text-muted-foreground flex justify-between">
                                     <span>Press Ctrl+Enter to save quickly</span>
                                     <span>{content.length} characters</span>
                                 </div>
@@ -471,7 +473,7 @@ export default function NoteEditor({
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        className="w-full justify-start text-gray-500 hover:text-gray-700 border-dashed"
+                                        className="w-full justify-start text-muted-foreground hover:text-foreground border-dashed"
                                         onClick={() => setShowInternalComments(true)}
                                         disabled={isSaving || isUploadingImages}
                                     >
@@ -494,8 +496,8 @@ export default function NoteEditor({
                             <ImportanceStarSelector value={importance} onChange={setImportance} disabled={isSaving || isUploadingImages} />
 
                             <div className="space-y-2">
-                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
-                                    <LinkIcon className="w-4 h-4 text-gray-500" /> References (URLs)
+                                <Label className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                                    <LinkIcon className="w-4 h-4 text-muted-foreground" /> References (URLs)
                                 </Label>
                                 <div className="flex gap-2">
                                     <Input
@@ -504,7 +506,7 @@ export default function NoteEditor({
                                         value={newReferenceUrl}
                                         onChange={(e) => setNewReferenceUrl(e.target.value)}
                                         onKeyDown={handleReferenceInputKeyDown}
-                                        className="flex-grow bg-gray-50 border-0 focus:bg-white"
+                                        className="flex-grow bg-muted border-0 focus:bg-card"
                                         disabled={isSaving || isUploadingImages}
                                     />
                                     <Button type="button" variant="outline" onClick={handleAddReference} disabled={isSaving || isUploadingImages || !newReferenceUrl.trim()}>
@@ -514,14 +516,14 @@ export default function NoteEditor({
                                 {currentReferences.length > 0 && (
                                     <div className="flex flex-wrap gap-2 pt-2">
                                         {currentReferences.map((refUrl, index) => (
-                                            <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1.5">
+                                            <Badge key={index} variant="outline" className={cn("flex items-center gap-1.5", NOTE_CHIP_CLASSES.reference)}>
                                                 <a href={refUrl} target="_blank" rel="noopener noreferrer" className="hover:underline max-w-[150px] sm:max-w-[200px] truncate" title={refUrl}>
                                                     {refUrl}
                                                 </a>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleRemoveReference(refUrl)}
-                                                    className="ml-1 hover:bg-blue-100 rounded-full p-0.5 transition-colors"
+                                                    className="ml-1 hover:bg-accent rounded-full p-0.5 transition-colors"
                                                     aria-label={`Remove ${refUrl}`}
                                                     disabled={isSaving || isUploadingImages}
                                                 >
@@ -551,19 +553,19 @@ export default function NoteEditor({
                                 disabled={isSaving || isUploadingImages}
                                 placeholder="Select or create topic tags..."
                                 infoText="Categorize this note by relevant topics."
-                                icon={<TopicIcon className="w-4 h-4 text-gray-500" />}
+                                icon={<TopicIcon className="w-4 h-4 text-muted-foreground" />}
                             />
 
                             {/* Images Section - Enhanced */}
                             <div className="space-y-4">
-                                <Label htmlFor="image-upload" className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
-                                    <ImagePlus className="w-4 h-4 text-gray-500" /> Attached Images
+                                <Label htmlFor="image-upload" className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                                    <ImagePlus className="w-4 h-4 text-muted-foreground" /> Attached Images
                                 </Label>
 
                                 {/* Upload Area - Fixed visibility */}
-                                <div className="min-h-[120px] p-6 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                                <div className="min-h-[120px] p-6 border-2 border-dashed border-border rounded-lg text-center bg-muted/50 hover:bg-accent transition-colors">
                                     <div className="flex flex-col items-center gap-3">
-                                        <ImagePlus className="w-8 h-8 text-gray-400" />
+                                        <ImagePlus className="w-8 h-8 text-muted-foreground" />
                                         <div>
                                             <Input
                                                 id="image-upload"
@@ -572,15 +574,15 @@ export default function NoteEditor({
                                                 accept="image/png, image/jpeg, image/gif, image/webp"
                                                 onChange={handleImageUpload}
                                                 disabled={isSaving || isUploadingImages}
-                                                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[var(--ruby-dust-100)] file:text-[var(--ruby-dust-700)] hover:file:bg-[var(--ruby-dust-200)] file:cursor-pointer cursor-pointer"
+                                                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-tint file:text-primary-fg hover:file:bg-primary/20 file:cursor-pointer cursor-pointer"
                                             />
-                                            <p className="text-xs text-gray-500 mt-2">
+                                            <p className="text-xs text-muted-foreground mt-2">
                                                 Upload PNG, JPEG, GIF, or WebP files (max 10MB each)
                                             </p>
                                         </div>
                                     </div>
                                     {isUploadingImages && (
-                                        <div className="flex items-center justify-center gap-2 mt-4 text-sm text-gray-500">
+                                        <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
                                             <Loader2 className="w-4 h-4 animate-spin" /> Uploading images...
                                         </div>
                                     )}
@@ -590,7 +592,7 @@ export default function NoteEditor({
                                 {currentImages.length > 0 && (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {currentImages.map((image, index) => (
-                                            <div key={`${image.url}-${index}`} className="relative group space-y-3 p-3 border rounded-lg bg-white shadow-xs hover:shadow-md transition-shadow">
+                                            <div key={`${image.url}-${index}`} className="relative group space-y-3 p-3 border rounded-lg bg-card shadow-xs hover:shadow-md transition-shadow">
                                                 <div className="relative">
                                                     <img
                                                         src={image.url}
@@ -617,7 +619,7 @@ export default function NoteEditor({
                                                     value={image.alt}
                                                     onChange={(e) => handleAltTextChange(index, e.target.value)}
                                                     disabled={isSaving || isUploadingImages}
-                                                    className="bg-gray-50 border-0 focus:bg-white text-sm"
+                                                    className="bg-muted border-0 focus:bg-card text-sm"
                                                     aria-label={`Alternative text for image ${index + 1}`}
                                                 />
                                                 <div className="flex justify-end gap-1">
@@ -631,7 +633,7 @@ export default function NoteEditor({
                                                         size="icon"
                                                         onClick={() => handleRemoveImage(index)}
                                                         disabled={isSaving || isUploadingImages}
-                                                        className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                                        className="h-7 w-7 text-destructive hover:text-destructive hover:bg-error-tint"
                                                         title="Remove image"
                                                     >
                                                         <TrashIcon className="w-3 h-3" />

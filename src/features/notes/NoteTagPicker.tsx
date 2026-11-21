@@ -73,9 +73,9 @@ export function NoteTagPicker({ value, onChange, disabled }: NoteTagPickerProps)
                                 onBlur={() => setHighlighted(null)}
                                 className={cn(
                                     "flex flex-col items-center gap-1.5 rounded-xl px-1 py-2.5 text-center text-xs font-medium text-foreground/80 transition-colors duration-150",
-                                    "hover:bg-secondary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
+                                    "hover:bg-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
                                     "motion-safe:active:scale-[0.97] motion-safe:transition-[background-color,transform]",
-                                    isSelected && cn("bg-secondary text-foreground ring-1", NOTE_TAG_CATEGORY_CLASSES[tag.category].ring)
+                                    isSelected && cn("bg-muted text-foreground ring-1", NOTE_TAG_CATEGORY_CLASSES[tag.category].ring)
                                 )}
                             >
                                 <NoteTagIcon tag={tag} size="md" animate={highlighted === tag.id} decorative />

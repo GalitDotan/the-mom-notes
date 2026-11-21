@@ -11,6 +11,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { ThemePicker } from "@/features/theme/ThemePicker";
 import { accessibilitySettings } from "@/lib/constants";
 import { Keyboard, Zap, ZoomIn, ZoomOut } from "lucide-react";
 
@@ -43,7 +44,7 @@ export default function AccessibilityModal({
             >
                 <DialogHeader className="flex-shrink-0">
                     <DialogTitle id="accessibility-title">
-                        Accessibility Settings
+                        Appearance Settings
                     </DialogTitle>
                     <DialogDescription id="accessibility-description">
                         Adjust the appearance of the application to suit your needs. Your
@@ -55,6 +56,8 @@ export default function AccessibilityModal({
                     className="flex-grow overflow-y-auto -mx-6 px-6 py-4 space-y-6"
                     role="main"
                 >
+                    <ThemePicker />
+
                     <div className="space-y-3">
                         <Label
                             htmlFor="font-size-slider"
@@ -64,7 +67,7 @@ export default function AccessibilityModal({
                         </Label>
 
                         <div className="flex items-center gap-4">
-                            <ZoomOut className="w-5 h-5 text-gray-500" aria-hidden="true" />
+                            <ZoomOut className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                             <Slider
                                 id="font-size-slider"
                                 min={accessibilitySettings.fontSizePercent.min}
@@ -75,18 +78,18 @@ export default function AccessibilityModal({
                                 aria-label={`Font size: ${fontSize} percent`}
                                 className="flex-1"
                             />
-                            <ZoomIn className="w-6 h-6 text-gray-500" aria-hidden="true" />
+                            <ZoomIn className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
                         </div>
 
                         <p
-                            className="text-center text-sm text-gray-600"
+                            className="text-center text-sm text-muted-foreground"
                             aria-live="polite"
                         >
                             Current size: {fontSize}%
                         </p>
                     </div>
 
-                    <div className="flex items-center justify-between rounded-lg border p-3 shadow-xs bg-white">
+                    <div className="flex items-center justify-between rounded-lg border p-3 shadow-xs bg-card">
                         <div className="space-y-0.5">
                             <Label
                                 htmlFor="high-contrast-switch"
@@ -94,7 +97,7 @@ export default function AccessibilityModal({
                             >
                                 <Zap className="w-5 h-5" aria-hidden="true" /> High Contrast Mode
                             </Label>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-muted-foreground">
                                 Increases text visibility for better readability.
                             </p>
                         </div>
@@ -120,7 +123,7 @@ export default function AccessibilityModal({
                             Shortcuts
                         </h4>
                         <ul
-                            className="text-sm list-disc list-inside space-y-1 text-gray-600"
+                            className="text-sm list-disc list-inside space-y-1 text-muted-foreground"
                             role="list"
                         >
                             <li>
@@ -154,7 +157,7 @@ export default function AccessibilityModal({
                         <Button
                             type="button"
                             onClick={onClose}
-                            aria-label="Close accessibility settings"
+                            aria-label="Close appearance settings"
                         >
                             Done
                         </Button>

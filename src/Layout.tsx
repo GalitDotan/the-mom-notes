@@ -143,7 +143,7 @@ export default function Layout({ children }: LayoutProps) {
                                             aria-current={isActive ? "page" : undefined}
                                             className={cn(
                                                 "relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
-                                                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                                                isActive ? "text-primary-fg" : "text-muted-foreground hover:text-foreground"
                                             )}
                                         >
                                             {/* One shared pill that springs from the old tab to the new one. */}
@@ -228,7 +228,7 @@ export default function Layout({ children }: LayoutProps) {
                                                 aria-current={isActive ? "page" : undefined}
                                                 className={cn(
                                                     "flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-colors duration-150",
-                                                    isActive ? "bg-accent text-primary" : "text-foreground/80 hover:bg-secondary"
+                                                    isActive ? "bg-accent text-primary-fg" : "text-foreground/80 hover:bg-muted"
                                                 )}
                                                 onClick={() => setIsMobileMenuOpen(false)}
                                             >
@@ -283,7 +283,7 @@ export default function Layout({ children }: LayoutProps) {
                             className="text-muted-foreground"
                         >
                             <Accessibility aria-hidden="true" />
-                            Accessibility Settings
+                            Appearance Settings
                         </Button>
                         <p className="text-center text-[13px] text-muted-foreground">&copy; {new Date().getFullYear()} {productName}. All rights reserved.</p>
                     </div>
