@@ -1,17 +1,59 @@
 /**
- * Centralized constants for The Mom Notes
+ * Centralized constants for Saga's Scout
  * Messages, navigation items, and other constants are defined here
  * to avoid duplication and make i18n easier in the future.
  */
 
-import { createPageUrl } from '@/utils';
 import {
-    Heart,
     HelpCircle,
     LayoutDashboard,
-    StickyNote,
     type LucideIcon,
 } from 'lucide-react';
+
+/**
+ * Product branding
+ */
+export const productName = "Saga's Scout" as const;
+
+/** The product logo: the favicon (public/favicon.svg, also linked from index.html). */
+export const productLogoUrl = '/favicon.svg';
+
+/**
+ * App routes, the single source for every path App.tsx serves and every
+ * link to one. The paths appear in bookmarks and shared links, so their
+ * values must not change.
+ */
+export const routes = {
+    home: '/',
+    login: '/login',
+    dashboards: '/DashboardsPage',
+    dashboardDetail: '/DashboardDetailPage',
+    explanation: '/Guide',
+    credits: '/Credits',
+    about: '/About',
+    privacyPolicy: '/PrivacyPolicy',
+    termsOfUse: '/TermsOfUse',
+    accessibilityStatement: '/AccessibilityStatement',
+} as const;
+
+/** The page of a single dashboard (DashboardDetailPage reads the `id` query parameter). */
+export const dashboardUrl = (dashboardId: string) =>
+    `${routes.dashboardDetail}?id=${encodeURIComponent(dashboardId)}`;
+
+/**
+ * Accessibility settings chosen in AccessibilityModal and applied by Layout.
+ * The font size is a percentage of the browser's root font size.
+ */
+export const accessibilitySettings = {
+    fontSizePercent: {
+        default: 100,
+        min: 80,
+        max: 200,
+        step: 10,
+    },
+    /** Class Layout puts on <html> in high-contrast mode; styles/accessibility.css keys on it. */
+    highContrastClassName: 'high-contrast',
+} as const;
 
 /**
  * Toast/notification messages
@@ -51,39 +93,37 @@ export type NavigationItem = {
 export const navigationItems: NavigationItem[] = [
     {
         title: 'Dashboards',
-        url: createPageUrl('DashboardsPage'),
+        url: routes.dashboards,
         icon: LayoutDashboard,
     },
     {
-        title: 'Explanation',
-        url: createPageUrl('Explanation'),
+        title: 'Guide',
+        url: routes.explanation,
         icon: HelpCircle,
     },
-    {
-        title: 'Credits',
-        url: createPageUrl('Credits'),
-        icon: Heart,
-    },
-    {
-        title: 'About',
-        url: createPageUrl('About'),
-        icon: StickyNote,
-    },
-    // The accessibility statement is linked from the footer, next to Accessibility Settings.
+    // About, Credits and the legal pages are linked from the footer; the
+    // accessibility statement sits next to Accessibility Settings there.
 ];
+
+/**
+ * Text only screen readers announce.
+ */
+export const screenReaderText = {
+    opensInNewTab: '(opens in a new tab)',
+};
 
 /**
  * Page titles configuration
  */
 export const pageTitle = {
-    dashboards: 'Your Dashboards - The Mom Notes',
-    dashboard: 'Dashboard - The Mom Notes',
-    explanation: 'How It Works - The Mom Notes',
-    credits: 'Credits - The Mom Notes',
-    about: 'About - The Mom Notes',
-    accessibility: 'Accessibility - The Mom Notes',
-    privacy: 'Privacy Policy - The Mom Notes',
-    terms: 'Terms of Use - The Mom Notes',
+    dashboards: `Your Dashboards - ${productName}`,
+    dashboard: `Dashboard - ${productName}`,
+    explanation: `How It Works - ${productName}`,
+    credits: `Credits - ${productName}`,
+    about: `About - ${productName}`,
+    accessibility: `Accessibility - ${productName}`,
+    privacy: `Privacy Policy - ${productName}`,
+    terms: `Terms of Use - ${productName}`,
 };
 
 /**
@@ -183,12 +223,13 @@ export const animations = {
 };
 
 /**
- * Local storage keys
+ * Browser localStorage keys. These hold users' existing research data and
+ * settings, so their values must not change without a migration.
  */
 export const storageKeys = {
+    /** Each collection is stored under `${collectionPrefix}_${collectionName}` (see localStorageStore.ts). */
+    collectionPrefix: 'momnotes',
     user: 'momnotes_user',
-    notes: 'momnotes_notes',
-    noteVersions: 'momnotes_note_versions',
-    dashboards: 'momnotes_dashboards',
-    shares: 'momnotes_shares',
+    accessibilityFontSize: 'accessibility-font-size',
+    accessibilityHighContrast: 'accessibility-high-contrast',
 } as const;

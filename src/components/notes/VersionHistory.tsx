@@ -57,7 +57,7 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4"
                 onClick={(e) => e.target === e.currentTarget && onClose()}
             >
                 <motion.div
@@ -231,7 +231,7 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                                             <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-gray-600"><ImageIcon className="w-4 h-4" /> Attached Images</h4>
                                             <div className="space-y-3">
                                                 {selectedVersion.images.map((image, index) => (
-                                                    <div key={image.url || index} className="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                                                    <div key={image.url || index} className="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-xs">
                                                         <img src={image.url} alt={image.alt} className="w-16 h-16 object-cover rounded-md flex-shrink-0" />
                                                         <div className="flex-1">
                                                             <p className="text-sm text-gray-800 break-words">{image.alt || 'No description provided.'}</p>

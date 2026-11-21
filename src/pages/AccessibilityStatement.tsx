@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect } from "react";
+import { productName } from "@/lib/constants";
 
 export default function AccessibilityStatement() {
     useEffect(() => {
-        document.title = "Accessibility Statement - The Mom Notes";
+        document.title = `Accessibility Statement - ${productName}`;
     }, []);
 
     return (
@@ -16,7 +17,7 @@ export default function AccessibilityStatement() {
                 <CardContent className="prose prose-lg max-w-none">
                     <div className="space-y-6">
                         <p>
-                            The Mom Notes is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards.
+                            {productName} is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards.
                         </p>
 
                         <div>
@@ -41,7 +42,7 @@ export default function AccessibilityStatement() {
                         <div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-3">3. Supported Technologies</h3>
                             <p>
-                                The Mom Notes is designed to work with the following assistive technologies:
+                                {productName} is designed to work with the following assistive technologies:
                             </p>
                             <ul className="list-disc list-inside space-y-2">
                                 <li>Screen readers (NVDA, JAWS, VoiceOver)</li>
@@ -66,7 +67,7 @@ export default function AccessibilityStatement() {
                         <div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-3">5. Feedback and Contact Information</h3>
                             <p>
-                                We welcome your feedback on the accessibility of The Mom Notes. If you encounter accessibility barriers or have suggestions for improvement, please let us know through the feedback mechanisms in the application.
+                                We welcome your feedback on the accessibility of {productName}. If you encounter accessibility barriers or have suggestions for improvement, please let us know through the feedback mechanisms in the application.
                             </p>
                         </div>
 

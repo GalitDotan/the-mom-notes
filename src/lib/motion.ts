@@ -1,4 +1,4 @@
-import type { Transition } from 'motion/react';
+import type { Transition, Variants } from 'motion/react';
 
 /**
  * Shared springs. A spring with `bounce: 0` is critically damped (no
@@ -23,6 +23,19 @@ export const ENTER_FROM_BELOW = {
     animate: { opacity: 1, y: 0 },
     transition: SPRING_SMOOTH,
 } as const;
+
+/**
+ * A page's sections entering one after another, each with ENTER_FROM_BELOW's
+ * rise. `container` goes on the parent and `item` on each section; both must
+ * be motion components (see ContentPage).
+ */
+export const STAGGERED_ENTRANCE = {
+    container: { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } },
+    item: {
+        hidden: ENTER_FROM_BELOW.initial,
+        visible: { ...ENTER_FROM_BELOW.animate, transition: SPRING_SMOOTH },
+    },
+} satisfies Record<'container' | 'item', Variants>;
 
 /** Item in an animated list: grows in place and fades, leaves the same way. */
 export const LIST_ITEM_MOTION = {

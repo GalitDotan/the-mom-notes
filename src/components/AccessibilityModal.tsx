@@ -11,6 +11,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { accessibilitySettings } from "@/lib/constants";
 import { Keyboard, Zap, ZoomIn, ZoomOut } from "lucide-react";
 
 export default function AccessibilityModal({
@@ -66,9 +67,9 @@ export default function AccessibilityModal({
                             <ZoomOut className="w-5 h-5 text-gray-500" aria-hidden="true" />
                             <Slider
                                 id="font-size-slider"
-                                min={80}
-                                max={200}
-                                step={10}
+                                min={accessibilitySettings.fontSizePercent.min}
+                                max={accessibilitySettings.fontSizePercent.max}
+                                step={accessibilitySettings.fontSizePercent.step}
                                 value={[fontSize]}
                                 onValueChange={handleFontSizeChange}
                                 aria-label={`Font size: ${fontSize} percent`}
@@ -85,7 +86,7 @@ export default function AccessibilityModal({
                         </p>
                     </div>
 
-                    <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm bg-white">
+                    <div className="flex items-center justify-between rounded-lg border p-3 shadow-xs bg-white">
                         <div className="space-y-0.5">
                             <Label
                                 htmlFor="high-contrast-switch"

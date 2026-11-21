@@ -1,8 +1,7 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
 import App from '@/App'
 import { createDebugHelper } from '@/lib/debug'
-import '@/index.css'
+import '@/styles/global.css'
+import ReactDOM from 'react-dom/client'
 
 // Expose debug helper in development
 if (import.meta.env.DEV) {

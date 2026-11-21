@@ -1,6 +1,6 @@
 import { Home } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import { routes } from '@/lib/constants';
 
 export default function PageNotFound() {
     const location = useLocation();
@@ -26,8 +26,8 @@ export default function PageNotFound() {
 
                     <div className="pt-6">
                         <Link
-                            to={createPageUrl('DashboardsPage')}
-                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
+                            to={routes.dashboards}
+                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
                         >
                             <Home className="w-4 h-4 me-2" aria-hidden="true" />
                             Go Home

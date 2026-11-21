@@ -3,8 +3,12 @@
  * Exposed as `window.DEBUG` in development builds only (see main.tsx).
  */
 
-const STORAGE_KEY_PREFIX = 'momnotes_';
-const USER_STORAGE_KEY = 'momnotes_user';
+import { storageKeys } from '@/lib/constants';
+import { getStorageKey } from '@/lib/localStorageStore';
+
+/** Every key the app's research data lives under: each collection and the user. */
+const STORAGE_KEY_PREFIX = `${storageKeys.collectionPrefix}_`;
+const USER_STORAGE_KEY = storageKeys.user;
 
 /** Parses JSON, falling back to the raw string for non-JSON values. */
 const parseStoredValue = (raw: string | null): unknown => {
@@ -30,7 +34,7 @@ export const createDebugHelper = () => ({
     },
 
     /** A single collection, e.g. `viewCollection('notes')`. */
-    viewCollection: (name: string) => parseStoredValue(localStorage.getItem(`${STORAGE_KEY_PREFIX}${name}`)),
+    viewCollection: (name: string) => parseStoredValue(localStorage.getItem(getStorageKey(name))),
 
     /** Removes every momnotes_* key, i.e. all local research data. */
     clearAll: () => {

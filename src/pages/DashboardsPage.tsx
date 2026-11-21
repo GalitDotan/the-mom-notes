@@ -5,9 +5,8 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from "@/components/ui/input";
 import { Dashboard, DashboardShare, User } from "@/entities/all";
 import type { DashboardPermissionLevel, DashboardRecord, StoredUser } from "@/entities/all";
-import { badgeLabels, messages, pageTitle } from "@/lib/constants";
+import { badgeLabels, dashboardUrl, messages, pageTitle } from "@/lib/constants";
 import { LIST_ITEM_MOTION } from "@/lib/motion";
-import { createPageUrl } from "@/utils";
 import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronRight, FolderOpen, Loader2, Plus, Users } from "lucide-react";
@@ -28,8 +27,8 @@ const DashboardCard = ({ dashboard, isOwner, permission }) => (
     >
         {/* A real link: reachable by keyboard and openable in a new tab. */}
         <Link
-            to={createPageUrl(`DashboardDetailPage?id=${dashboard.id}`)}
-            className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-safe:active:scale-[0.99] transition-transform duration-150"
+            to={dashboardUrl(dashboard.id)}
+            className="group block rounded-2xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-safe:active:scale-[0.99] transition-transform duration-150"
         >
             <Card className="h-full p-5 transition-shadow duration-200 group-hover:shadow-card-hover">
                 <div className="flex items-center gap-3">

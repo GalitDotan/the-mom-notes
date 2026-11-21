@@ -2,7 +2,9 @@
  * The locally signed-in user. This is a name and email kept in the browser,
  * not authentication: there is no password or server.
  */
-const USER_STORAGE_KEY = 'momnotes_user';
+import { storageKeys } from '@/lib/constants';
+
+const USER_STORAGE_KEY = storageKeys.user;
 
 export type StoredUser = {
   id: string;

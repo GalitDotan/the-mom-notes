@@ -6,7 +6,7 @@
  * without a migration.
  */
 
-const STORAGE_KEY_PREFIX = 'momnotes';
+import { storageKeys } from '@/lib/constants';
 
 /** Fields every stored entity has. Other fields are entity-specific. */
 export type EntityRecord = {
@@ -31,7 +31,7 @@ export type EntityStore<T extends EntityRecord> = {
     delete: (id: string) => Promise<true>;
 };
 
-const getStorageKey = (collectionName: string) => `${STORAGE_KEY_PREFIX}_${collectionName}`;
+export const getStorageKey = (collectionName: string) => `${storageKeys.collectionPrefix}_${collectionName}`;
 
 const isEntityRecord = (value: unknown): value is EntityRecord =>
     typeof value === 'object' && value !== null && typeof (value as { id?: unknown }).id === 'string';

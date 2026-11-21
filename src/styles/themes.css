@@ -1,0 +1,628 @@
+/*
+ * Saga theme system.
+ *
+ * Theme selection is app logic (see src/modules/core/theme/theme-context.tsx).
+ * This file owns only the visual design tokens used by each theme.
+ *
+ * Architecture:
+ *   1. Each theme defines only its visual identity / palette inputs.
+ *   2. Shared semantic tokens are derived once from those palette inputs.
+ *   3. Light and dark themes use separate surface derivations where the
+ *      direction of contrast needs to be reversed.
+ *   4. Theme-specific overrides are reserved for genuine visual exceptions,
+ *      rather than redefining the full semantic palette.
+ *
+ * Themes:
+ *   - parchment — default warm light theme
+ *   - ember     — warm dark brown theme
+ *   - frost  — cool neutral light theme
+ *   - velvet    — deep plum dark theme
+ *   - ink       — neutral charcoal dark theme
+ *
+ * Light and dark derivations are keyed on data-appearance, which
+ * ThemeProvider sets from theme-registry.ts alongside data-theme — so a new
+ * theme needs only its palette block below and a registry entry.
+ *
+ * Parchment is also the :root fallback before data-theme is set, avoiding a
+ * flash of unstyled content during application startup.
+ */
+
+:root {
+        /* Saga brand colors */
+        --saga-deep-brown: #1d0d03;
+        --saga-purple: #68114c;
+        --saga-pink: #e24a98;
+        --saga-soft-pink: #e38cbb;
+        --saga-gold: #ebb634;
+        --saga-peach: #f7e0a6;
+
+        /* Shared design constants */
+        --radius: 1rem;
+
+        /*
+     * Default theme palette: Parchment.
+     *
+     * :root contains the fallback values so the app has a complete palette
+     * before theme-context applies data-theme.
+     */
+        --theme-background: var(--saga-peach);
+        --theme-foreground: var(--saga-deep-brown);
+
+        --theme-primary: var(--saga-purple);
+        --theme-secondary: var(--saga-gold);
+        --theme-surface-tint: var(--theme-primary);
+
+        --theme-error: #b91c1c;
+        --theme-success: #15803d;
+        --theme-warning: #b45309;
+        --theme-info: #3b82f6;
+
+        --theme-chart-1: var(--saga-purple);
+        --theme-chart-2: var(--saga-pink);
+        --theme-chart-3: var(--saga-soft-pink);
+        --theme-chart-4: var(--saga-gold);
+        --theme-chart-5: var(--saga-deep-brown);
+
+        /*
+     * Optional derivation inputs.
+     *
+     * These are escape hatches for the small number of themes that need to
+     * tune a derived semantic without redefining the semantic itself.
+     */
+        --theme-muted-strength: 18%;
+        --theme-muted-foreground-strength: 35%;
+
+        /* Palette -> semantic API */
+        --background: var(--theme-background);
+        --foreground: var(--theme-foreground);
+
+        /* Keep each relationship hue recognizable as the manuscript theme changes. */
+        --relationship-amber: color-mix(in oklab, var(--color-amber-500) 50%, var(--foreground));
+        --relationship-teal: color-mix(in oklab, var(--color-teal-500) 55%, var(--foreground));
+        --relationship-rose: color-mix(in oklab, var(--color-rose-500) 55%, var(--foreground));
+        --relationship-violet: color-mix(in oklab, var(--color-violet-500) 55%, var(--foreground));
+        --relationship-orange: color-mix(in oklab, var(--color-orange-500) 55%, var(--foreground));
+        --relationship-blue: color-mix(in oklab, var(--color-blue-500) 55%, var(--foreground));
+
+        --primary: var(--theme-primary);
+        --secondary: var(--theme-secondary);
+
+        /*
+     * Accent hue is derived from the theme's two main chromatic inputs.
+     * The actual accent surface is derived separately for light and dark
+     * themes below so it remains suitable for subtle interactive UI.
+     */
+        --accent-base: color-mix(in oklab,
+                        var(--primary),
+                        var(--secondary) 35%);
+
+        --error: var(--theme-error);
+        --success: var(--theme-success);
+        --warning: var(--theme-warning);
+        --info: var(--theme-info);
+
+        /* Destructive is an action semantic; error is a state semantic. */
+        --destructive: var(--error);
+
+        --chart-1: var(--theme-chart-1);
+        --chart-2: var(--theme-chart-2);
+        --chart-3: var(--theme-chart-3);
+        --chart-4: var(--theme-chart-4);
+        --chart-5: var(--theme-chart-5);
+
+        /* Shared foreground relationships */
+        --card-foreground: var(--foreground);
+        --popover-foreground: var(--foreground);
+
+        --primary-foreground: var(--background);
+        --secondary-foreground: var(--foreground);
+        --accent-foreground: var(--foreground);
+        --destructive-foreground: var(--background);
+
+        /*
+     * UI region tokens.
+     *
+     * Each region of the window has its own semantic layer, and the
+     * region's components consume only that layer: the editor toolbar
+     * (and the find bar under it), the activity bar (the navigation rail),
+     * the sidebars, the status bar, and menus. Every region token
+     * references the theme's own tokens, so the window reads as one theme
+     * by default; a theme — or any narrower scope — gives a region its own
+     * appearance by overriding that region's tokens, without touching the
+     * region's components.
+     */
+        --toolbar-background: var(--card);
+        --toolbar-foreground: var(--card-foreground);
+        --toolbar-border: var(--border);
+
+        --activity-bar-background: var(--background);
+        --activity-bar-foreground: var(--foreground);
+        --activity-bar-border: var(--border);
+
+        /* Named as shadcn/ui's sidebar tokens, so its sidebar components read them too. */
+        --sidebar: var(--background);
+        --sidebar-foreground: var(--foreground);
+        --sidebar-border: var(--border);
+
+        --status-bar-background: var(--background);
+        --status-bar-foreground: var(--foreground);
+
+        --menu-background: var(--popover);
+        --menu-foreground: var(--popover-foreground);
+        --menu-hover: var(--accent);
+        --menu-active: var(--primary);
+        --menu-border: var(--border);
+        --menu-muted-foreground: var(--muted-foreground);
+
+        /*
+     * Version Control diff colors.
+     *
+     * Each concern gets its own background/foreground pair rather than
+     * reusing --success/--error/--warning's own *-foreground tokens
+     * directly: those (e.g. --destructive-foreground) are tuned for solid,
+     * fully-saturated surfaces (a destructive button), not for text sitting
+     * on top of a translucent tint over the page background. Deriving the
+     * foreground from --foreground itself (mixed toward the state color)
+     * keeps it dark-on-light / light-on-dark automatically in every theme instead of
+     * ever hardcoding a fixed color that only works for one appearance.
+     *
+     * The "-char" variants are a stronger-opacity background used for
+     * intra-line/character-level highlights (inline-change.tsx), which
+     * cover much smaller spans than a whole added/removed block
+     * (change-block.tsx) and would otherwise be easy to miss at the same
+     * translucency.
+     */
+        --diff-added-bg: color-mix(in oklab, var(--success), transparent 80%);
+        --diff-added-fg: color-mix(in oklab, var(--foreground), var(--success) 30%);
+        --diff-added-char-bg: color-mix(in oklab, var(--success), transparent 65%);
+
+        --diff-removed-bg: color-mix(in oklab, var(--error), transparent 80%);
+        --diff-removed-fg: color-mix(in oklab, var(--foreground), var(--error) 30%);
+        --diff-removed-char-bg: color-mix(in oklab, var(--error), transparent 65%);
+
+        --diff-modified-bg: color-mix(in oklab, var(--warning), transparent 80%);
+        --diff-modified-fg: color-mix(in oklab, var(--foreground), var(--warning) 30%);
+        --diff-modified-char-bg: color-mix(in oklab, var(--warning), transparent 65%);
+
+        /*
+     * Find & Replace match highlights.
+     *
+     * The active match follows the selection colors. Other matches use a
+     * translucent warning tint so they remain visible without competing with
+     * actual text selection.
+     */
+        --search-match-background: color-mix(in oklab,
+                        var(--warning),
+                        transparent 65%);
+        --search-match-current-background: var(--selection);
+        --search-match-current-foreground: var(--selection-foreground);
+
+        /*
+     * Comment type colors.
+     *
+     * One centralized derivation keeps comment opacity and contrast
+     * consistent across themes. Issue intentionally follows --error rather
+     * than --destructive because it describes state, not an action.
+     */
+        --comment-note: var(--comment-note-color, var(--primary));
+        --comment-todo: var(--info);
+        --comment-warning: var(--warning);
+        --comment-issue: var(--error);
+
+        --comment-note-highlight: color-mix(in oklab,
+                        var(--comment-note),
+                        transparent 65%);
+        --comment-todo-highlight: color-mix(in oklab,
+                        var(--comment-todo),
+                        transparent 65%);
+        --comment-warning-highlight: color-mix(in oklab,
+                        var(--comment-warning),
+                        transparent 65%);
+        --comment-issue-highlight: color-mix(in oklab,
+                        var(--comment-issue),
+                        transparent 65%);
+
+        /*
+     * Annotation type colors for application chrome — the Annotations
+     * sidebar's icons and the Structure Lens's synopsis cards (see
+     * annotation-type-presentation.ts). Annotations inside the manuscript
+     * use the independent --manuscript-annotation-* palette instead.
+     *
+     * An ordinary annotation reads like a source-code comment: quieter than
+     * prose, never a state color. Synopsis is tinted from --primary and
+     * Chapter Synopsis from --info, so the three read apart at a glance.
+     */
+        --annotation-foreground: var(--muted-foreground);
+        --annotation-border: var(--border);
+        --annotation-background: color-mix(in oklab,
+                        var(--muted-foreground),
+                        transparent 94%);
+
+        --annotation-synopsis-foreground: var(--foreground);
+        --annotation-synopsis-border: var(--primary);
+        --annotation-synopsis-background: color-mix(in oklab,
+                        var(--primary),
+                        transparent 92%);
+
+        --annotation-chapter-synopsis-foreground: var(--foreground);
+        --annotation-chapter-synopsis-border: var(--info);
+        --annotation-chapter-synopsis-background: color-mix(in oklab,
+                        var(--info),
+                        transparent 92%);
+
+        /*
+     * Configurable option-set swatch colors (see shared/domain/option-set.ts) —
+     * the shared, closed palette backing every Saga-wide configurable
+     * option (chapter/scene Stage, Planning Board comment workflow
+     * Status). A swatch name is a reference to one of this theme's
+     * semantic hues, never a raw color of its own, so a writer can assign
+     * any swatch to a custom Stage/Status in any theme.
+     *
+     * Border and background carry the hue. The foreground is text on that
+     * background, so — like the diff tokens above — it is the theme's
+     * --foreground mixed toward the hue, which keeps it readable in every
+     * theme (see __tests__/swatch-contrast.test.ts). The accent swatch
+     * takes --accent-base, the accent hue itself: --accent is a
+     * near-background surface tint.
+     */
+        --option-swatch-neutral-foreground: var(--muted-foreground);
+        --option-swatch-neutral-border: var(--muted-foreground);
+        --option-swatch-neutral-background: color-mix(in oklab,
+                        var(--muted-foreground),
+                        transparent 90%);
+
+        --option-swatch-primary-foreground: color-mix(in oklab,
+                        var(--foreground),
+                        var(--primary) 40%);
+        --option-swatch-primary-border: var(--primary);
+        --option-swatch-primary-background: color-mix(in oklab,
+                        var(--primary),
+                        transparent 88%);
+
+        --option-swatch-secondary-foreground: color-mix(in oklab,
+                        var(--foreground),
+                        var(--secondary) 40%);
+        --option-swatch-secondary-border: var(--secondary);
+        --option-swatch-secondary-background: color-mix(in oklab,
+                        var(--secondary),
+                        transparent 88%);
+
+        --option-swatch-accent-foreground: color-mix(in oklab,
+                        var(--foreground),
+                        var(--accent-base) 40%);
+        --option-swatch-accent-border: var(--accent-base);
+        --option-swatch-accent-background: color-mix(in oklab,
+                        var(--accent-base),
+                        transparent 88%);
+
+        --option-swatch-info-foreground: color-mix(in oklab,
+                        var(--foreground),
+                        var(--info) 40%);
+        --option-swatch-info-border: var(--info);
+        --option-swatch-info-background: color-mix(in oklab,
+                        var(--info),
+                        transparent 88%);
+
+        --option-swatch-success-foreground: color-mix(in oklab,
+                        var(--foreground),
+                        var(--success) 40%);
+        --option-swatch-success-border: var(--success);
+        --option-swatch-success-background: color-mix(in oklab,
+                        var(--success),
+                        transparent 88%);
+
+        --option-swatch-warning-foreground: color-mix(in oklab,
+                        var(--foreground),
+                        var(--warning) 40%);
+        --option-swatch-warning-border: var(--warning);
+        --option-swatch-warning-background: color-mix(in oklab,
+                        var(--warning),
+                        transparent 88%);
+
+        --option-swatch-error-foreground: color-mix(in oklab,
+                        var(--foreground),
+                        var(--error) 40%);
+        --option-swatch-error-border: var(--error);
+        --option-swatch-error-background: color-mix(in oklab,
+                        var(--error),
+                        transparent 88%);
+
+        /*
+     * Illustration colors — the spot illustrations in
+     * components/illustrations. Paper stays light in every theme, so a
+     * page reads as a page (its base, --illustration-paper, is derived per
+     * appearance below); the theme's chart hues tint the paper and carry
+     * the accents, so each theme's illustrations are drawn in its own
+     * colors. Outlines follow the foreground, so a shape stands out on
+     * light and dark surfaces alike.
+     */
+        --illustration-paper-1: color-mix(in oklab,
+                        var(--illustration-paper),
+                        var(--chart-4) 30%);
+        --illustration-paper-2: color-mix(in oklab,
+                        var(--illustration-paper),
+                        var(--chart-3) 32%);
+        --illustration-paper-3: color-mix(in oklab,
+                        var(--illustration-paper),
+                        var(--chart-1) 24%);
+        --illustration-line: color-mix(in oklab,
+                        var(--chart-2),
+                        var(--illustration-paper) 15%);
+        --illustration-outline: color-mix(in oklab,
+                        var(--foreground),
+                        transparent 15%);
+        --illustration-accent: var(--chart-2);
+        --illustration-highlight: var(--chart-4);
+        --illustration-growth: var(--success);
+
+        /* Mood faces: the semantic hues, lightened enough for dark features (--illustration-mood-ink) to read on them. */
+        --illustration-mood-great: color-mix(in oklab,
+                        var(--success),
+                        white var(--illustration-mood-lift));
+        --illustration-mood-good: color-mix(in oklab,
+                        var(--info),
+                        white var(--illustration-mood-lift));
+        --illustration-mood-okay: color-mix(in oklab,
+                        var(--warning),
+                        white var(--illustration-mood-lift));
+        --illustration-mood-hard: color-mix(in oklab,
+                        var(--error),
+                        white var(--illustration-mood-lift));
+        --illustration-mood-ink: var(--saga-deep-brown);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Theme palettes                                                             */
+/* -------------------------------------------------------------------------- */
+
+[data-theme="parchment"] {
+        --theme-background: var(--saga-peach);
+        --theme-foreground: var(--saga-deep-brown);
+
+        --theme-primary: var(--saga-purple);
+        --theme-secondary: var(--saga-gold);
+        /* Parchment deliberately carries a subtle purple tint in soft surfaces. */
+        --theme-surface-tint: var(--theme-primary);
+        --theme-muted-strength: 18%;
+
+        --theme-error: #b91c1c;
+        --theme-success: #15803d;
+        --theme-warning: #b45309;
+        --theme-info: #3b82f6;
+
+        --theme-chart-1: var(--saga-purple);
+        --theme-chart-2: var(--saga-pink);
+        --theme-chart-3: var(--saga-soft-pink);
+        --theme-chart-4: var(--saga-gold);
+        --theme-chart-5: var(--saga-deep-brown);
+
+        --menu-active: color-mix(in oklab,
+                        var(--primary) 65%,
+                        var(--background));
+}
+
+[data-theme="ember"] {
+        --theme-background: #18110e;
+        --theme-foreground: #eee5dc;
+
+        --theme-primary: #c79a4b;
+        --theme-secondary: #6f3d5d;
+        --theme-surface-tint: var(--theme-foreground);
+        --theme-muted-strength: 10%;
+        --theme-muted-foreground-strength: 30%;
+
+        --theme-error: #e05252;
+        --theme-success: #70b879;
+        --theme-warning: #d6a23d;
+        --theme-info: #6fa8dc;
+
+        --theme-chart-1: #c79a4b;
+        --theme-chart-2: #8f3f70;
+        --theme-chart-3: #70b879;
+        --theme-chart-4: #6fa8dc;
+        --theme-chart-5: #b8aaa0;
+}
+
+[data-theme="frost"] {
+        --theme-background: #d5dce2;
+        --theme-foreground: #000000;
+
+        --theme-primary: #017fdf;
+        --theme-secondary: #e441ae;
+        --theme-surface-tint: var(--theme-foreground);
+        --theme-muted-strength: 12%;
+
+        --theme-error: #c93c3c;
+        --theme-success: #438554;
+        --theme-warning: #a86d17;
+        --theme-info: #246fa8;
+
+        --theme-chart-1: #017fdf;
+        --theme-chart-2: #e441ae;
+        --theme-chart-3: #24a343;
+        --theme-chart-4: #d3891a;
+        --theme-chart-5: #888b8f;
+}
+
+[data-theme="velvet"] {
+        --theme-background: #1c1019;
+        --theme-foreground: #f2e8ee;
+
+        --theme-primary: #8f3d70;
+        --theme-secondary: #795500;
+        --theme-surface-tint: var(--theme-foreground);
+        --theme-muted-strength: 10%;
+        --theme-muted-foreground-strength: 30%;
+
+        --theme-error: #d6535d;
+        --theme-success: #6eaa79;
+        --theme-warning: #c69a4b;
+        --theme-info: #729bc2;
+
+        --theme-chart-1: #b86994;
+        --theme-chart-2: #c69a4b;
+        --theme-chart-3: #6eaa79;
+        --theme-chart-4: #729bc2;
+        --theme-chart-5: #bcaab5;
+}
+
+[data-theme="ink"] {
+        --theme-background: #1e1e1e;
+        --theme-foreground: #d4d4d4;
+
+        --theme-primary: #0e639c;
+        --theme-secondary: #9c0e55;
+        --theme-surface-tint: var(--theme-foreground);
+        --theme-muted-strength: 10%;
+        --theme-muted-foreground-strength: 30%;
+
+        --theme-error: #f14c4c;
+        --theme-success: #89d185;
+        --theme-warning: #cca700;
+        --theme-info: #3794ff;
+
+        /* Neutral note comments stay distinct from blue TODO comments. */
+        --comment-note-color: #9d9d9d;
+
+        --theme-chart-1: #3794ff;
+        --theme-chart-2: #89d185;
+        --theme-chart-3: #cca700;
+        --theme-chart-4: #f14c4c;
+        --theme-chart-5: #9d9d9d;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Light semantic derivations                                                 */
+/* -------------------------------------------------------------------------- */
+
+:root,
+[data-appearance="light"] {
+        /* Elevated surfaces move toward white in light themes. */
+        --card: color-mix(in oklab,
+                        var(--background),
+                        white 28%);
+
+        --popover: color-mix(in oklab,
+                        var(--background),
+                        white 55%);
+
+        --accent: color-mix(in oklab,
+                        var(--background),
+                        var(--accent-base) 18%);
+
+        --muted: color-mix(in oklab,
+                        var(--background),
+                        var(--theme-surface-tint) var(--theme-muted-strength));
+
+        --muted-foreground: color-mix(in oklab,
+                        var(--foreground),
+                        var(--background) var(--theme-muted-foreground-strength));
+
+        --border: color-mix(in oklab,
+                        var(--background),
+                        var(--foreground) 20%);
+
+        --input: color-mix(in oklab,
+                        var(--background),
+                        var(--foreground) 25%);
+
+        --ring: var(--primary);
+
+        --selection: color-mix(in oklab,
+                        var(--primary),
+                        var(--background) 65%);
+        --selection-foreground: var(--foreground);
+
+        --illustration-paper: color-mix(in oklab,
+                        var(--background),
+                        white 75%);
+        --illustration-mood-lift: 40%;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Dark semantic derivations                                                  */
+/* -------------------------------------------------------------------------- */
+
+[data-appearance="dark"] {
+        /* Elevated surfaces need clearer separation from the app background. */
+        --card: color-mix(in oklab,
+                        var(--background),
+                        var(--foreground) 9%);
+
+        --popover: color-mix(in oklab,
+                        var(--background),
+                        var(--foreground) 13%);
+
+        --accent: color-mix(in oklab,
+                        var(--background),
+                        var(--accent-base) 25%);
+
+        --muted: color-mix(in oklab,
+                        var(--background),
+                        var(--theme-surface-tint) var(--theme-muted-strength));
+
+        --muted-foreground: color-mix(in oklab,
+                        var(--foreground),
+                        var(--background) var(--theme-muted-foreground-strength));
+
+        --border: color-mix(in oklab,
+                        var(--background),
+                        var(--foreground) 22%);
+
+        --input: color-mix(in oklab,
+                        var(--background),
+                        var(--foreground) 18%);
+
+        --ring: color-mix(in oklab,
+                        var(--primary),
+                        white 15%);
+
+        --selection: color-mix(in oklab,
+                        var(--primary),
+                        var(--foreground) 12%);
+        --selection-foreground: var(--foreground);
+
+        --illustration-paper: color-mix(in oklab,
+                        var(--foreground),
+                        var(--background) 6%);
+        --illustration-mood-lift: 12%;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Intentional semantic exceptions                                            */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * Foreground colors for strong chromatic controls cannot always be derived
+ * safely from background/foreground alone. These exceptions preserve readable
+ * contrast while keeping the surface colors themselves palette-driven.
+ */
+:root:not([data-theme]),
+[data-theme="parchment"] {
+        --primary-foreground: var(--saga-peach);
+        --secondary-foreground: var(--saga-deep-brown);
+        --destructive-foreground: #ffffff;
+
+        --selection-foreground: #ffffff;
+}
+
+[data-theme="frost"] {
+        --primary-foreground: #ffffff;
+        --secondary-foreground: #ffffff;
+        --accent-foreground: #17364f;
+        --destructive-foreground: #ffffff;
+
+        --selection-foreground: #172b3a;
+}
+
+[data-appearance="dark"] {
+        --primary-foreground: #ffffff;
+        --secondary-foreground: #ffffff;
+        --accent-foreground: #ffffff;
+        --destructive-foreground: #ffffff;
+}
+
+[data-theme="ember"] {
+        /* Gold primary is light enough to require a dark foreground. */
+        --primary-foreground: #1b120e;
+}

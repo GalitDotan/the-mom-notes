@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/select";
 import { Dashboard, DashboardShare, Note, NoteVersion, User } from "@/entities/all";
 import type { DashboardRecord, NoteRecord, StoredUser } from "@/entities/all";
-import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowDownWideNarrow, ArrowLeft, ArrowUpNarrowWide, Edit3, FileSpreadsheet, Filter, Grid3X3, List, Loader2, MoreHorizontal, Plus, Search, SortAsc, Star as StarIcon, Tag as TopicFilterIcon, Trash2, UserCircle as UserFilterIcon, Users } from "lucide-react";
@@ -37,6 +36,7 @@ import { toast } from "sonner";
 import { List as AllNotesIcon } from "@/components/animate-ui/icons/list";
 import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
 import { NOTE_TAGS, findNoteTagBySymbol, noteHasTag } from "@/features/notes/note-tags";
+import { pageTitle, productName, routes } from "@/lib/constants";
 import { LIST_ITEM_MOTION } from "@/lib/motion";
 
 import DashboardShareDialog from "../components/dashboards/DashboardShareDialog";
@@ -127,9 +127,9 @@ export default function DashboardDetailPage() {
 
     useEffect(() => {
         if (currentDashboard) {
-            document.title = `${currentDashboard.name} - The Mom Notes`;
+            document.title = `${currentDashboard.name} - ${productName}`;
         } else {
-            document.title = "Dashboard - The Mom Notes";
+            document.title = pageTitle.dashboard;
         }
     }, [currentDashboard]);
 
@@ -140,7 +140,7 @@ export default function DashboardDetailPage() {
             const dashboardDetails = await Dashboard.get(dashboardId);
             if (!dashboardDetails) {
                 toast.error("Dashboard not found.");
-                navigate(createPageUrl("DashboardsPage"));
+                navigate(routes.dashboards);
                 return;
             }
 
@@ -153,7 +153,7 @@ export default function DashboardDetailPage() {
                     permission = share[0].permission_level;
                 } else {
                     toast.error("You do not have permission to view this dashboard.");
-                    navigate(createPageUrl("DashboardsPage"));
+                    navigate(routes.dashboards);
                     return;
                 }
             }
@@ -170,7 +170,7 @@ export default function DashboardDetailPage() {
         } catch (error) {
             console.error("Failed to load dashboard details:", error);
             toast.error("Failed to load dashboard.");
-            navigate(createPageUrl("DashboardsPage"));
+            navigate(routes.dashboards);
             setIsLoading(false);
         }
     }, [dashboardId, navigate]);
@@ -220,7 +220,7 @@ export default function DashboardDetailPage() {
                 setCurrentUser(user);
                 fetchDashboardData(user);
             } catch (error) {
-                navigate(createPageUrl("DashboardsPage"));
+                navigate(routes.dashboards);
             }
         };
         init();
@@ -398,7 +398,7 @@ export default function DashboardDetailPage() {
                 }
                 await Dashboard.delete(currentDashboard.id);
                 toast.success(`Dashboard "${currentDashboard.name}" deleted.`);
-                navigate(createPageUrl("DashboardsPage"));
+                navigate(routes.dashboards);
             } catch (error) {
                 toast.error("Failed to delete dashboard.");
                 console.error("Delete dashboard error:", error);
@@ -509,7 +509,7 @@ export default function DashboardDetailPage() {
                 {/* Header section */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 mb-6">
                     <div className="flex items-center gap-3 min-w-0">
-                        <Button variant="ghost" size="icon" onClick={() => navigate(createPageUrl("DashboardsPage"))} className="rounded-full shrink-0 rtl:rotate-180" aria-label="Back to dashboards">
+                        <Button variant="ghost" size="icon" onClick={() => navigate(routes.dashboards)} className="rounded-full shrink-0 rtl:rotate-180" aria-label="Back to dashboards">
                             <ArrowLeft className="!w-5 !h-5" />
                         </Button>
                         <div className="min-w-0">

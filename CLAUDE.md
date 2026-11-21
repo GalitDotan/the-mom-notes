@@ -1,16 +1,14 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides project-specific guidance for Claude Code when working on The Mom Notes.
+This file provides project-specific guidance for Codex when working on Saga's Scout.
 
 ---
 
 # Project Overview
 
-The Mom Notes is a standalone research application for capturing, organizing, and learning from customer conversations and qualitative research.
+Saga's Scout is a standalone research application for capturing, organizing, and learning from customer conversations and qualitative research.
 
-It originated as an internal research hub for Saga Software and was previously built with Base44 and hosted at themomnotes.com. It is now being developed as an independent application, detached from Base44.
-
-The Mom Notes should support research across products and domains. Saga is an important current use case, but the application architecture and product language should not assume that all research belongs to Saga.
+Saga's Scout should support research across products and domains. Saga is an important current use case, but the application architecture and product language should not assume that all research belongs to Saga.
 
 The primary goals are:
 
@@ -25,13 +23,11 @@ The primary goals are:
 
 The application is currently under active development.
 
-When existing Base44 behavior conflicts with a cleaner standalone architecture, prefer the architecture that makes sense for the standalone application unless preserving that behavior is an explicit requirement.
-
 ---
 
 # Product Model
 
-The Mom Notes is fundamentally a **qualitative research repository**, not a CRM, task manager, or general-purpose note-taking application.
+Saga's Scout is fundamentally a **qualitative research repository**, not a CRM, task manager, or general-purpose note-taking application.
 
 Core concepts may include things such as:
 
@@ -79,8 +75,6 @@ Do not alter source research data merely to make derived analysis cleaner.
 Before making architectural assumptions, inspect the repository.
 
 Use the actual project configuration, package files, source structure, and existing conventions as the source of truth.
-
-Do not carry assumptions from Saga Editor or the previous Base44 implementation into this codebase.
 
 In particular, do not assume the application uses:
 
@@ -223,7 +217,7 @@ Prefer names based on research concepts over implementation details.
 
 # Data Model and Persistence
 
-Research data is the core asset of The Mom Notes.
+Research data is the core asset of Saga's Scout.
 
 Protect it accordingly.
 
@@ -394,7 +388,7 @@ Respect light and dark themes if both are supported.
 
 # Interaction Design
 
-The Mom Notes should feel lightweight even when the underlying research structure is sophisticated.
+Saga's Scout should feel lightweight even when the underlying research structure is sophisticated.
 
 Prefer interactions that:
 
@@ -469,7 +463,7 @@ Accessibility text is also user-visible content and must be localized where i18n
 
 # RTL Support
 
-The Mom Notes should support right-to-left content and interfaces where localization requires it.
+Saga's Scout should support right-to-left content and interfaces where localization requires it.
 
 When implementing UI:
 
@@ -564,8 +558,6 @@ When refactoring:
 
 Avoid large speculative abstractions.
 
-Do not preserve awkward Base44-era architecture solely because it existed previously if a cleaner standalone design is now possible.
-
 ---
 
 # Testing
@@ -647,7 +639,6 @@ When uncertain:
 * Prefer maintainability over cleverness.
 * Prefer correctness and data integrity over convenience.
 * Prefer simple designs over generalized frameworks.
-* Prefer established project conventions over imported conventions from Saga or Base44.
 * Prefer architecture that remains understandable as the application grows.
 
 If an implementation would require breaking these principles, explain the tradeoff before proceeding.

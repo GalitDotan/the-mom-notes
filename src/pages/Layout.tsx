@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from "@/api/entities";
+import { productName } from "@/lib/constants";
 import { motion, AnimatePresence } from "motion/react";
 import {
     LayoutDashboard,
@@ -34,19 +35,9 @@ const navigationItems = [
         icon: LayoutDashboard,
     },
     {
-        title: "Explanation",
-        url: createPageUrl("Explanation"),
+        title: "Guide",
+        url: createPageUrl("Guide"),
         icon: HelpCircle,
-    },
-    {
-        title: "Credits",
-        url: createPageUrl("Credits"),
-        icon: Heart,
-    },
-    {
-        title: "About",
-        url: createPageUrl("About"),
-        icon: Info,
     },
 ];
 
@@ -77,7 +68,7 @@ export default function Layout({ children, currentPageName }) {
 
     useEffect(() => {
         // Set a default title, can be overridden by specific pages
-        document.title = "The Mom Notes";
+        document.title = productName;
         loadUser();
 
         const handleOnline = () => setIsOnline(true);
@@ -125,7 +116,7 @@ export default function Layout({ children, currentPageName }) {
 
     if (user === null) {
         // Set title for login page
-        document.title = "Login - The Mom Notes";
+        document.title = `Login - ${productName}`;
         return (
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
                 <div className="max-w-md w-full">
@@ -133,14 +124,14 @@ export default function Layout({ children, currentPageName }) {
                         <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-3xl mx-auto mb-6 flex items-center justify-center transform rotate-12">
                             <StickyNote className="w-10 h-10 text-white" />
                         </div>
-                        <h1 className="text-4xl font-bold text-gray-900 mb-3">Welcome to The Mom Notes</h1>
+                        <h1 className="text-4xl font-bold text-gray-900 mb-3">Welcome to {productName}</h1>
                         <p className="text-gray-600 text-lg leading-relaxed">
                             Capture insights with emoji-coded research notes.
                             <br />Perfect for user interviews and feedback.
                         </p>
                     </div>
 
-                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
+                    <div className="bg-white/80 backdrop-blur-xs rounded-2xl shadow-xl p-8 border border-white/20">
                         <Button
                             onClick={handleLogin}
                             className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-4 rounded-xl text-lg font-medium transition-all duration-200 transform hover:scale-105"
@@ -181,7 +172,7 @@ export default function Layout({ children, currentPageName }) {
                                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center transform rotate-12">
                                     <StickyNote className="w-5 h-5 text-white" />
                                 </div>
-                                <span className="text-xl font-bold text-gray-900 hidden sm:block">The Mom Notes</span>
+                                <span className="text-xl font-bold text-gray-900 hidden sm:block">{productName}</span>
                             </Link>
 
                             <nav className="hidden md:flex items-center gap-1 ml-8">

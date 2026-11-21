@@ -235,7 +235,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Filters and Search */}
-                <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-white/20 shadow-lg">
+                <div className="bg-white/70 backdrop-blur-xs rounded-2xl p-6 mb-8 border border-white/20 shadow-lg">
                     <div className="flex flex-col lg:flex-row gap-4">
                         {/* Search */}
                         <div className="flex-1">

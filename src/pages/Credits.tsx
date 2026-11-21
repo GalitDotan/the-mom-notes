@@ -1,12 +1,14 @@
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "motion/react";
-import { BookOpen, ExternalLink, Heart } from "lucide-react";
-import { useEffect, useState } from "react";
 import { CircleCheck } from "@/components/animate-ui/icons/circle-check";
 import { Compass } from "@/components/animate-ui/icons/compass";
 import { Lightbulb } from "@/components/animate-ui/icons/lightbulb";
+import { BrandTile } from "@/components/content/BrandTile";
+import { ContentPage, ContentSection } from "@/components/content/ContentPage";
+import { ExternalLinkButton } from "@/components/content/ExternalLinkButton";
+import { HighlightCard } from "@/components/content/HighlightCard";
+import { Card, CardContent } from "@/components/ui/card";
+import { pageTitle } from "@/lib/constants";
+import { BookOpen, Heart } from "lucide-react";
+import { useState } from "react";
 
 /** The three Mom Test benefits, each with an icon that animates while hovered. */
 const METHOD_BENEFITS = [
@@ -16,117 +18,74 @@ const METHOD_BENEFITS = [
 ] as const;
 
 export default function Credits() {
-    useEffect(() => {
-        document.title = "Credits - The Mom Notes";
-    }, []);
-
     return (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Main Content */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="text-center mb-12"
-            >
-                <div className="w-24 h-24 bg-gradient-to-r from-red-400 to-pink-600 rounded-3xl mx-auto mb-8 flex items-center justify-center transform rotate-12">
-                    <Heart className="w-12 h-12 text-white" />
-                </div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-6">
-                    Credits & Attribution
-                </h1>
-                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                    This app stands on the shoulders of giants
-                </p>
-            </motion.div>
-
+        <ContentPage
+            documentTitle={pageTitle.credits}
+            icon={Heart}
+            title="Credits & Attribution"
+            description="This app stands on the shoulders of giants"
+        >
             {/* Rob Fitzpatrick Credit */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="mb-8"
-            >
-                <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-xl overflow-hidden">
+            <ContentSection>
+                <Card>
                     <CardContent className="p-6 md:p-8">
-                        <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
-                            <div className="w-20 h-20 bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-2xl flex items-center justify-center flex-shrink-0">
-                                <BookOpen className="w-10 h-10 text-white" />
-                            </div>
-                            <div className="flex-1">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                        <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-start">
+                            <BrandTile className="size-20">
+                                <BookOpen className="size-10" />
+                            </BrandTile>
+                            <div className="flex-1 space-y-4 leading-relaxed text-muted-foreground">
+                                <h2 className="text-2xl font-bold text-foreground">
                                     Inspired by "The Mom Test"
                                 </h2>
-                                <div className="prose prose-lg text-gray-700 space-y-4">
-                                    <p>
-                                        This app is inspired by and gives full credit to <strong>Rob Fitzpatrick</strong>,
-                                        author of <em>The Mom Test</em> — a must-read book for anyone doing customer development,
-                                        product interviews, or startup validation.
-                                    </p>
-                                    <p>
-                                        We highly recommend you buy the book and support Rob's work:
-                                    </p>
-                                    <div className="flex justify-center my-6">
-                                        <a
-                                            href="https://momtestbook.com"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-block"
-                                        >
-                                            <Button className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] hover:from-[var(--ruby-dust-600)] hover:to-[var(--ruby-dust-800)] text-[var(--ruby-dust-text-on-primary)] text-base md:text-lg px-6 md:px-8 py-3 md:py-4 shadow-lg transform hover:scale-105 transition-all duration-200 w-full sm:w-auto">
-                                                <ExternalLink className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3" />
-                                                Get The Mom Test Book
-                                            </Button>
-                                        </a>
-                                    </div>
-                                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800">
-                                        <p className="text-sm font-medium">
-                                            <strong>Important:</strong> This project is not affiliated with, endorsed by,
-                                            or officially connected to Rob Fitzpatrick or The Mom Test. It's simply a
-                                            tribute tool for those who want to apply the lessons in their own workflows.
-                                        </p>
-                                    </div>
+                                <p>
+                                    This app is inspired by and gives full credit to <strong className="font-semibold text-foreground">Rob Fitzpatrick</strong>,
+                                    author of <em>The Mom Test</em> — a must-read book for anyone doing customer development,
+                                    product interviews, or startup validation.
+                                </p>
+                                <p>
+                                    We highly recommend you buy the book and support Rob's work:
+                                </p>
+                                <div className="flex justify-center py-2">
+                                    <ExternalLinkButton href="https://momtestbook.com" size="lg" className="w-full sm:w-auto">
+                                        Get The Mom Test Book
+                                    </ExternalLinkButton>
                                 </div>
+                                <p className="rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm font-medium text-foreground">
+                                    <strong>Important:</strong> This project is not affiliated with, endorsed by,
+                                    or officially connected to Rob Fitzpatrick or The Mom Test. It's simply a
+                                    tribute tool for those who want to apply the lessons in their own workflows.
+                                </p>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
-            </motion.div>
+            </ContentSection>
 
             {/* Quote from The Mom Test */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="mb-8"
-            >
-                <Card className="bg-gradient-to-r from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] text-white border-0 shadow-xl">
-                    <CardContent className="p-8 text-center">
+            <ContentSection>
+                <HighlightCard>
+                    <figure>
                         <blockquote className="text-xl italic mb-4 leading-relaxed">
                             "The Mom Test is a set of simple rules for crafting good questions that
                             even your mom can't lie to you about."
                         </blockquote>
-                        <cite className="text-[var(--ruby-dust-100)] font-medium">— Rob Fitzpatrick</cite>
-                    </CardContent>
-                </Card>
-            </motion.div>
+                        <figcaption className="font-medium text-primary-foreground/80">— Rob Fitzpatrick</figcaption>
+                    </figure>
+                </HighlightCard>
+            </ContentSection>
 
             {/* Why This Matters */}
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-            >
-                <Card className="bg-white/70 backdrop-blur-sm border-0 shadow-lg">
+            <ContentSection>
+                <Card>
                     <CardContent className="p-8">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+                        <h2 className="text-xl font-bold text-foreground mb-4 text-center">
                             Why The Mom Test Methodology Matters
-                        </h3>
+                        </h2>
                         <MethodBenefits />
                     </CardContent>
                 </Card>
-            </motion.div>
-        </div>
+            </ContentSection>
+        </ContentPage>
     );
 }
 
@@ -140,7 +99,7 @@ function MethodBenefits() {
                     <div className={`size-12 rounded-full flex items-center justify-center mx-auto mb-3 ${chip}`} aria-hidden>
                         <Icon size={22} animate={hovered === id} />
                     </div>
-                    <h4 className="font-semibold text-foreground mb-2">{title}</h4>
+                    <h3 className="font-semibold text-foreground mb-2">{title}</h3>
                     <p className="text-sm text-muted-foreground">{text}</p>
                 </div>
             ))}

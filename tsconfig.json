@@ -35,8 +35,7 @@
     },
     "include": [
         "src",
-        "vite.config.ts",
-        "tailwind.config.ts"
+        "vite.config.ts"
     ],
     "references": [],
     "exclude": [

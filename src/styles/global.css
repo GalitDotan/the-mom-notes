@@ -1,12 +1,23 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "tw-animate-css";
 @import "@fontsource-variable/geist";
+@import "./themes.css";
+@import "./accessibility.css";
+@import "../features/notes/notes.css";
 
-@custom-variant dark (&:is(.dark *));
-@custom-variant high-contrast (&:is(.high-contrast *));
+
+/*
+ * "dark:" follows the active theme's appearance: data-appearance on <html>,
+ * which index.html sets alongside data-theme (see themes.css).
+ */
+@custom-variant dark (&:is([data-appearance="dark"] *));
+
+/* Someone who asks the system for less transparency gets solid surfaces. */
+@custom-variant reduced-transparency (@media (prefers-reduced-transparency: reduce));
 
 @theme inline {
+    /* Saga brand colors */
     --color-saga-deep-brown: var(--saga-deep-brown);
     --color-saga-purple: var(--saga-purple);
     --color-saga-pink: var(--saga-pink);
@@ -14,34 +25,144 @@
     --color-saga-gold: var(--saga-gold);
     --color-saga-peach: var(--saga-peach);
 
-    --color-mom-notes-cream: var(--mom-notes-cream);
-    --color-mom-notes-blush: var(--mom-notes-blush);
-    --color-mom-notes-ruby: var(--mom-notes-ruby);
-    --color-mom-notes-ruby-soft: var(--mom-notes-ruby-soft);
-    --color-mom-notes-ink: var(--mom-notes-ink);
+    /*
+     * Typography. Geist has no Hebrew glyphs, so Hebrew text falls through
+     * to a platform face that has them (Segoe UI on Windows, Arial Hebrew
+     * on macOS, Noto Sans Hebrew on Linux) rather than to whatever generic
+     * sans-serif the system picks.
+     */
+    --font-sans: "Geist Variable",
+    "Segoe UI",
+    "Arial Hebrew",
+    "Noto Sans Hebrew",
+    sans-serif;
+    --font-heading: "Geist Variable",
+    "Segoe UI",
+    "Arial Hebrew",
+    "Noto Sans Hebrew",
+    sans-serif;
+    --font-mono: "Consolas",
+    "Courier New",
+    monospace;
+    /*
+     * Georgia first (a broadly available screen serif), with
+     * universally-installed fallbacks rather than OS-exclusive faces (e.g.
+     * macOS's Iowan Old Style or Windows' Palatino Linotype), so the serif
+     * reads the same regardless of platform.
+     */
+    --font-serif: Georgia,
+    Cambria,
+    "Times New Roman",
+    Times,
+    serif;
 
-    --font-heading: var(--font-sans);
-    --font-sans: "Geist Variable", sans-serif;
+    --text-xxs: 0.625rem;
+    --text-xxs--line-height: 0.875rem;
 
+    /* Semantic application colors */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
+
     --color-card: var(--card);
     --color-card-foreground: var(--card-foreground);
+
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
+
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
+
     --color-secondary: var(--secondary);
     --color-secondary-foreground: var(--secondary-foreground);
+
     --color-muted: var(--muted);
     --color-muted-foreground: var(--muted-foreground);
+
     --color-accent: var(--accent);
     --color-accent-foreground: var(--accent-foreground);
+
     --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-error: var(--error);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-info: var(--info);
+
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
 
+    --color-diff-added-bg: var(--diff-added-bg);
+    --color-diff-added-fg: var(--diff-added-fg);
+    --color-diff-added-char-bg: var(--diff-added-char-bg);
+
+    --color-diff-removed-bg: var(--diff-removed-bg);
+    --color-diff-removed-fg: var(--diff-removed-fg);
+    --color-diff-removed-char-bg: var(--diff-removed-char-bg);
+
+    --color-illustration-paper: var(--illustration-paper);
+    --color-illustration-paper-1: var(--illustration-paper-1);
+    --color-illustration-paper-2: var(--illustration-paper-2);
+    --color-illustration-paper-3: var(--illustration-paper-3);
+    --color-illustration-line: var(--illustration-line);
+    --color-illustration-outline: var(--illustration-outline);
+    --color-illustration-accent: var(--illustration-accent);
+    --color-illustration-highlight: var(--illustration-highlight);
+    --color-illustration-growth: var(--illustration-growth);
+    --color-illustration-mood-great: var(--illustration-mood-great);
+    --color-illustration-mood-good: var(--illustration-mood-good);
+    --color-illustration-mood-okay: var(--illustration-mood-okay);
+    --color-illustration-mood-hard: var(--illustration-mood-hard);
+    --color-illustration-mood-ink: var(--illustration-mood-ink);
+
+    --color-diff-modified-bg: var(--diff-modified-bg);
+    --color-diff-modified-fg: var(--diff-modified-fg);
+    --color-diff-modified-char-bg: var(--diff-modified-char-bg);
+
+    /* UI regions (see themes.css) */
+    --color-toolbar-background: var(--toolbar-background);
+    --color-toolbar-foreground: var(--toolbar-foreground);
+    --color-toolbar-border: var(--toolbar-border);
+
+    --color-activity-bar-background: var(--activity-bar-background);
+    --color-activity-bar-foreground: var(--activity-bar-foreground);
+    --color-activity-bar-border: var(--activity-bar-border);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+
+    --color-status-bar-background: var(--status-bar-background);
+    --color-status-bar-foreground: var(--status-bar-foreground);
+
+    --color-selection: var(--selection);
+    --color-selection-foreground: var(--selection-foreground);
+
+    --color-menu-background: var(--menu-background);
+    --color-menu-foreground: var(--menu-foreground);
+    --color-menu-hover: var(--menu-hover);
+    --color-menu-active: var(--menu-active);
+    --color-menu-border: var(--menu-border);
+    --color-menu-muted-foreground: var(--menu-muted-foreground);
+
+    /* Note tag categories (values below the theme blocks) */
+    --color-tag-emotional: var(--tag-emotional);
+    --color-tag-problem: var(--tag-problem);
+    --color-tag-outcome: var(--tag-outcome);
+    --color-tag-behavior: var(--tag-behavior);
+    --color-tag-context: var(--tag-context);
+    --color-tag-business: var(--tag-business);
+    --color-tag-action: var(--tag-action);
+
+    /* Charts */
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    /* Radius */
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -51,154 +172,244 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+@theme {
+    /* Surface elevation scale: resting card, hovered card, floating overlay. */
+    --shadow-card: 0 1px 2px rgb(16 16 24 / 0.05), 0 1px 1px rgb(16 16 24 / 0.03);
+    --shadow-card-hover: 0 10px 30px -10px rgb(16 16 24 / 0.16), 0 2px 6px rgb(16 16 24 / 0.05);
+    --shadow-overlay: 0 24px 64px -16px rgb(16 16 24 / 0.30), 0 4px 12px rgb(16 16 24 / 0.08);
+}
+
+/*
+ * Saga's Scout tokens alongside the theme palette in themes.css. Global so
+ * pages outside Layout (e.g. /login) get them too.
+ */
 :root {
-    /* Saga brand colors */
-    --saga-deep-brown: #1d0d03;
-    --saga-purple: #68114c;
-    --saga-pink: #e24a98;
-    --saga-soft-pink: #e38cbb;
-    --saga-gold: #ebb634;
-    --saga-peach: #f7e0a6;
+    /* Note tag categories (see features/notes/note-tags.ts). Each reads at
+       >= 4.5:1 as text on white and on its own 10% tint. */
+    --tag-emotional: hsl(32 95% 30%);
+    --tag-problem: hsl(0 72% 45%);
+    --tag-outcome: hsl(221 83% 45%);
+    --tag-behavior: hsl(262 70% 50%);
+    --tag-context: hsl(215 19% 38%);
+    --tag-business: hsl(160 84% 26%);
+    --tag-action: hsl(22 90% 38%);
 
-    /* The Mom Notes palette */
-    --mom-notes-cream: #fff8ed;
-    --mom-notes-blush: #fde8f2;
-    --mom-notes-ruby: #c02668;
-    --mom-notes-ruby-soft: #f9a8d4;
-    --mom-notes-ink: #2a1308;
+    /* Brand palette */
+    --ruby-dust-50: #fef2f7;
+    --ruby-dust-100: #fce6ee;
+    --ruby-dust-200: #f8cde0;
+    --ruby-dust-300: #f5b3d1;
+    --ruby-dust-400: #f08cbc;
+    --ruby-dust-500: #d81768;
+    --ruby-dust-600: #c0155d;
+    --ruby-dust-700: #a91352;
+    --ruby-dust-800: #911147;
+    --ruby-dust-900: #7f103e;
+    --ruby-dust-text-on-primary: white;
+    --ruby-dust-text-interactive: var(--ruby-dust-600);
+    --ruby-dust-focus-ring: var(--ruby-dust-400);
 
-    /* shadcn semantic tokens */
-    --background: var(--mom-notes-cream);
-    --foreground: var(--mom-notes-ink);
-
-    --card: #ffffff;
-    --card-foreground: var(--mom-notes-ink);
-
-    --popover: #ffffff;
-    --popover-foreground: var(--mom-notes-ink);
-
-    --primary: var(--mom-notes-ruby);
-    --primary-foreground: #ffffff;
-
-    --secondary: var(--mom-notes-blush);
-    --secondary-foreground: var(--mom-notes-ink);
-
-    --muted: #f7eadf;
-    --muted-foreground: #765b4f;
-
-    --accent: var(--saga-gold);
-    --accent-foreground: var(--saga-deep-brown);
-
-    --destructive: #b91c1c;
-
-    --border: #ead6cb;
-    --input: #ead6cb;
-    --ring: var(--mom-notes-ruby-soft);
-
-    --radius: 1rem;
-
-    --chart-1: var(--mom-notes-ruby);
-    --chart-2: var(--saga-purple);
-    --chart-3: var(--saga-gold);
-    --chart-4: var(--mom-notes-ruby-soft);
-    --chart-5: var(--saga-deep-brown);
-
-    --sidebar: #ffffff;
-    --sidebar-foreground: var(--mom-notes-ink);
-    --sidebar-primary: var(--mom-notes-ruby);
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: var(--mom-notes-blush);
-    --sidebar-accent-foreground: var(--mom-notes-ink);
-    --sidebar-border: #ead6cb;
-    --sidebar-ring: var(--mom-notes-ruby-soft);
+    /* High-contrast mode palette (rules live in accessibility.css) */
+    --hc-bg: #000000;
+    --hc-text: #ffffff;
+    --hc-accent: #666666;
+    --hc-accent-light: #aaaaaa;
+    --hc-border: #666666;
 }
 
-.dark {
-    --background: var(--saga-deep-brown);
-    --foreground: var(--saga-peach);
-
-    --card: #31140c;
-    --card-foreground: var(--saga-peach);
-
-    --popover: #31140c;
-    --popover-foreground: var(--saga-peach);
-
-    --primary: var(--saga-gold);
-    --primary-foreground: var(--saga-deep-brown);
-
-    --secondary: var(--saga-purple);
-    --secondary-foreground: var(--saga-peach);
-
-    --muted: #4c1838;
-    --muted-foreground: var(--saga-soft-pink);
-
-    --accent: var(--saga-pink);
-    --accent-foreground: #ffffff;
-
-    --border: var(--saga-soft-pink);
-    --input: var(--saga-soft-pink);
-    --ring: var(--saga-gold);
-
-    --sidebar: #31140c;
-    --sidebar-foreground: var(--saga-peach);
-    --sidebar-primary: var(--saga-gold);
-    --sidebar-primary-foreground: var(--saga-deep-brown);
-    --sidebar-accent: var(--saga-pink);
-    --sidebar-accent-foreground: #ffffff;
-    --sidebar-border: var(--saga-soft-pink);
-    --sidebar-ring: var(--saga-gold);
+/* The same tag hues, lightened so each reads at >= 4.5:1 on every dark
+   theme's background, card and popover, and on its own 10% tint. */
+[data-appearance="dark"] {
+    --tag-emotional: hsl(32 95% 53%);
+    --tag-problem: hsl(0 72% 75%);
+    --tag-outcome: hsl(221 83% 74.5%);
+    --tag-behavior: hsl(262 70% 77.5%);
+    --tag-context: hsl(215 19% 68.5%);
+    --tag-business: hsl(160 84% 41%);
+    --tag-action: hsl(22 90% 64.5%);
 }
 
-.high-contrast {
-    --background: #000000;
-    --foreground: #ffffff;
+/*
+ * The keyboard-focus ring for any focusable element the app builds itself —
+ * the same ring the shadcn primitives draw (3px of --ring at half
+ * strength), so focus looks alike everywhere. The inset form is for an
+ * element whose ring a neighbor or a scroll edge would clip: a grid cell,
+ * a tree row, a scrolling pane.
+ */
+@utility focus-ring {
+    @apply outline-none focus-visible:ring-3 focus-visible:ring-ring/50;
+}
 
-    --card: #000000;
-    --card-foreground: #ffffff;
+@utility focus-ring-inset {
+    @apply outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset;
+}
 
-    --popover: #000000;
-    --popover-foreground: #ffffff;
+/* Translucent chrome that content scrolls under (header, toolbars). */
+@utility material-chrome {
+    background-color: color-mix(in oklab, var(--card) 72%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
 
-    --primary: #ffffff;
-    --primary-foreground: #000000;
-
-    --secondary: #1f1f1f;
-    --secondary-foreground: #ffffff;
-
-    --muted: #1f1f1f;
-    --muted-foreground: #ffffff;
-
-    --accent: #ffff00;
-    --accent-foreground: #000000;
-
-    --border: #ffffff;
-    --input: #ffffff;
-    --ring: #ffff00;
-
-    --sidebar: #000000;
-    --sidebar-foreground: #ffffff;
-    --sidebar-primary: #ffffff;
-    --sidebar-primary-foreground: #000000;
-    --sidebar-accent: #ffff00;
-    --sidebar-accent-foreground: #000000;
-    --sidebar-border: #ffffff;
-    --sidebar-ring: #ffff00;
+    @variant reduced-transparency {
+        background-color: var(--card);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
 }
 
 @layer base {
+    /* Native controls and scrollbars follow the theme's appearance. */
+    [data-appearance="light"] {
+        color-scheme: light;
+    }
+
+    [data-appearance="dark"] {
+        color-scheme: dark;
+    }
+
     * {
         @apply border-border outline-ring/50;
+
+        scrollbar-width: auto;
+        scrollbar-color:
+            color-mix(in srgb,
+                var(--color-muted-foreground) 35%,
+                transparent) transparent;
     }
 
     html {
-        @apply font-sans;
+        @apply bg-background;
     }
 
+    /* Pages scroll the document, so body keeps its natural height. */
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background font-sans text-foreground antialiased;
+        text-rendering: optimizeLegibility;
     }
 
-    :focus-visible {
-        @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    /* Tailwind v4 gives buttons the default cursor; this site has always
+       shown a pointer on anything clickable. */
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+
+    /* Tracking is size-specific: tighten large type, leave body text at 0. */
+    h1 {
+        letter-spacing: -0.025em;
+    }
+
+    h2 {
+        letter-spacing: -0.02em;
+    }
+
+    h3 {
+        letter-spacing: -0.01em;
+    }
+
+    /* `dir="auto"` resolves an empty field to left-to-right, so a Hebrew
+       placeholder would read backwards; until something is typed, the
+       field follows the surrounding direction. */
+    input[dir="auto"]:placeholder-shown,
+    textarea[dir="auto"]:placeholder-shown {
+        direction: inherit;
+    }
+
+    *::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb,
+                var(--color-muted-foreground) 35%,
+                transparent);
+        border: 3px solid transparent;
+        background-clip: padding-box;
+        border-radius: 9999px;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background-color: color-mix(in srgb,
+                var(--color-muted-foreground) 60%,
+                transparent);
+    }
+
+    *::-webkit-scrollbar-track,
+    *::-webkit-scrollbar-corner {
+        background: transparent;
+    }
+}
+
+@layer components {
+    /*
+     * Markdown rendering for research notes. The app uses `prose` classes but
+     * does not ship @tailwindcss/typography, so without these rules lists lost
+     * their bullets and headings rendered as body text.
+     */
+    .prose {
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .prose > * + * {
+        margin-top: 0.6em;
+    }
+
+    .prose :where(h1, h2, h3, h4) {
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--foreground);
+    }
+
+    .prose :where(h1) {
+        font-size: 1.25em;
+    }
+
+    .prose :where(h2) {
+        font-size: 1.125em;
+    }
+
+    .prose :where(h3, h4) {
+        font-size: 1em;
+    }
+
+    .prose :where(strong) {
+        font-weight: 600;
+        color: var(--foreground);
+    }
+
+    .prose :where(ul) {
+        list-style: disc;
+        padding-inline-start: 1.25em;
+    }
+
+    .prose :where(ol) {
+        list-style: decimal;
+        padding-inline-start: 1.25em;
+    }
+
+    .prose :where(li + li) {
+        margin-top: 0.25em;
+    }
+
+    .prose :where(a) {
+        color: var(--primary);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    .prose :where(blockquote) {
+        border-inline-start: 3px solid var(--border);
+        padding-inline-start: 0.85em;
+        color: var(--muted-foreground);
+        font-style: italic;
+    }
+
+    .prose :where(code) {
+        font-size: 0.875em;
+        background-color: var(--secondary);
+        border-radius: 0.375rem;
+        padding: 0.1em 0.35em;
     }
 }
