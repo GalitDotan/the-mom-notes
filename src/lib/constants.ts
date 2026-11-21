@@ -14,6 +14,11 @@ import {
 } from 'lucide-react';
 
 /**
+ * Product branding
+ */
+export const productName = "Saga's Scout" as const;
+
+/**
  * Toast/notification messages
  */
 export const messages = {
@@ -76,14 +81,14 @@ export const navigationItems: NavigationItem[] = [
  * Page titles configuration
  */
 export const pageTitle = {
-    dashboards: 'Your Dashboards - Saga\'s Scout',
-    dashboard: 'Dashboard - Saga\'s Scout',
-    explanation: 'How It Works - Saga\'s Scout',
-    credits: 'Credits - Saga\'s Scout',
-    about: 'About - Saga\'s Scout',
-    accessibility: 'Accessibility - Saga\'s Scout',
-    privacy: 'Privacy Policy - Saga\'s Scout',
-    terms: 'Terms of Use - Saga\'s Scout',
+    dashboards: `Your Dashboards - ${productName}`,
+    dashboard: `Dashboard - ${productName}`,
+    explanation: `How It Works - ${productName}`,
+    credits: `Credits - ${productName}`,
+    about: `About - ${productName}`,
+    accessibility: `Accessibility - ${productName}`,
+    privacy: `Privacy Policy - ${productName}`,
+    terms: `Terms of Use - ${productName}`,
 };
 
 /**

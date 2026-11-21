@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect } from "react";
+import { pageTitle, productName } from "@/lib/constants";
 
 export default function TermsOfUse() {
     useEffect(() => {
-        document.title = "Terms of Use - Saga's Scout";
+        document.title = pageTitle.terms;
     }, []);
 
     return (
@@ -16,20 +17,20 @@ export default function TermsOfUse() {
                 <CardContent className="prose prose-lg max-w-none">
                     <div className="text-gray-800 space-y-6">
                         <p>
-                            Welcome to Saga's Scout. By using this application, you agree to these Terms of Use. Please read them carefully.
+                            Welcome to {productName}. By using this application, you agree to these Terms of Use. Please read them carefully.
                         </p>
 
                         <div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-3">1. Acceptance of Terms</h3>
                             <p>
-                                By accessing and using Saga's Scout, you accept and agree to be bound by the terms and provision of this agreement.
+                                By accessing and using {productName}, you accept and agree to be bound by the terms and provision of this agreement.
                             </p>
                         </div>
 
                         <div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-3">2. Description of Service</h3>
                             <p>
-                                Saga's Scout is a free, non-commercial tool designed to help users organize research notes and customer insights using methodologies inspired by "The Mom Test" by Rob Fitzpatrick.
+                                {productName} is a free, non-commercial tool designed to help users organize research notes and customer insights using methodologies inspired by "The Mom Test" by Rob Fitzpatrick.
                             </p>
                         </div>
 
@@ -70,7 +71,7 @@ export default function TermsOfUse() {
                         <div>
                             <h3 className="text-xl font-semibold text-gray-900 mb-3">7. Limitation of Liability</h3>
                             <p>
-                                In no event shall Saga's Scout or its creators be liable for any indirect, incidental, special, or consequential damages arising out of or in connection with your use of the service.
+                                In no event shall {productName} or its creators be liable for any indirect, incidental, special, or consequential damages arising out of or in connection with your use of the service.
                             </p>
                         </div>
 

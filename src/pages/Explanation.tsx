@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Lightbulb } from "@/components/animate-ui/icons/lightbulb";
 import { NOTE_TAG_CATEGORY_CLASSES, NoteTagIcon } from "@/features/notes/NoteTagIcon";
 import { NOTE_TAG_CATEGORIES, tagsInCategory, type NoteTagCategoryId, type NoteTagId } from "@/features/notes/note-tags";
+import { productName } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { createPageUrl } from "@/utils";
 import { ArrowRight } from "lucide-react";
@@ -24,7 +25,7 @@ export default function Explanation() {
     const [hoveredCategory, setHoveredCategory] = useState<NoteTagCategoryId | null>(null);
 
     useEffect(() => {
-        document.title = "Explanation - Saga's Scout";
+        document.title = `Explanation - ${productName}`;
 
         // Check if there's a category hash in the URL and scroll to it
         const hash = location.hash.replace('#', '') as NoteTagCategoryId;

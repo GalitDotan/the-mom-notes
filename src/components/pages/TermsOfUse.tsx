@@ -3,11 +3,12 @@
 import { useEffect } from "react";
 import { LegalDocumentPage } from "@/components/documents/LegalDocumentPage";
 import { termsOfUse } from "@/content/termsOfUse";
+import { productName } from "@/lib/constants";
 import { createPageUrl } from "@/utils";
 
 export default function TermsOfUse() {
     useEffect(() => {
-        document.title = `${termsOfUse.title} - Saga's Scout`;
+        document.title = `${termsOfUse.title} - ${productName}`;
     }, []);
 
     return (

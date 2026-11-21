@@ -37,6 +37,7 @@ import { toast } from "sonner";
 import { List as AllNotesIcon } from "@/components/animate-ui/icons/list";
 import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
 import { NOTE_TAGS, findNoteTagBySymbol, noteHasTag } from "@/features/notes/note-tags";
+import { pageTitle, productName } from "@/lib/constants";
 import { LIST_ITEM_MOTION } from "@/lib/motion";
 
 import DashboardShareDialog from "../components/dashboards/DashboardShareDialog";
@@ -127,9 +128,9 @@ export default function DashboardDetailPage() {
 
     useEffect(() => {
         if (currentDashboard) {
-            document.title = `${currentDashboard.name} - Saga's Scout`;
+            document.title = `${currentDashboard.name} - ${productName}`;
         } else {
-            document.title = "Dashboard - Saga's Scout";
+            document.title = pageTitle.dashboard;
         }
     }, [currentDashboard]);
 

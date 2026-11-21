@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { CircleCheck } from "@/components/animate-ui/icons/circle-check";
 import { Compass } from "@/components/animate-ui/icons/compass";
 import { Lightbulb } from "@/components/animate-ui/icons/lightbulb";
+import { pageTitle } from "@/lib/constants";
 
 /** The three Mom Test benefits, each with an icon that animates while hovered. */
 const METHOD_BENEFITS = [
@@ -17,7 +18,7 @@ const METHOD_BENEFITS = [
 
 export default function Credits() {
     useEffect(() => {
-        document.title = "Credits - Saga's Scout";
+        document.title = pageTitle.credits;
     }, []);
 
     return (
