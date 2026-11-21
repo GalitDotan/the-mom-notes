@@ -1,0 +1,9 @@
+/* Notes feature styles. Imported by styles/global.css. */
+
+/* The dashboard's grid of note cards. auto-fill (not auto-fit) keeps a lone
+   note at card width instead of stretching it across the row. */
+@utility responsive-notes-grid {
+    display: grid;
+    gap: --spacing(6);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+}

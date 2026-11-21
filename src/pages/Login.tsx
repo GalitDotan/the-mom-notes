@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User } from "@/entities/all";
 import { useAuth } from "@/lib/AuthContext";
-import { productName } from "@/lib/constants";
+import { productName, routes } from "@/lib/constants";
 import { StickyNote } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -43,7 +43,7 @@ export default function Login() {
       await checkUserAuth();
 
       toast.success("Welcome! Redirecting to dashboards...");
-      navigate("/DashboardsPage");
+      navigate(routes.dashboards);
     } catch (error) {
       console.error("Login failed:", error);
       toast.error(error.message || "Login failed");
@@ -57,7 +57,7 @@ export default function Login() {
       <div className="min-h-screen flex items-center justify-center px-4 py-10">
         <Card className="w-full max-w-sm shadow-overlay border-border/60">
           <CardHeader className="text-center pb-4">
-            <div className="size-14 bg-gradient-to-br from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-2xl mx-auto mb-4 flex items-center justify-center rotate-12 shadow-sm" aria-hidden>
+            <div className="size-14 bg-gradient-to-br from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-2xl mx-auto mb-4 flex items-center justify-center rotate-12 shadow-xs" aria-hidden>
               <StickyNote className="w-7 h-7 text-white" />
             </div>
             <CardTitle className="text-2xl font-semibold tracking-tight">Welcome to {productName}</CardTitle>

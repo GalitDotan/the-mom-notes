@@ -75,7 +75,7 @@ const CounterInput = ({ label, count, onIncrement, onDecrement, disabled }) => (
                 type="number"
                 value={count}
                 readOnly
-                className="w-16 text-center h-8 bg-gray-50 border-0 rounded-md text-sm outline-none"
+                className="w-16 text-center h-8 bg-gray-50 border-0 rounded-md text-sm outline-hidden"
             />
             <Button
                 type="button"
@@ -590,7 +590,7 @@ export default function NoteEditor({
                                 {currentImages.length > 0 && (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {currentImages.map((image, index) => (
-                                            <div key={`${image.url}-${index}`} className="relative group space-y-3 p-3 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+                                            <div key={`${image.url}-${index}`} className="relative group space-y-3 p-3 border rounded-lg bg-white shadow-xs hover:shadow-md transition-shadow">
                                                 <div className="relative">
                                                     <img
                                                         src={image.url}

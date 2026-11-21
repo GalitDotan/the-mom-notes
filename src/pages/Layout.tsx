@@ -35,19 +35,9 @@ const navigationItems = [
         icon: LayoutDashboard,
     },
     {
-        title: "Explanation",
-        url: createPageUrl("Explanation"),
+        title: "Guide",
+        url: createPageUrl("Guide"),
         icon: HelpCircle,
-    },
-    {
-        title: "Credits",
-        url: createPageUrl("Credits"),
-        icon: Heart,
-    },
-    {
-        title: "About",
-        url: createPageUrl("About"),
-        icon: Info,
     },
 ];
 
@@ -141,7 +131,7 @@ export default function Layout({ children, currentPageName }) {
                         </p>
                     </div>
 
-                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
+                    <div className="bg-white/80 backdrop-blur-xs rounded-2xl shadow-xl p-8 border border-white/20">
                         <Button
                             onClick={handleLogin}
                             className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-4 rounded-xl text-lg font-medium transition-all duration-200 transform hover:scale-105"

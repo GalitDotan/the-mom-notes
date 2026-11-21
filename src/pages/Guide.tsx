@@ -3,9 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Lightbulb } from "@/components/animate-ui/icons/lightbulb";
 import { NOTE_TAG_CATEGORY_CLASSES, NoteTagIcon } from "@/features/notes/NoteTagIcon";
 import { NOTE_TAG_CATEGORIES, tagsInCategory, type NoteTagCategoryId, type NoteTagId } from "@/features/notes/note-tags";
-import { productName } from "@/lib/constants";
+import { productName, routes } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { createPageUrl } from "@/utils";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -18,14 +17,14 @@ const QUICK_TIPS = [
 ];
 
 /** Explains the Mom Test tag system. Everything shown comes from the tag catalog. */
-export default function Explanation() {
+export default function Guide() {
     const location = useLocation();
     const categoryRefs = useRef<Partial<Record<NoteTagCategoryId, HTMLElement | null>>>({});
     const [hoveredTag, setHoveredTag] = useState<NoteTagId | null>(null);
     const [hoveredCategory, setHoveredCategory] = useState<NoteTagCategoryId | null>(null);
 
     useEffect(() => {
-        document.title = `Explanation - ${productName}`;
+        document.title = `Guide - ${productName}`;
 
         // Check if there's a category hash in the URL and scroll to it
         const hash = location.hash.replace('#', '') as NoteTagCategoryId;
@@ -87,7 +86,7 @@ export default function Explanation() {
                                 onPointerLeave={() => setHoveredCategory(null)}
                                 onFocus={() => setHoveredCategory(category.id)}
                                 onBlur={() => setHoveredCategory(null)}
-                                className="group text-start rounded-2xl border border-border/70 bg-card p-4 shadow-card transition-[box-shadow,transform] duration-200 hover:shadow-card-hover motion-safe:active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                                className="group text-start rounded-2xl border border-border/70 bg-card p-4 shadow-card transition-[box-shadow,transform] duration-200 hover:shadow-card-hover motion-safe:active:scale-[0.98] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                 aria-label={`${category.label}: ${tags.length} ${tags.length === 1 ? "tag" : "tags"}. Jump to section`}
                             >
                                 <div className="flex items-center gap-2.5 mb-2">
@@ -153,7 +152,7 @@ export default function Explanation() {
                     Now that you know the tags, start capturing insights from your user research and interviews.
                 </p>
                 <Button asChild variant="secondary" size="lg" className="bg-card text-primary hover:bg-card/90">
-                    <Link to={createPageUrl("DashboardsPage")}>
+                    <Link to={routes.dashboards}>
                         Start taking notes
                         <ArrowRight className="rtl:rotate-180" aria-hidden />
                     </Link>

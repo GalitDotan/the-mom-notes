@@ -1,0 +1,105 @@
+/*
+ * Focus outlines and the high-contrast mode toggled from AccessibilityModal.
+ * Layout.tsx puts the high-contrast class on <html>
+ * (accessibilitySettings.highContrastClassName in lib/constants.ts). The
+ * --hc-* palette is defined in global.css.
+ */
+
+/* Focus outlines for accessibility: a default for anything focusable.
+   Zero specificity, no !important, and in the base layer, so components that
+   draw their own focus ring (buttons, inputs, nav) show one ring, not two.
+   High-contrast mode below still forces its outlines. */
+@layer base {
+    :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+    }
+}
+
+/*
+ * High-contrast mode: white text and icons on black, gray borders, flat
+ * surfaces. Every rule is !important so it wins over component and utility
+ * colors; the rules below the first two only add the exceptions.
+ */
+.high-contrast {
+    background-color: var(--hc-bg) !important;
+}
+
+.high-contrast,
+.high-contrast * {
+    color: var(--hc-text) !important;
+    border-color: var(--hc-border) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* Anything that paints its own surface turns black. */
+.high-contrast [class*="bg-"],
+.high-contrast .material-chrome,
+.high-contrast [role="dialog"],
+.high-contrast [role="tooltip"],
+.high-contrast :is(input, textarea, select) {
+    background-color: var(--hc-bg) !important;
+}
+
+.high-contrast button {
+    background-color: transparent !important;
+    border: 1px solid var(--hc-border) !important;
+}
+
+/* Links are light gray, except where they set their own text color or sit in a note. */
+.high-contrast a {
+    color: var(--hc-accent-light) !important;
+}
+
+.high-contrast a[class*="text-"],
+.high-contrast .prose a {
+    color: var(--hc-text) !important;
+}
+
+/* Hover and focus: a gray fill and a light outline. */
+.high-contrast :is(button, a):is(:hover, :focus-visible) {
+    background-color: var(--hc-accent) !important;
+    color: var(--hc-text) !important;
+    outline: 2px solid var(--hc-accent-light) !important;
+    outline-offset: 1px !important;
+}
+
+.high-contrast button:is(:hover, :focus-visible),
+.high-contrast :is(input, textarea, select):focus {
+    border-color: var(--hc-accent-light) !important;
+}
+
+.high-contrast :is(input, textarea, select):focus {
+    outline: 2px solid var(--hc-accent-light) !important;
+    outline-offset: 1px !important;
+}
+
+/* Keyboard focus gets the strongest outline. */
+.high-contrast :is(button, a, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--hc-accent-light) !important;
+    outline-offset: 2px !important;
+}
+
+.high-contrast svg {
+    stroke: var(--hc-text) !important;
+}
+
+.high-contrast .prose code {
+    background-color: var(--hc-accent) !important;
+}
+
+/* Images are replaced by their text description (see NoteCard). */
+.high-contrast-alt-text {
+    display: none !important;
+}
+
+.high-contrast .high-contrast-image {
+    display: none !important;
+}
+
+.high-contrast .high-contrast-alt-text {
+    display: block !important;
+}

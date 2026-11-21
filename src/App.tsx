@@ -8,16 +8,20 @@ import PageNotFound from './pages/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './Layout';
+import { routes } from '@/lib/constants';
 
 import Login from './pages/Login';
 import DashboardsPage from './pages/DashboardsPage';
 import DashboardDetailPage from './pages/DashboardDetailPage';
-import Explanation from './pages/Explanation';
+import Guide from './pages/Guide';
 import Credits from './pages/Credits';
 import About from './pages/About';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
 import AccessibilityStatement from './pages/AccessibilityStatement';
+
+/** The theme's light/dark appearance, which index.html sets on <html>. */
+const themeAppearance = document.documentElement.dataset.appearance === "dark" ? "dark" : "light";
 
 const AuthenticatedApp = () => {
     const { isLoadingAuth, isAuthenticated } = useAuth();
@@ -31,21 +35,21 @@ const AuthenticatedApp = () => {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to={routes.login} replace />;
     }
 
     return (
         <Layout>
             <Routes>
-                <Route path="/" element={<DashboardsPage />} />
-                <Route path="/DashboardsPage" element={<DashboardsPage />} />
-                <Route path="/DashboardDetailPage" element={<DashboardDetailPage />} />
-                <Route path="/Explanation" element={<Explanation />} />
-                <Route path="/Credits" element={<Credits />} />
-                <Route path="/About" element={<About />} />
-                <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
-                <Route path="/TermsOfUse" element={<TermsOfUse />} />
-                <Route path="/AccessibilityStatement" element={<AccessibilityStatement />} />
+                <Route path={routes.home} element={<DashboardsPage />} />
+                <Route path={routes.dashboards} element={<DashboardsPage />} />
+                <Route path={routes.dashboardDetail} element={<DashboardDetailPage />} />
+                <Route path={routes.explanation} element={<Guide />} />
+                <Route path={routes.credits} element={<Credits />} />
+                <Route path={routes.about} element={<About />} />
+                <Route path={routes.privacyPolicy} element={<PrivacyPolicy />} />
+                <Route path={routes.termsOfUse} element={<TermsOfUse />} />
+                <Route path={routes.accessibilityStatement} element={<AccessibilityStatement />} />
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
         </Layout>
@@ -61,14 +65,14 @@ function App() {
                 <QueryClientProvider client={queryClientInstance}>
                     <Router>
                         <Routes>
-                            <Route path="/login" element={<Login />} />
+                            <Route path={routes.login} element={<Login />} />
                             <Route path="*" element={<AuthenticatedApp />} />
                         </Routes>
                     </Router>
                     <Toaster />
                     {/* The pages report success and errors through sonner's `toast`; without
                         this, none of those messages (including failures) were ever shown. */}
-                    <SonnerToaster theme="light" position="bottom-right" closeButton />
+                    <SonnerToaster theme={themeAppearance} position="bottom-right" closeButton />
                 </QueryClientProvider>
             </AuthProvider>
         </MotionConfig>

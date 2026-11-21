@@ -83,7 +83,7 @@ export const css = {
     primaryButton: 'bg-[var(--ruby-dust-600)] hover:bg-[var(--ruby-dust-700)] text-[var(--ruby-dust-text-on-primary)]',
     pageGradient: 'min-h-screen bg-gradient-to-br from-[var(--ruby-dust-50)] via-white to-[var(--ruby-dust-50)]',
     editorBorder: 'focus-within:border-[var(--ruby-dust-300)] focus-within:ring-2 focus-within:ring-[var(--ruby-dust-300)] focus-within:ring-offset-2',
-    cardHover: 'group h-full flex flex-col justify-between bg-white/70 backdrop-blur-sm border-0 shadow-md hover:shadow-lg hover:shadow-[var(--ruby-dust-100)] transition-all duration-200',
+    cardHover: 'group h-full flex flex-col justify-between bg-white/70 backdrop-blur-xs border-0 shadow-md hover:shadow-lg hover:shadow-[var(--ruby-dust-100)] transition-all duration-200',
     tagBadge: 'text-xs bg-[var(--ruby-dust-50)] text-[var(--ruby-dust-700)] border-[var(--ruby-dust-200)] cursor-pointer hover:bg-[var(--ruby-dust-100)]',
 };
 
@@ -103,11 +103,4 @@ export const animations = {
     },
 };
 
-// Local storage keys
-export const storageKeys = {
-    user: 'momnotes_user',
-    notes: 'momnotes_notes',
-    noteVersions: 'momnotes_note_versions',
-    dashboards: 'momnotes_dashboards',
-    shares: 'momnotes_shares',
-};
+// Local storage keys live in lib/constants.ts (storageKeys).
