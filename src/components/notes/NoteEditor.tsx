@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,18 +14,23 @@ import TagSelector from "./TagSelector";
 import { Badge } from "@/components/ui/badge";
 import { NOTE_CHIP_CLASSES } from "@/features/notes/note-chips";
 import { cn } from "@/lib/utils";
+import { maxNoteImportance } from "@/lib/constants";
 import MarkdownEditor from "./MarkdownEditor";
 import { UploadFile } from "@/integrations/Core";
 import { toast } from "sonner";
 import ImageLightbox from "./ImageLightbox";
 
+/** Largest image a note accepts, per file. */
+const MAX_IMAGE_SIZE_MEGABYTES = 10;
+
 const ImportanceStarSelector = ({ value, onChange, disabled }) => {
-    const levels = Array.from({ length: 7 }, (_, i) => i + 1);
+    const { t } = useTranslation();
+    const levels = Array.from({ length: maxNoteImportance }, (_, i) => i + 1);
     const [hoverValue, setHoverValue] = useState(0);
 
     return (
         <div className="space-y-2">
-            <Label htmlFor="importance-star-selector" className="text-sm font-medium text-foreground">Importance</Label>
+            <Label htmlFor="importance-star-selector" className="text-sm font-medium text-foreground">{t("notes.importance.label")}</Label>
             <div
                 id="importance-star-selector"
                 className="flex flex-wrap gap-1 items-center"
@@ -40,7 +46,7 @@ const ImportanceStarSelector = ({ value, onChange, disabled }) => {
                         onMouseEnter={() => !disabled && setHoverValue(level)}
                         className={`p-1 transition-all duration-150 rounded-md focus:ring-2 focus:ring-offset-1 focus:ring-ring ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                         disabled={disabled}
-                        aria-label={`Set importance to ${level}`}
+                        aria-label={t("notes.importance.setLevel", { level })}
                     >
                         <Star
                             className={`w-6 h-6 transition-colors duration-100 ${(hoverValue >= level || (!hoverValue && value >= level))
@@ -50,17 +56,27 @@ const ImportanceStarSelector = ({ value, onChange, disabled }) => {
                         />
                     </Button>
                 ))}
-                {value > 0 && <span className="ml-2 text-sm text-muted-foreground">({value}/7)</span>}
+                {value > 0 && <span className="ml-2 text-sm text-muted-foreground">{t("notes.importance.selected", { level: value, max: maxNoteImportance })}</span>}
             </div>
         </div>
     );
 };
 
-const CounterInput = ({ label, count, onIncrement, onDecrement, disabled }) => (
+/** Edits a note's upvote or downvote count. */
+const CounterInput = ({ kind, count, onIncrement, onDecrement, disabled }: {
+    kind: "upvotes" | "downvotes";
+    count: number;
+    onIncrement: () => void;
+    onDecrement: () => void;
+    disabled: boolean;
+}) => {
+    const { t } = useTranslation();
+
+    return (
     <div className="space-y-1">
         <Label className="text-sm font-medium text-foreground flex items-center gap-1.5">
-            {label === "Upvotes" ? <ThumbsUp className="w-4 h-4 text-success" /> : <ThumbsDown className="w-4 h-4 text-error" />}
-            {label}
+            {kind === "upvotes" ? <ThumbsUp className="w-4 h-4 text-success" /> : <ThumbsDown className="w-4 h-4 text-error" />}
+            {t(`notes.${kind}`)}
         </Label>
         <div className="flex items-center gap-2">
             <Button
@@ -91,7 +107,8 @@ const CounterInput = ({ label, count, onIncrement, onDecrement, disabled }) => (
             </Button>
         </div>
     </div>
-);
+    );
+};
 
 const isValidUrl = (string) => {
     try {
@@ -140,16 +157,17 @@ export default function NoteEditor({
     availableClientTags = [],
     availableTopics = []
 }) {
+    const { t } = useTranslation();
     const [content, setContent] = useState("");
     const [symbol, setSymbol] = useState<string>(DEFAULT_NOTE_TAG.emoji);
     const [importance, setImportance] = useState(1);
-    const [clientTags, setClientTags] = useState([]);
+    const [clientTags, setClientTags] = useState<string[]>([]);
     const [editableUpvotes, setEditableUpvotes] = useState(0);
     const [editableDownvotes, setEditableDownvotes] = useState(0);
 
     const [currentReferences, setCurrentReferences] = useState([]);
     const [newReferenceUrl, setNewReferenceUrl] = useState("");
-    const [currentTopics, setCurrentTopics] = useState([]);
+    const [currentTopics, setCurrentTopics] = useState<string[]>([]);
     const [internalComments, setInternalComments] = useState("");
     const [showInternalComments, setShowInternalComments] = useState(false);
     const [currentImages, setCurrentImages] = useState([]);
@@ -228,7 +246,7 @@ export default function NoteEditor({
      */
     const requestClose = () => {
         if (isSaving || isUploadingImages) return;
-        if (hasUnsavedChanges() && !window.confirm("Discard your unsaved changes to this note?")) return;
+        if (hasUnsavedChanges() && !window.confirm(t("noteEditor.discardConfirmation"))) return;
         handleCancel();
     };
 
@@ -260,10 +278,10 @@ export default function NoteEditor({
         if (files.length === 0) return;
 
         // Validate file sizes (max 10MB per file)
-        const maxSize = 10 * 1024 * 1024; // 10MB
+        const maxSize = MAX_IMAGE_SIZE_MEGABYTES * 1024 * 1024; // 10MB
         const oversizedFiles = files.filter(file => file.size > maxSize);
         if (oversizedFiles.length > 0) {
-            toast.error(`Some files are too large. Maximum size is 10MB per file.`);
+            toast.error(t("noteEditor.images.tooLarge", { maxMegabytes: MAX_IMAGE_SIZE_MEGABYTES }));
             return;
         }
 
@@ -279,10 +297,10 @@ export default function NoteEditor({
                 originalName: files[index].name
             }));
             setCurrentImages(prev => [...prev, ...newImages]);
-            toast.success(`${files.length} image(s) uploaded successfully!`);
+            toast.success(t("noteEditor.images.uploaded", { count: files.length }));
         } catch (error) {
             console.error("Image upload failed:", error);
-            toast.error("Failed to upload one or more images.");
+            toast.error(t("noteEditor.images.uploadFailed"));
         }
 
         setIsUploadingImages(false);
@@ -311,7 +329,7 @@ export default function NoteEditor({
             setCurrentReferences([...currentReferences, trimmedUrl]);
             setNewReferenceUrl("");
         } else if (trimmedUrl && !isValidUrl(trimmedUrl)) {
-            alert("Please enter a valid URL (e.g., https://example.com)");
+            alert(t("noteEditor.references.invalid"));
         }
     };
 
@@ -426,10 +444,10 @@ export default function NoteEditor({
                             <div className="space-y-3">
                                 <div>
                                     <h2 id="note-editor-title" className="text-xl font-semibold">
-                                        {note ? 'Edit Note' : 'New Note'}
+                                        {note ? t("noteEditor.editTitle") : t("noteEditor.newTitle")}
                                     </h2>
                                     <p className="text-sm text-muted-foreground">
-                                        {note ? 'Update your research note' : 'Capture what you heard, then tag it'}
+                                        {note ? t("noteEditor.editSubtitle") : t("noteEditor.newSubtitle")}
                                     </p>
                                 </div>
                                 <NoteTagPicker
@@ -444,7 +462,7 @@ export default function NoteEditor({
                                 onClick={requestClose}
                                 className="-me-2 -mt-1 rounded-full text-muted-foreground"
                                 disabled={isSaving || isUploadingImages}
-                                aria-label="Close editor"
+                                aria-label={t("noteEditor.closeLabel")}
                             >
                                 <X className="w-5 h-5" />
                             </Button>
@@ -454,17 +472,17 @@ export default function NoteEditor({
                             <div className="space-y-2">
                                 <MarkdownEditor
                                     ref={textareaRef}
-                                    label="Note Content"
+                                    label={t("noteEditor.content.label")}
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    placeholder="What did you learn? What insights did you capture?"
+                                    placeholder={t("noteEditor.content.placeholder")}
                                     height={calculateTextareaHeight(content)}
                                     disabled={isSaving || isUploadingImages}
                                 />
                                 <div className="text-xs text-muted-foreground flex justify-between">
-                                    <span>Press Ctrl+Enter to save quickly</span>
-                                    <span>{content.length} characters</span>
+                                    <span>{t("noteEditor.quickSaveHint")}</span>
+                                    <span>{t("noteEditor.characterCount", { count: content.length })}</span>
                                 </div>
                             </div>
 
@@ -478,15 +496,15 @@ export default function NoteEditor({
                                         disabled={isSaving || isUploadingImages}
                                     >
                                         <MessageSquare className="w-4 h-4 mr-2" />
-                                        Add internal comments...
+                                        {t("noteEditor.internalComments.add")}
                                     </Button>
                                 ) : (
                                     <MarkdownEditor
-                                        label="Our Comments (Internal)"
+                                        label={t("noteEditor.internalComments.label")}
                                         value={internalComments}
                                         onChange={(e) => setInternalComments(e.target.value)}
                                         onKeyDown={handleKeyDown}
-                                        placeholder="Add internal notes, observations, or next steps (only visible to your team)..."
+                                        placeholder={t("noteEditor.internalComments.placeholder")}
                                         height={calculateTextareaHeight(internalComments)}
                                         disabled={isSaving || isUploadingImages}
                                     />
@@ -497,12 +515,12 @@ export default function NoteEditor({
 
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium text-foreground flex items-center gap-1.5">
-                                    <LinkIcon className="w-4 h-4 text-muted-foreground" /> References (URLs)
+                                    <LinkIcon className="w-4 h-4 text-muted-foreground" /> {t("noteEditor.references.label")}
                                 </Label>
                                 <div className="flex gap-2">
                                     <Input
                                         type="url"
-                                        placeholder="Add a relevant link (e.g., https://example.com)"
+                                        placeholder={t("noteEditor.references.placeholder")}
                                         value={newReferenceUrl}
                                         onChange={(e) => setNewReferenceUrl(e.target.value)}
                                         onKeyDown={handleReferenceInputKeyDown}
@@ -510,7 +528,7 @@ export default function NoteEditor({
                                         disabled={isSaving || isUploadingImages}
                                     />
                                     <Button type="button" variant="outline" onClick={handleAddReference} disabled={isSaving || isUploadingImages || !newReferenceUrl.trim()}>
-                                        <Plus className="w-4 h-4 mr-1 sm:mr-2" /> <span className="hidden sm:inline">Add</span>
+                                        <Plus className="w-4 h-4 mr-1 sm:mr-2" /> <span className="hidden sm:inline">{t("noteEditor.references.add")}</span>
                                     </Button>
                                 </div>
                                 {currentReferences.length > 0 && (
@@ -524,7 +542,7 @@ export default function NoteEditor({
                                                     type="button"
                                                     onClick={() => handleRemoveReference(refUrl)}
                                                     className="ml-1 hover:bg-accent rounded-full p-0.5 transition-colors"
-                                                    aria-label={`Remove ${refUrl}`}
+                                                    aria-label={t("noteEditor.references.remove", { url: refUrl })}
                                                     disabled={isSaving || isUploadingImages}
                                                 >
                                                     <X className="w-3 h-3" />
@@ -536,30 +554,32 @@ export default function NoteEditor({
                             </div>
 
                             <TagSelector
-                                label="Client Tags"
+                                kind="client"
+                                label={t("noteEditor.clientTags.label")}
                                 selectedTags={clientTags}
                                 availableTags={availableClientTags}
                                 onTagsChange={setClientTags}
                                 disabled={isSaving || isUploadingImages}
-                                placeholder="Select or create client tags..."
-                                infoText="Helps you track which client(s) or projects this insight relates to."
+                                placeholder={t("noteEditor.clientTags.placeholder")}
+                                infoText={t("noteEditor.clientTags.info")}
                             />
 
                             <TagSelector
-                                label="Topics"
+                                kind="topic"
+                                label={t("noteEditor.topics.label")}
                                 selectedTags={currentTopics}
                                 availableTags={availableTopics}
                                 onTagsChange={setCurrentTopics}
                                 disabled={isSaving || isUploadingImages}
-                                placeholder="Select or create topic tags..."
-                                infoText="Categorize this note by relevant topics."
+                                placeholder={t("noteEditor.topics.placeholder")}
+                                infoText={t("noteEditor.topics.info")}
                                 icon={<TopicIcon className="w-4 h-4 text-muted-foreground" />}
                             />
 
                             {/* Images Section - Enhanced */}
                             <div className="space-y-4">
                                 <Label htmlFor="image-upload" className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                                    <ImagePlus className="w-4 h-4 text-muted-foreground" /> Attached Images
+                                    <ImagePlus className="w-4 h-4 text-muted-foreground" /> {t("noteEditor.images.label")}
                                 </Label>
 
                                 {/* Upload Area - Fixed visibility */}
@@ -577,13 +597,13 @@ export default function NoteEditor({
                                                 className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-tint file:text-primary-fg hover:file:bg-primary/20 file:cursor-pointer cursor-pointer"
                                             />
                                             <p className="text-xs text-muted-foreground mt-2">
-                                                Upload PNG, JPEG, GIF, or WebP files (max 10MB each)
+                                                {t("noteEditor.images.uploadHint", { maxMegabytes: MAX_IMAGE_SIZE_MEGABYTES })}
                                             </p>
                                         </div>
                                     </div>
                                     {isUploadingImages && (
                                         <div className="flex items-center justify-center gap-2 mt-4 text-sm text-muted-foreground">
-                                            <Loader2 className="w-4 h-4 animate-spin" /> Uploading images...
+                                            <Loader2 className="w-4 h-4 animate-spin" /> {t("noteEditor.images.uploading")}
                                         </div>
                                     )}
                                 </div>
@@ -596,10 +616,10 @@ export default function NoteEditor({
                                                 <div className="relative">
                                                     <img
                                                         src={image.url}
-                                                        alt={image.alt || `Upload preview ${index + 1}`}
+                                                        alt={image.alt || t("noteEditor.images.previewAlt", { number: index + 1 })}
                                                         className="w-full h-32 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity"
                                                         onDoubleClick={() => handleImageDoubleClick(image)}
-                                                        title="Double-click to view full size"
+                                                        title={t("notes.images.viewFullSizeHint")}
                                                     />
                                                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <Button
@@ -607,7 +627,7 @@ export default function NoteEditor({
                                                             size="icon"
                                                             className="h-6 w-6 bg-black/50 hover:bg-black/70 text-white border-0"
                                                             onClick={() => handleImageDoubleClick(image)}
-                                                            title="View full size"
+                                                            title={t("noteEditor.images.viewFullSize")}
                                                         >
                                                             <Maximize2 className="w-3 h-3" />
                                                         </Button>
@@ -615,15 +635,15 @@ export default function NoteEditor({
                                                 </div>
                                                 <Input
                                                     type="text"
-                                                    placeholder="Add description for accessibility..."
+                                                    placeholder={t("noteEditor.images.altTextPlaceholder")}
                                                     value={image.alt}
                                                     onChange={(e) => handleAltTextChange(index, e.target.value)}
                                                     disabled={isSaving || isUploadingImages}
                                                     className="bg-muted border-0 focus:bg-card text-sm"
-                                                    aria-label={`Alternative text for image ${index + 1}`}
+                                                    aria-label={t("noteEditor.images.altTextLabel", { number: index + 1 })}
                                                 />
                                                 <div className="flex justify-end gap-1">
-                                                    <a href={image.url} download={image.originalName || true} target="_blank" rel="noopener noreferrer" title="Download image">
+                                                    <a href={image.url} download={image.originalName || true} target="_blank" rel="noopener noreferrer" title={t("notes.images.download")}>
                                                         <Button variant="outline" size="icon" className="h-7 w-7" disabled={isSaving || isUploadingImages}>
                                                             <Download className="w-3 h-3" />
                                                         </Button>
@@ -634,7 +654,7 @@ export default function NoteEditor({
                                                         onClick={() => handleRemoveImage(index)}
                                                         disabled={isSaving || isUploadingImages}
                                                         className="h-7 w-7 text-destructive hover:text-destructive hover:bg-error-tint"
-                                                        title="Remove image"
+                                                        title={t("noteEditor.images.remove")}
                                                     >
                                                         <TrashIcon className="w-3 h-3" />
                                                     </Button>
@@ -647,14 +667,14 @@ export default function NoteEditor({
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <CounterInput
-                                    label="Upvotes"
+                                    kind="upvotes"
                                     count={editableUpvotes}
                                     onIncrement={() => setEditableUpvotes(prev => prev + 1)}
                                     onDecrement={() => setEditableUpvotes(prev => Math.max(0, prev - 1))}
                                     disabled={isSaving || isUploadingImages}
                                 />
                                 <CounterInput
-                                    label="Downvotes"
+                                    kind="downvotes"
                                     count={editableDownvotes}
                                     onIncrement={() => setEditableDownvotes(prev => prev + 1)}
                                     onDecrement={() => setEditableDownvotes(prev => Math.max(0, prev - 1))}
@@ -668,7 +688,7 @@ export default function NoteEditor({
                                     onClick={requestClose}
                                     disabled={isSaving || isUploadingImages}
                                 >
-                                    Cancel
+                                    {t("common.cancel")}
                                 </Button>
                                 <Button
                                     onClick={handleSave}
@@ -677,12 +697,12 @@ export default function NoteEditor({
                                     {isSaving ? (
                                         <>
                                             <Loader2 className="animate-spin" aria-hidden />
-                                            Saving...
+                                            {t("noteEditor.saving")}
                                         </>
                                     ) : (
                                         <>
                                             <Save aria-hidden />
-                                            {note ? 'Update Note' : 'Save Note'}
+                                            {note ? t("noteEditor.update") : t("noteEditor.save")}
                                         </>
                                     )}
                                 </Button>

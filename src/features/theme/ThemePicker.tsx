@@ -1,15 +1,17 @@
 import { Palette } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from './theme-context';
 import { THEMES, type ThemeId } from './themes';
 
 /** Lets the user choose one of the app themes. The choice applies at once and is saved. */
 export function ThemePicker() {
+    const { t } = useTranslation();
     const { theme, setTheme } = useTheme();
 
     return (
         <fieldset>
             <legend className="flex items-center gap-2 font-medium mb-3">
-                <Palette className="w-5 h-5" aria-hidden="true" /> Theme
+                <Palette className="w-5 h-5" aria-hidden="true" /> {t('theme.legend')}
             </legend>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {THEMES.map((option) => (
@@ -27,8 +29,8 @@ export function ThemePicker() {
                         />
                         <ThemeSwatch themeId={option.id} />
                         <span className="min-w-0 text-sm">
-                            <span className="block font-medium text-foreground">{option.name}</span>
-                            <span className="block text-xs text-muted-foreground">{option.description}</span>
+                            <span className="block font-medium text-foreground">{t(`theme.themes.${option.id}.name`)}</span>
+                            <span className="block text-xs text-muted-foreground">{t(`theme.themes.${option.id}.description`)}</span>
                         </span>
                     </label>
                 ))}

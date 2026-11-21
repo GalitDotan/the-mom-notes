@@ -4,22 +4,21 @@ export type ThemeAppearance = 'light' | 'dark';
 
 type ThemeDefinition = {
     id: string;
-    name: string;
-    description: string;
     appearance: ThemeAppearance;
 };
 
 /**
  * The app themes. Each id has a palette block in styles/themes.css, keyed on
  * data-theme; data-appearance picks that file's light or dark derivations and
- * drives Tailwind's `dark:` variant.
+ * drives Tailwind's `dark:` variant. A theme's name and description are
+ * translations under `theme.themes.<id>`.
  */
 export const THEMES = [
-    { id: 'parchment', name: 'Parchment', description: 'Warm light', appearance: 'light' },
-    { id: 'frost', name: 'Frost', description: 'Cool light', appearance: 'light' },
-    { id: 'ember', name: 'Ember', description: 'Warm dark', appearance: 'dark' },
-    { id: 'velvet', name: 'Velvet', description: 'Deep plum', appearance: 'dark' },
-    { id: 'ink', name: 'Ink', description: 'Charcoal', appearance: 'dark' },
+    { id: 'parchment', appearance: 'light' },
+    { id: 'frost', appearance: 'light' },
+    { id: 'ember', appearance: 'dark' },
+    { id: 'velvet', appearance: 'dark' },
+    { id: 'ink', appearance: 'dark' },
 ] as const satisfies readonly ThemeDefinition[];
 
 export type AppTheme = (typeof THEMES)[number];

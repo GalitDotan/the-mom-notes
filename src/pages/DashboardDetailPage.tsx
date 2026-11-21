@@ -30,13 +30,15 @@ import { format } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowDownWideNarrow, ArrowLeft, ArrowUpNarrowWide, Edit3, FileSpreadsheet, Filter, Grid3X3, List, Loader2, MoreHorizontal, Plus, Search, SortAsc, Star as StarIcon, Tag as TopicFilterIcon, Trash2, UserCircle as UserFilterIcon, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { List as AllNotesIcon } from "@/components/animate-ui/icons/list";
 import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
-import { NOTE_TAGS, findNoteTagBySymbol, noteHasTag } from "@/features/notes/note-tags";
-import { pageTitle, productName, routes } from "@/lib/constants";
+import { usePageTitle } from "@/hooks/use-page-title";
+import { NOTE_TAGS, findNoteTagBySymbol, noteHasTag, noteTagLabelKey } from "@/features/notes/note-tags";
+import { maxNoteImportance, routes } from "@/lib/constants";
 import { LIST_ITEM_MOTION } from "@/lib/motion";
 
 import DashboardShareDialog from "../components/dashboards/DashboardShareDialog";
@@ -47,18 +49,30 @@ import VersionHistory from "../components/notes/VersionHistory";
 /** "all" or a note tag id. Matching goes through the tag catalog, not exact emoji strings. */
 const ALL_TAGS_FILTER = "all";
 
+/** Each option's label is a translation under dashboardDetail.filters.importance, given its count. */
 const IMPORTANCE_FILTER_OPTIONS = [
-    { value: "all", label: "All Importance" },
-    { value: "1", label: "1 Star" },
-    { value: "2", label: "2 Stars" },
-    { value: "3", label: "3 Stars" },
-    { value: "4", label: "4 Stars" },
-    { value: "5", label: "5 Stars" },
-    { value: "6", label: "6 Stars" },
-    { value: "7", label: "7 Stars (Critical)" },
-    { value: "5+", label: "5+ Stars" },
-    { value: "3+", label: "3+ Stars" },
-];
+    { value: "all", labelKey: "all" },
+    { value: "1", labelKey: "exact", count: 1 },
+    { value: "2", labelKey: "exact", count: 2 },
+    { value: "3", labelKey: "exact", count: 3 },
+    { value: "4", labelKey: "exact", count: 4 },
+    { value: "5", labelKey: "exact", count: 5 },
+    { value: "6", labelKey: "exact", count: 6 },
+    { value: "7", labelKey: "critical", count: 7 },
+    { value: "5+", labelKey: "atLeast", count: 5 },
+    { value: "3+", labelKey: "atLeast", count: 3 },
+] as const;
+
+/** The fields notes can be sorted by, with their labels under dashboardDetail.sort.fields. */
+const SORT_OPTIONS = [
+    { value: "updated_date", labelKey: "updatedDate" },
+    { value: "created_date", labelKey: "createdDate" },
+    { value: "importance", labelKey: "importance" },
+    { value: "client_reference", labelKey: "clientReference" },
+    { value: "topics", labelKey: "topics" },
+    { value: "upvote_count", labelKey: "upvotes" },
+    { value: "downvote_count", labelKey: "downvotes" },
+] as const;
 
 // Enhanced helper function to properly format and sanitize a field for CSV
 const sanitizeCsvField = (data) => {
@@ -89,6 +103,7 @@ const sanitizeCsvField = (data) => {
 };
 
 export default function DashboardDetailPage() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
     const dashboardId = new URLSearchParams(location.search).get("id");
@@ -125,13 +140,9 @@ export default function DashboardDetailPage() {
     const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
     const [newDashboardName, setNewDashboardName] = useState("");
 
-    useEffect(() => {
-        if (currentDashboard) {
-            document.title = `${currentDashboard.name} - ${productName}`;
-        } else {
-            document.title = pageTitle.dashboard;
-        }
-    }, [currentDashboard]);
+    usePageTitle(currentDashboard
+        ? t("documentTitles.namedDashboard", { dashboardName: currentDashboard.name })
+        : t("documentTitles.dashboard"));
 
     const fetchDashboardData = useCallback(async (user) => {
         if (!dashboardId || !user) return;
@@ -139,7 +150,7 @@ export default function DashboardDetailPage() {
         try {
             const dashboardDetails = await Dashboard.get(dashboardId);
             if (!dashboardDetails) {
-                toast.error("Dashboard not found.");
+                toast.error(t("dashboardDetail.toasts.notFound"));
                 navigate(routes.dashboards);
                 return;
             }
@@ -152,7 +163,7 @@ export default function DashboardDetailPage() {
                 if (share.length > 0) {
                     permission = share[0].permission_level;
                 } else {
-                    toast.error("You do not have permission to view this dashboard.");
+                    toast.error(t("dashboardDetail.toasts.noViewPermission"));
                     navigate(routes.dashboards);
                     return;
                 }
@@ -169,11 +180,11 @@ export default function DashboardDetailPage() {
 
         } catch (error) {
             console.error("Failed to load dashboard details:", error);
-            toast.error("Failed to load dashboard.");
+            toast.error(t("dashboardDetail.toasts.loadFailed"));
             navigate(routes.dashboards);
             setIsLoading(false);
         }
-    }, [dashboardId, navigate]);
+    }, [dashboardId, navigate, t]);
 
     const fetchNotesForDashboard = useCallback(async (currentDashboardId) => {
         setIsNotesLoading(true);
@@ -202,10 +213,10 @@ export default function DashboardDetailPage() {
 
         } catch (error) {
             console.error("Failed to load notes:", error);
-            toast.error("Failed to load notes for this dashboard.");
+            toast.error(t("dashboardDetail.toasts.loadNotesFailed"));
         }
         setIsNotesLoading(false);
-    }, [sortBy, sortOrder]);
+    }, [sortBy, sortOrder, t]);
 
     const handleNoteDataChangedOnCard = () => {
         if (currentDashboard) {
@@ -278,7 +289,7 @@ export default function DashboardDetailPage() {
 
     const handleSaveNote = async (noteData) => {
         if (!currentDashboard || (userPermission !== "owner" && userPermission !== "editor")) {
-            toast.error("You don't have permission to save notes in this dashboard.");
+            toast.error(t("dashboardDetail.toasts.noSavePermission"));
             return;
         }
         setIsSavingNote(true);
@@ -300,10 +311,10 @@ export default function DashboardDetailPage() {
 
                 await Note.update(editingNote.id, updatePayload);
                 savedNote = { ...editingNote, ...updatePayload, id: editingNote.id };
-                toast.success("Note updated successfully");
+                toast.success(t("dashboardDetail.toasts.noteUpdated"));
             } else {
                 savedNote = await Note.create(dataToSave);
-                toast.success("Note created successfully");
+                toast.success(t("dashboardDetail.toasts.noteCreated"));
             }
 
             // Create a new version for the note, with correct payload
@@ -323,7 +334,7 @@ export default function DashboardDetailPage() {
             fetchNotesForDashboard(currentDashboard.id);
         } catch (error) {
             console.error("Failed to save note:", error);
-            toast.error("Failed to save note");
+            toast.error(t("dashboardDetail.toasts.saveNoteFailed"));
         }
         setIsSavingNote(false);
     };
@@ -335,7 +346,7 @@ export default function DashboardDetailPage() {
 
     const handleNewNote = () => {
         if (userPermission !== "owner" && userPermission !== "editor") {
-            toast.error("You don't have permission to add notes to this dashboard.");
+            toast.error(t("dashboardDetail.toasts.noAddPermission"));
             return;
         }
         setEditingNote(null);
@@ -344,21 +355,21 @@ export default function DashboardDetailPage() {
 
     const handleDeleteNote = async (note) => {
         if (userPermission !== "owner" && userPermission !== "editor") {
-            toast.error("You don't have permission to delete notes from this dashboard.");
+            toast.error(t("dashboardDetail.toasts.noDeletePermission"));
             return;
         }
-        if (window.confirm("Are you sure you want to delete this note? This will also delete its version history.")) {
+        if (window.confirm(t("dashboardDetail.confirmations.deleteNote"))) {
             try {
                 const versions = await NoteVersion.filter({ note_id: note.id });
                 for (const version of versions) {
                     await NoteVersion.delete(version.id);
                 }
                 await Note.delete(note.id);
-                toast.success("Note deleted successfully");
+                toast.success(t("dashboardDetail.toasts.noteDeleted"));
                 fetchNotesForDashboard(currentDashboard.id);
             } catch (error) {
                 console.error("Failed to delete note:", error);
-                toast.error("Failed to delete note");
+                toast.error(t("dashboardDetail.toasts.deleteNoteFailed"));
             }
         }
     };
@@ -372,17 +383,17 @@ export default function DashboardDetailPage() {
         try {
             await Dashboard.update(currentDashboard.id, { name: newDashboardName.trim() });
             setCurrentDashboard(prev => ({ ...prev, name: newDashboardName.trim() }));
-            toast.success("Dashboard renamed successfully!");
+            toast.success(t("dashboardDetail.toasts.renamed"));
             setIsRenameDialogOpen(false);
         } catch (error) {
-            toast.error("Failed to rename dashboard.");
+            toast.error(t("dashboardDetail.toasts.renameFailed"));
             console.error("Rename dashboard error:", error);
         }
     };
 
     const handleDeleteDashboard = async () => {
         if (!currentDashboard || userPermission !== "owner") return;
-        if (window.confirm(`Are you sure you want to delete the dashboard "${currentDashboard.name}"? This will also delete all its notes and shares. This action cannot be undone.`)) {
+        if (window.confirm(t("dashboardDetail.confirmations.deleteDashboard", { dashboardName: currentDashboard.name }))) {
             try {
                 const notesInDashboard = await Note.filter({ dashboard_id: currentDashboard.id });
                 for (const note of notesInDashboard) {
@@ -397,10 +408,10 @@ export default function DashboardDetailPage() {
                     await DashboardShare.delete(share.id);
                 }
                 await Dashboard.delete(currentDashboard.id);
-                toast.success(`Dashboard "${currentDashboard.name}" deleted.`);
+                toast.success(t("dashboardDetail.toasts.deleted", { dashboardName: currentDashboard.name }));
                 navigate(routes.dashboards);
             } catch (error) {
-                toast.error("Failed to delete dashboard.");
+                toast.error(t("dashboardDetail.toasts.deleteFailed"));
                 console.error("Delete dashboard error:", error);
             }
         }
@@ -416,22 +427,32 @@ export default function DashboardDetailPage() {
 
     const handleExportToExcel = async () => {
         if (!filteredNotes || filteredNotes.length === 0) {
-            toast.info("No notes to export (check filters).");
+            toast.info(t("dashboardDetail.export.nothingToExport"));
             return;
         }
 
         try {
-            toast.info("Preparing export...");
+            toast.info(t("dashboardDetail.export.preparing"));
 
             const headers = [
-                "Note Type", "Content", "Internal Comments", "Client Tags", "Topics",
-                "References", "Importance (1-7)", "Upvotes", "Downvotes", "Last Updated", "Attached Image URLs"
-            ];
+                t("dashboardDetail.export.columns.noteType"),
+                t("dashboardDetail.export.columns.content"),
+                t("dashboardDetail.export.columns.internalComments"),
+                t("dashboardDetail.export.columns.clientTags"),
+                t("dashboardDetail.export.columns.topics"),
+                t("dashboardDetail.export.columns.references"),
+                t("dashboardDetail.export.columns.importance", { max: maxNoteImportance }),
+                t("dashboardDetail.export.columns.upvotes"),
+                t("dashboardDetail.export.columns.downvotes"),
+                t("dashboardDetail.export.columns.lastUpdated"),
+                t("dashboardDetail.export.columns.imageUrls"),
+            ].map(sanitizeCsvField);
 
             const csvData = filteredNotes.map((note) => {
                 const imageUrls = (note.images || []).map(img => img.url).join('; ');
+                const tag = findNoteTagBySymbol(note.symbol);
                 return [
-                    sanitizeCsvField(findNoteTagBySymbol(note.symbol)?.label || note.symbol || "Unknown"),
+                    sanitizeCsvField(tag ? t(noteTagLabelKey(tag.id)) : note.symbol || t("dashboardDetail.export.unknownTag")),
                     sanitizeCsvField(note.content || ""),
                     sanitizeCsvField(note.internal_comments || ""),
                     sanitizeCsvField(note.client_reference || []),
@@ -472,12 +493,12 @@ export default function DashboardDetailPage() {
             URL.revokeObjectURL(url);
 
             toast.success(
-                "Export successful! CSV file has been downloaded with links to all images.",
+                t("dashboardDetail.export.success"),
                 { duration: 6000 }
             );
 
         } catch (error) {
-            toast.error("Failed to export dashboard.");
+            toast.error(t("dashboardDetail.export.failed"));
             console.error("Export error:", error);
         }
     };
@@ -493,7 +514,7 @@ export default function DashboardDetailPage() {
 
     if (isLoading || !currentUser || !currentDashboard) {
         return (
-            <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center" role="status" aria-label="Loading dashboard">
+            <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center" role="status" aria-label={t("dashboardDetail.loading")}>
                 <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
             </div>
         );
@@ -502,6 +523,10 @@ export default function DashboardDetailPage() {
     const canEditDashboard = userPermission === "owner";
     const canAddEditNotes = userPermission === "owner" || userPermission === "editor";
     const hasActiveFilters = Boolean(searchTerm) || tagFilter !== ALL_TAGS_FILTER || clientFilter !== "all" || topicFilter !== "all" || importanceFilter !== "all";
+    const accessDescription =
+        userPermission === "owner" ? t("dashboardDetail.access.owner")
+            : userPermission === "editor" ? t("dashboardDetail.access.editor")
+                : t("dashboardDetail.access.viewer");
 
     return (
         <div>
@@ -509,56 +534,56 @@ export default function DashboardDetailPage() {
                 {/* Header section */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 mb-6">
                     <div className="flex items-center gap-3 min-w-0">
-                        <Button variant="ghost" size="icon" onClick={() => navigate(routes.dashboards)} className="rounded-full shrink-0 rtl:rotate-180" aria-label="Back to dashboards">
+                        <Button variant="ghost" size="icon" onClick={() => navigate(routes.dashboards)} className="rounded-full shrink-0 rtl:rotate-180" aria-label={t("dashboardDetail.backToDashboards")}>
                             <ArrowLeft className="!w-5 !h-5" />
                         </Button>
                         <div className="min-w-0">
                             <h1 className="text-[28px] leading-tight font-semibold text-foreground flex items-center gap-1.5">
                                 <span className="truncate">{currentDashboard.name}</span>
                                 {canEditDashboard && (
-                                    <Button variant="ghost" size="icon" onClick={() => setIsRenameDialogOpen(true)} className="h-8 w-8 rounded-full text-muted-foreground shrink-0" aria-label="Rename dashboard">
+                                    <Button variant="ghost" size="icon" onClick={() => setIsRenameDialogOpen(true)} className="h-8 w-8 rounded-full text-muted-foreground shrink-0" aria-label={t("dashboardDetail.renameLabel")}>
                                         <Edit3 />
                                     </Button>
                                 )}
                             </h1>
                             <p className="text-sm text-muted-foreground">
-                                {userPermission === "owner" ? "You own this dashboard" : `Shared with you as ${userPermission}`}
-                                {!isNotesLoading && ` · ${notes.length} ${notes.length === 1 ? "note" : "notes"}`}
+                                {accessDescription}
+                                {!isNotesLoading && ` · ${t("dashboardDetail.noteCount", { count: notes.length })}`}
                             </p>
                         </div>
                     </div>
 
                     <div className="flex gap-2 items-center flex-wrap">
-                        <Button variant="outline" onClick={handleExportToExcel} aria-label="Export notes as CSV" className="max-sm:w-9 max-sm:px-0">
+                        <Button variant="outline" onClick={handleExportToExcel} aria-label={t("dashboardDetail.actions.exportLabel")} className="max-sm:w-9 max-sm:px-0">
                             <FileSpreadsheet aria-hidden />
-                            <span className="hidden sm:inline">Export</span>
+                            <span className="hidden sm:inline">{t("dashboardDetail.actions.export")}</span>
                         </Button>
                         {canEditDashboard && (
-                            <Button variant="outline" onClick={() => setIsShareDialogOpen(true)} aria-label="Share dashboard" className="max-sm:w-9 max-sm:px-0">
+                            <Button variant="outline" onClick={() => setIsShareDialogOpen(true)} aria-label={t("dashboardDetail.actions.shareLabel")} className="max-sm:w-9 max-sm:px-0">
                                 <Users aria-hidden />
-                                <span className="hidden sm:inline">Share</span>
+                                <span className="hidden sm:inline">{t("dashboardDetail.actions.share")}</span>
                             </Button>
                         )}
                         {canAddEditNotes && (
                             <Button onClick={handleNewNote}>
                                 <Plus aria-hidden />
-                                New Note
+                                {t("dashboardDetail.actions.newNote")}
                             </Button>
                         )}
                         {canEditDashboard && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="icon" aria-label="More dashboard actions">
+                                    <Button variant="outline" size="icon" aria-label={t("dashboardDetail.actions.moreLabel")}>
                                         <MoreHorizontal />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={() => setIsRenameDialogOpen(true)}>
-                                        <Edit3 className="w-4 h-4 me-2" /> Rename Dashboard
+                                        <Edit3 className="w-4 h-4 me-2" /> {t("dashboardDetail.actions.rename")}
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleDeleteDashboard} className="text-destructive focus:text-destructive">
-                                        <Trash2 className="w-4 h-4 me-2" /> Delete Dashboard
+                                        <Trash2 className="w-4 h-4 me-2" /> {t("dashboardDetail.actions.delete")}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -574,8 +599,8 @@ export default function DashboardDetailPage() {
                                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" aria-hidden />
                                 <Input
                                     type="search"
-                                    placeholder="Search notes, comments, client tags, or topics"
-                                    aria-label="Search notes"
+                                    placeholder={t("dashboardDetail.search.placeholder")}
+                                    aria-label={t("dashboardDetail.search.label")}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="ps-9 h-9 bg-muted/60 border-transparent focus-visible:bg-card"
@@ -585,58 +610,60 @@ export default function DashboardDetailPage() {
                         {/* One scrollable row on small screens instead of five stacked full-width rows. */}
                         <div className="flex gap-2 overflow-x-auto -mx-1 px-1 pb-0.5 lg:overflow-visible lg:flex-wrap [&>*]:shrink-0">
                             <Select value={tagFilter} onValueChange={setTagFilter}>
-                                <SelectTrigger className="w-auto h-9" aria-label="Filter by note tag">
-                                    <div className="flex items-center gap-2"> <Filter className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder="Filter by tag" /> </div>
+                                <SelectTrigger className="w-auto h-9" aria-label={t("dashboardDetail.filters.tag.label")}>
+                                    <div className="flex items-center gap-2"> <Filter className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder={t("dashboardDetail.filters.tag.placeholder")} /> </div>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value={ALL_TAGS_FILTER}>
                                         <div className="flex items-center gap-2">
                                             <span className="inline-flex size-7 items-center justify-center rounded-lg bg-muted text-muted-foreground" aria-hidden><AllNotesIcon size={15} /></span>
-                                            <span>All Notes</span>
+                                            <span>{t("dashboardDetail.filters.tag.all")}</span>
                                         </div>
                                     </SelectItem>
                                     {NOTE_TAGS.map((tag) => (
                                         <SelectItem key={tag.id} value={tag.id}>
-                                            <div className="flex items-center gap-2"><NoteTagIcon tag={tag} size="sm" decorative /><span>{tag.label}</span></div>
+                                            <div className="flex items-center gap-2"><NoteTagIcon tag={tag} size="sm" decorative /><span>{t(noteTagLabelKey(tag.id))}</span></div>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
 
                             <Select value={clientFilter} onValueChange={setClientFilter} disabled={uniqueClients.length <= 1}>
-                                <SelectTrigger className="w-auto h-9" aria-label="Filter by client tag">
-                                    <div className="flex items-center gap-2"> <UserFilterIcon className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder="Filter by Client Tag" /> </div>
+                                <SelectTrigger className="w-auto h-9" aria-label={t("dashboardDetail.filters.client.label")}>
+                                    <div className="flex items-center gap-2"> <UserFilterIcon className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder={t("dashboardDetail.filters.client.placeholder")} /> </div>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {uniqueClients.map((client) => (
                                         <SelectItem key={client} value={client}>
-                                            {client === "all" ? "All Client Tags" : client}
+                                            {client === "all" ? t("dashboardDetail.filters.client.all") : client}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
 
                             <Select value={topicFilter} onValueChange={setTopicFilter} disabled={uniqueTopics.length <= 1}>
-                                <SelectTrigger className="w-auto h-9" aria-label="Filter by topic">
-                                    <div className="flex items-center gap-2"> <TopicFilterIcon className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder="Filter by Topic" /> </div>
+                                <SelectTrigger className="w-auto h-9" aria-label={t("dashboardDetail.filters.topic.label")}>
+                                    <div className="flex items-center gap-2"> <TopicFilterIcon className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder={t("dashboardDetail.filters.topic.placeholder")} /> </div>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {uniqueTopics.map((topic) => (
                                         <SelectItem key={topic} value={topic}>
-                                            {topic === "all" ? "All Topics" : topic}
+                                            {topic === "all" ? t("dashboardDetail.filters.topic.all") : topic}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
 
                             <Select value={importanceFilter} onValueChange={setImportanceFilter}>
-                                <SelectTrigger className="w-auto h-9" aria-label="Filter by importance">
-                                    <div className="flex items-center gap-2"> <StarIcon className="w-4 h-4 text-warning" aria-hidden /> <SelectValue placeholder="Filter by Importance" /> </div>
+                                <SelectTrigger className="w-auto h-9" aria-label={t("dashboardDetail.filters.importance.label")}>
+                                    <div className="flex items-center gap-2"> <StarIcon className="w-4 h-4 text-warning" aria-hidden /> <SelectValue placeholder={t("dashboardDetail.filters.importance.placeholder")} /> </div>
                                 </SelectTrigger>
                                 <SelectContent>
                                     {IMPORTANCE_FILTER_OPTIONS.map((opt) => (
                                         <SelectItem key={opt.value} value={opt.value}>
-                                            {opt.label}
+                                            {"count" in opt
+                                                ? t(`dashboardDetail.filters.importance.${opt.labelKey}`, { count: opt.count })
+                                                : t(`dashboardDetail.filters.importance.${opt.labelKey}`)}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -644,25 +671,23 @@ export default function DashboardDetailPage() {
 
                             <div className="flex gap-1">
                                 <Select value={sortBy} onValueChange={(value) => { setSortBy(value); }}>
-                                    <SelectTrigger className="w-auto h-9" aria-label="Sort notes by">
-                                        <div className="flex items-center gap-2"> <SortAsc className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder="Sort by..." /> </div>
+                                    <SelectTrigger className="w-auto h-9" aria-label={t("dashboardDetail.sort.label")}>
+                                        <div className="flex items-center gap-2"> <SortAsc className="w-4 h-4 text-muted-foreground" aria-hidden /> <SelectValue placeholder={t("dashboardDetail.sort.placeholder")} /> </div>
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="updated_date">Last Updated</SelectItem>
-                                        <SelectItem value="created_date">Date Created</SelectItem>
-                                        <SelectItem value="importance">Importance</SelectItem>
-                                        <SelectItem value="client_reference">Client Reference</SelectItem>
-                                        <SelectItem value="topics">Topics</SelectItem>
-                                        <SelectItem value="upvote_count">Upvotes</SelectItem>
-                                        <SelectItem value="downvote_count">Downvotes</SelectItem>
+                                        {SORT_OPTIONS.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {t(`dashboardDetail.sort.fields.${option.labelKey}`)}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
-                                <Button variant="outline" size="icon" onClick={toggleSortOrder} aria-label={sortOrder === 'asc' ? "Sorted ascending; switch to descending" : "Sorted descending; switch to ascending"}>
+                                <Button variant="outline" size="icon" onClick={toggleSortOrder} aria-label={sortOrder === 'asc' ? t("dashboardDetail.sort.sortedAscending") : t("dashboardDetail.sort.sortedDescending")}>
                                     {sortOrder === 'asc' ? <ArrowUpNarrowWide /> : <ArrowDownWideNarrow />}
                                 </Button>
                             </div>
                             {/* Shows the view you'd switch to, as its label says. */}
-                            <Button variant="outline" size="icon" onClick={toggleViewMode} aria-label={viewMode === "grid" ? "Switch to list view" : "Switch to grid view"}>
+                            <Button variant="outline" size="icon" onClick={toggleViewMode} aria-label={viewMode === "grid" ? t("dashboardDetail.view.switchToList") : t("dashboardDetail.view.switchToGrid")}>
                                 {viewMode === "grid" ? <List /> : <Grid3X3 />}
                             </Button>
                             {hasActiveFilters && (
@@ -671,7 +696,7 @@ export default function DashboardDetailPage() {
                                     onClick={() => { setSearchTerm(""); setTagFilter(ALL_TAGS_FILTER); setClientFilter("all"); setTopicFilter("all"); setImportanceFilter("all"); }}
                                     className="text-primary-fg hover:text-primary-fg"
                                 >
-                                    Clear filters
+                                    {t("dashboardDetail.filters.clear")}
                                 </Button>
                             )}
                         </div>
@@ -681,7 +706,7 @@ export default function DashboardDetailPage() {
                 {/* Notes Grid/List */}
                 <div className="mb-8">
                     {isNotesLoading ? (
-                        <div className={viewMode === "grid" ? "responsive-notes-grid" : "space-y-4"} role="status" aria-label="Loading notes">
+                        <div className={viewMode === "grid" ? "responsive-notes-grid" : "space-y-4"} role="status" aria-label={t("dashboardDetail.loadingNotes")}>
                             {Array(viewMode === "grid" ? 6 : 3).fill(0).map((_, i) => (<div key={i} className="motion-safe:animate-pulse"><div className="rounded-2xl border border-border/60 bg-card h-64 p-5"><div className="size-7 bg-muted rounded-lg mb-4"></div><div className="space-y-2"><div className="h-4 bg-muted rounded w-3/4"></div><div className="h-4 bg-muted rounded w-1/2"></div><div className="h-4 bg-muted rounded w-5/6 mt-3"></div><div className="h-3 bg-muted rounded w-1/3 mt-4"></div></div></div></div>))}
                         </div>
                     ) : filteredNotes.length === 0 ? (
@@ -690,13 +715,13 @@ export default function DashboardDetailPage() {
                                 {hasActiveFilters ? <Search className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
                             </div>
                             <h2 className="text-lg font-semibold text-foreground mb-1.5">
-                                {hasActiveFilters ? "No matching notes" : "This dashboard is empty"}
+                                {hasActiveFilters ? t("dashboardDetail.emptyState.noMatchesTitle") : t("dashboardDetail.emptyState.emptyTitle")}
                             </h2>
                             <p className="text-sm text-muted-foreground mb-6">
-                                {hasActiveFilters ? "Try adjusting your search or filters." : "Start by adding your first research note to this dashboard."}
+                                {hasActiveFilters ? t("dashboardDetail.emptyState.noMatchesDescription") : t("dashboardDetail.emptyState.emptyDescription")}
                             </p>
                             {canAddEditNotes && !hasActiveFilters && (
-                                <Button onClick={handleNewNote}><Plus aria-hidden /> Add Your First Note</Button>
+                                <Button onClick={handleNewNote}><Plus aria-hidden /> {t("dashboardDetail.emptyState.addFirstNote")}</Button>
                             )}
                         </div>
                     ) : (
@@ -755,8 +780,8 @@ export default function DashboardDetailPage() {
             <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Rename Dashboard</DialogTitle>
-                        <DialogDescription>Enter a new name for your dashboard "{currentDashboard?.name}".</DialogDescription>
+                        <DialogTitle>{t("dashboardDetail.renameDialog.title")}</DialogTitle>
+                        <DialogDescription>{t("dashboardDetail.renameDialog.description", { dashboardName: currentDashboard?.name ?? "" })}</DialogDescription>
                     </DialogHeader>
                     <Input
                         value={newDashboardName}
@@ -765,8 +790,8 @@ export default function DashboardDetailPage() {
                         className="my-4"
                     />
                     <DialogFooter>
-                        <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-                        <Button onClick={handleRenameDashboard} disabled={!newDashboardName.trim() || newDashboardName.trim() === currentDashboard?.name}>Save Changes</Button>
+                        <DialogClose asChild><Button variant="outline">{t("common.cancel")}</Button></DialogClose>
+                        <Button onClick={handleRenameDashboard} disabled={!newDashboardName.trim() || newDashboardName.trim() === currentDashboard?.name}>{t("common.saveChanges")}</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

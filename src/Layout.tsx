@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { Accessibility, LogOut, Menu, WifiOff, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigationType } from "react-router-dom";
 
 /** The header's hairline appears once the page has scrolled this far under it. */
@@ -44,6 +45,7 @@ type LayoutProps = {
 
 /** App chrome for signed-in users. App.tsx only renders it when authenticated. */
 export default function Layout({ children }: LayoutProps) {
+    const { t } = useTranslation();
     const location = useLocation();
     const { user, logout } = useAuth();
     const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -107,7 +109,7 @@ export default function Layout({ children }: LayoutProps) {
     };
 
     const userName = user?.name ?? "";
-    const userInitial = userName.charAt(0).toUpperCase() || "U";
+    const userInitial = userName.charAt(0).toUpperCase() || t("layout.userInitialFallback");
 
     // A dashboard's own page still lives under the Dashboards tab.
     const isNavItemActive = (url: string) =>
@@ -126,19 +128,19 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center gap-4 min-w-0">
-                            <Link to={routes.dashboards} className="flex items-center gap-2.5 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${productName}, go to dashboards`}>
+                            <Link to={routes.dashboards} className="flex items-center gap-2.5 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring" aria-label={t("layout.homeLink")}>
                                 {/* Decorative: the link's aria-label already names the product. */}
                                 <img src={productLogoUrl} alt="" className="size-9 shrink-0" />
 
                                 <span className="text-[17px] font-semibold tracking-tight text-foreground hidden sm:block">{productName}</span>
                             </Link>
 
-                            <nav className="hidden md:flex items-center gap-0.5 ms-6" aria-label="Main">
+                            <nav className="hidden md:flex items-center gap-0.5 ms-6" aria-label={t("layout.mainNavigation")}>
                                 {navigationItems.map((item) => {
                                     const isActive = isNavItemActive(item.url);
                                     return (
                                         <Link
-                                            key={item.title}
+                                            key={item.url}
                                             to={item.url}
                                             aria-current={isActive ? "page" : undefined}
                                             className={cn(
@@ -156,7 +158,7 @@ export default function Layout({ children }: LayoutProps) {
                                                 />
                                             )}
                                             <item.icon className="relative w-4 h-4" aria-hidden="true" />
-                                            <span className="relative">{item.title}</span>
+                                            <span className="relative">{t(item.labelKey)}</span>
                                         </Link>
                                     );
                                 })}
@@ -168,7 +170,7 @@ export default function Layout({ children }: LayoutProps) {
                             {!isOnline && (
                                 <span role="status" className="flex items-center gap-1.5 rounded-full bg-tag-action/10 px-2.5 py-1 text-xs font-medium text-tag-action">
                                     <WifiOff className="w-3.5 h-3.5" aria-hidden="true" />
-                                    Offline
+                                    {t("layout.offline")}
                                 </span>
                             )}
 
@@ -177,7 +179,7 @@ export default function Layout({ children }: LayoutProps) {
                                 size="icon"
                                 className="md:hidden rounded-full"
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
+                                aria-label={isMobileMenuOpen ? t("layout.closeMobileMenu") : t("layout.openMobileMenu")}
                                 aria-expanded={isMobileMenuOpen}
                                 aria-controls="mobile-menu"
                             >
@@ -186,7 +188,7 @@ export default function Layout({ children }: LayoutProps) {
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="hidden md:flex items-center gap-2 ps-1.5 pe-3 rounded-full" aria-label={`Account: ${userName}`}>
+                                    <Button variant="ghost" className="hidden md:flex items-center gap-2 ps-1.5 pe-3 rounded-full" aria-label={t("layout.account", { userName })}>
                                         <span className="size-7 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[13px] font-semibold" aria-hidden="true">
                                             {userInitial}
                                         </span>
@@ -201,7 +203,7 @@ export default function Layout({ children }: LayoutProps) {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                                         <LogOut className="w-4 h-4 me-2" aria-hidden="true" />
-                                        Sign out
+                                        {t("layout.signOut")}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -218,12 +220,12 @@ export default function Layout({ children }: LayoutProps) {
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={SPRING_SNAPPY}
                             >
-                                <nav className="space-y-1 py-3 border-t border-border/70" aria-label="Main">
+                                <nav className="space-y-1 py-3 border-t border-border/70" aria-label={t("layout.mainNavigation")}>
                                     {navigationItems.map((item) => {
                                         const isActive = isNavItemActive(item.url);
                                         return (
                                             <Link
-                                                key={item.title}
+                                                key={item.url}
                                                 to={item.url}
                                                 aria-current={isActive ? "page" : undefined}
                                                 className={cn(
@@ -233,7 +235,7 @@ export default function Layout({ children }: LayoutProps) {
                                                 onClick={() => setIsMobileMenuOpen(false)}
                                             >
                                                 <item.icon className="w-5 h-5" aria-hidden="true" />
-                                                {item.title}
+                                                {t(item.labelKey)}
                                             </Link>
                                         );
                                     })}
@@ -253,7 +255,7 @@ export default function Layout({ children }: LayoutProps) {
                                             className="w-full text-destructive hover:text-destructive"
                                         >
                                             <LogOut aria-hidden="true" />
-                                            Sign out
+                                            {t("layout.signOut")}
                                         </Button>
                                     </div>
                                 </nav>
@@ -283,16 +285,16 @@ export default function Layout({ children }: LayoutProps) {
                             className="text-muted-foreground"
                         >
                             <Accessibility aria-hidden="true" />
-                            Appearance Settings
+                            {t("layout.appearanceSettings")}
                         </Button>
-                        <p className="text-center text-[13px] text-muted-foreground">&copy; {new Date().getFullYear()} {productName}. All rights reserved.</p>
+                        <p className="text-center text-[13px] text-muted-foreground">{t("layout.copyright", { year: new Date().getFullYear() })}</p>
                     </div>
-                    <nav className="flex flex-wrap justify-center gap-x-5 gap-y-1" aria-label="Legal">
-                        <Link to={routes.about} className="text-muted-foreground hover:text-foreground text-[13px]">About</Link>
-                        <Link to={routes.credits} className="text-muted-foreground hover:text-foreground text-[13px]">Credits</Link>
-                        <Link to={routes.privacyPolicy} className="text-muted-foreground hover:text-foreground text-[13px]">Privacy Policy</Link>
-                        <Link to={routes.termsOfUse} className="text-muted-foreground hover:text-foreground text-[13px]">Terms of Use</Link>
-                        <Link to={routes.accessibilityStatement} className="text-muted-foreground hover:text-foreground text-[13px]">Accessibility</Link>
+                    <nav className="flex flex-wrap justify-center gap-x-5 gap-y-1" aria-label={t("layout.legalNavigation")}>
+                        <Link to={routes.about} className="text-muted-foreground hover:text-foreground text-[13px]">{t("layout.footerLinks.about")}</Link>
+                        <Link to={routes.credits} className="text-muted-foreground hover:text-foreground text-[13px]">{t("layout.footerLinks.credits")}</Link>
+                        <Link to={routes.privacyPolicy} className="text-muted-foreground hover:text-foreground text-[13px]">{t("layout.footerLinks.privacyPolicy")}</Link>
+                        <Link to={routes.termsOfUse} className="text-muted-foreground hover:text-foreground text-[13px]">{t("layout.footerLinks.termsOfUse")}</Link>
+                        <Link to={routes.accessibilityStatement} className="text-muted-foreground hover:text-foreground text-[13px]">{t("layout.footerLinks.accessibility")}</Link>
                     </nav>
                 </div>
             </footer>

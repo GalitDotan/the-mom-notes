@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
+
 import { cn } from "@/lib/utils";
 
-import { findNoteTagBySymbol, type NoteTag, type NoteTagCategoryId } from "./note-tags";
+import { findNoteTagBySymbol, noteTagLabelKey, type NoteTag, type NoteTagCategoryId } from "./note-tags";
 
 /** Per-category classes, spelled out in full so Tailwind can find them. */
 export const NOTE_TAG_CATEGORY_CLASSES: Record<NoteTagCategoryId, { text: string; tint: string; ring: string }> = {
@@ -33,11 +35,12 @@ type NoteTagIconProps = {
 
 /** A note tag's animated icon on a chip tinted with its category color. */
 export function NoteTagIcon({ tag, symbol, size = "md", animate = false, decorative = false, className }: NoteTagIconProps) {
+    const { t } = useTranslation();
     const resolved = tag ?? findNoteTagBySymbol(symbol);
     const dimensions = SIZES[size];
     const a11y = decorative
         ? { "aria-hidden": true }
-        : { role: "img", "aria-label": resolved?.label ?? "Untagged note" };
+        : { role: "img", "aria-label": resolved ? t(noteTagLabelKey(resolved.id)) : t("noteTags.untaggedNote") };
 
     if (!resolved) {
         // A symbol outside the catalog: show what is stored rather than guessing a tag.

@@ -1,13 +1,22 @@
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 import { NOTE_TAG_CATEGORY_CLASSES, NoteTagIcon } from "./NoteTagIcon";
-import { DEFAULT_NOTE_TAG, NOTE_TAGS, findNoteTagBySymbol, type NoteTagEmoji, type NoteTagId } from "./note-tags";
+import {
+    DEFAULT_NOTE_TAG,
+    NOTE_TAGS,
+    findNoteTagBySymbol,
+    noteTagDescriptionKey,
+    noteTagLabelKey,
+    type NoteTagEmoji,
+    type NoteTagId,
+} from "./note-tags";
 
 type NoteTagPickerProps = {
     /** The note's stored symbol. */
@@ -21,10 +30,14 @@ type NoteTagPickerProps = {
  * navigation; the popover closes as soon as a tag is chosen.
  */
 export function NoteTagPicker({ value, onChange, disabled }: NoteTagPickerProps) {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [highlighted, setHighlighted] = useState<NoteTagId | null>(null);
     const selected = findNoteTagBySymbol(value);
     const shown = selected ?? DEFAULT_NOTE_TAG;
+    const selectedLabel = selected ? t(noteTagLabelKey(selected.id)) : t("noteTags.untagged");
+    // The hovered or focused option, else the note's own tag.
+    const describedTag = highlighted ? NOTE_TAGS.find((tag) => tag.id === highlighted) : selected;
 
     const handleValueChange = (id: string) => {
         // Radix allows deselecting the active item (""); a note always keeps a tag.
@@ -42,17 +55,17 @@ export function NoteTagPicker({ value, onChange, disabled }: NoteTagPickerProps)
                     variant="outline"
                     disabled={disabled}
                     className="h-auto gap-2.5 py-1.5 ps-1.5 pe-3"
-                    aria-label={`Note tag: ${selected?.label ?? "Untagged"}. Change tag`}
+                    aria-label={t("noteTags.picker.triggerLabel", { tag: selectedLabel })}
                 >
                     <NoteTagIcon tag={selected} symbol={value} size="md" decorative />
-                    <span className="text-sm font-medium">{selected?.label ?? "Untagged"}</span>
+                    <span className="text-sm font-medium">{selectedLabel}</span>
                     <ChevronDown className="text-muted-foreground" aria-hidden />
                 </Button>
             </PopoverTrigger>
 
             <PopoverContent align="start" className="w-[22rem] p-2">
                 <p className="px-2 pb-2 pt-1 text-[13px] font-medium text-muted-foreground" id="note-tag-picker-label">
-                    What kind of insight is this?
+                    {t("noteTags.picker.prompt")}
                 </p>
                 <ToggleGroup.Root
                     type="single"
@@ -79,15 +92,15 @@ export function NoteTagPicker({ value, onChange, disabled }: NoteTagPickerProps)
                                 )}
                             >
                                 <NoteTagIcon tag={tag} size="md" animate={highlighted === tag.id} decorative />
-                                <span className="leading-tight">{tag.label}</span>
-                                <span className="sr-only">: {tag.description}</span>
+                                <span className="leading-tight">{t(noteTagLabelKey(tag.id))}</span>
+                                <span className="sr-only">: {t(noteTagDescriptionKey(tag.id))}</span>
                             </ToggleGroup.Item>
                         );
                     })}
                 </ToggleGroup.Root>
                 {/* Always rendered (two lines reserved) so the popover never changes height on hover. */}
                 <p className="min-h-[2.5rem] px-2 pb-1 pt-2 text-xs leading-snug text-muted-foreground" aria-hidden>
-                    {(highlighted ? NOTE_TAGS.find((tag) => tag.id === highlighted) : selected)?.description}
+                    {describedTag && t(noteTagDescriptionKey(describedTag.id))}
                 </p>
             </PopoverContent>
         </Popover>

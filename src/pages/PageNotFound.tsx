@@ -1,8 +1,10 @@
 import { Home } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { routes } from '@/lib/constants';
 
 export default function PageNotFound() {
+    const { t } = useTranslation();
     const location = useLocation();
     const pageName = location.pathname.substring(1);
 
@@ -17,10 +19,15 @@ export default function PageNotFound() {
 
                     <div className="space-y-3">
                         <h1 className="text-2xl font-medium text-foreground">
-                            Page Not Found
+                            {t('notFound.title')}
                         </h1>
                         <p className="text-muted-foreground leading-relaxed">
-                            The page <span className="font-medium text-foreground">"{pageName}"</span> could not be found in this application.
+                            {/* The path comes from the URL: Trans renders it as text, never as markup. */}
+                            <Trans
+                                i18nKey="notFound.description"
+                                values={{ pageName }}
+                                components={{ pageName: <span className="font-medium text-foreground" /> }}
+                            />
                         </p>
                     </div>
 
@@ -30,7 +37,7 @@ export default function PageNotFound() {
                             className="inline-flex items-center px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-lg hover:bg-accent hover:border-input transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-ring"
                         >
                             <Home className="w-4 h-4 me-2" aria-hidden="true" />
-                            Go Home
+                            {t('notFound.goHome')}
                         </Link>
                     </div>
                 </div>

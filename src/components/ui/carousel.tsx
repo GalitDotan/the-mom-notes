@@ -1,6 +1,7 @@
 import * as React from "react"
 import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -29,6 +30,7 @@ const Carousel = React.forwardRef((
   },
   ref
 ) => {
+  const { t } = useTranslation()
   const [carouselRef, api] = useEmblaCarousel({
     ...opts,
     axis: orientation === "horizontal" ? "x" : "y",
@@ -103,7 +105,7 @@ const Carousel = React.forwardRef((
         onKeyDownCapture={handleKeyDown}
         className={cn("relative", className)}
         role="region"
-        aria-roledescription="carousel"
+        aria-roledescription={t("ui.carousel.roleDescription")}
         {...props}>
         {children}
       </div>
@@ -131,13 +133,14 @@ const CarouselContent = React.forwardRef(({ className, ...props }, ref) => {
 CarouselContent.displayName = "CarouselContent"
 
 const CarouselItem = React.forwardRef(({ className, ...props }, ref) => {
+  const { t } = useTranslation()
   const { orientation } = useCarousel()
 
   return (
     (<div
       ref={ref}
       role="group"
-      aria-roledescription="slide"
+      aria-roledescription={t("ui.carousel.slideRoleDescription")}
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
         orientation === "horizontal" ? "pl-4" : "pt-4",
@@ -149,6 +152,7 @@ const CarouselItem = React.forwardRef(({ className, ...props }, ref) => {
 CarouselItem.displayName = "CarouselItem"
 
 const CarouselPrevious = React.forwardRef(({ className, variant = "outline", size = "icon", ...props }, ref) => {
+  const { t } = useTranslation()
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
 
   return (
@@ -163,13 +167,14 @@ const CarouselPrevious = React.forwardRef(({ className, variant = "outline", siz
       onClick={scrollPrev}
       {...props}>
       <ArrowLeft className="h-4 w-4" />
-      <span className="sr-only">Previous slide</span>
+      <span className="sr-only">{t("ui.carousel.previousSlide")}</span>
     </Button>)
   );
 })
 CarouselPrevious.displayName = "CarouselPrevious"
 
 const CarouselNext = React.forwardRef(({ className, variant = "outline", size = "icon", ...props }, ref) => {
+  const { t } = useTranslation()
   const { orientation, scrollNext, canScrollNext } = useCarousel()
 
   return (
@@ -184,7 +189,7 @@ const CarouselNext = React.forwardRef(({ className, variant = "outline", size = 
       onClick={scrollNext}
       {...props}>
       <ArrowRight className="h-4 w-4" />
-      <span className="sr-only">Next slide</span>
+      <span className="sr-only">{t("ui.carousel.nextSlide")}</span>
     </Button>)
   );
 })

@@ -66,6 +66,17 @@ This standalone version stores data in `localStorage` inside your browser. That 
 
 The app is based on a Vite + React stack with Tailwind-style components and local storage persistence for data.
 
+### Translations
+
+All user-visible text lives in `src/i18n/locales/en.ts` and is shown through [react-i18next](https://react.i18next.com/) (`useTranslation()`, or `<Trans>` for text with markup). Only English is shipped for now. Keys and their `{{variables}}` are type-checked against the English file, so a missing key or variable fails `npm run typecheck`.
+
+To add a language:
+
+1. Copy `src/i18n/locales/en.ts` to `src/i18n/locales/<code>.ts` and translate the values. Mark the object `satisfies TranslationResource` instead of `as const`; plural forms follow the language (e.g. Hebrew adds `_two`).
+2. Register it in `LANGUAGES` in `src/i18n/languages.ts`, with its date-fns locale for relative times.
+
+Text direction (`<html dir>`) and `<html lang>` follow the active language, and dates are formatted for it.
+
 ## License
 
 See the `LICENSE` file for more details.

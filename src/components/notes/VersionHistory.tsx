@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,9 +11,10 @@ import ReactMarkdown from 'react-markdown';
 import { X, History, Clock, ArrowLeft, Star, UserCircle, ThumbsUp, ThumbsDown, Link as LinkIcon, Tag as TopicIcon, MessageSquare, Image as ImageIcon, Download } from "lucide-react";
 import { NoteVersion } from "@/entities/NoteVersion";
 import type { NoteVersionRecord } from "@/entities/all";
-import { format } from "date-fns";
 import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
-import { findNoteTagBySymbol } from "@/features/notes/note-tags";
+import { findNoteTagBySymbol, noteTagLabelKey } from "@/features/notes/note-tags";
+import { useDateFormatter } from "@/i18n/useDateFormatter";
+import { maxNoteImportance } from "@/lib/constants";
 
 // Utility to get domain from URL for display (same as in NoteCard)
 const getDomainFromUrl = (url) => {
@@ -25,6 +27,8 @@ const getDomainFromUrl = (url) => {
 };
 
 export default function VersionHistory({ note, isOpen, onClose }) {
+    const { t } = useTranslation();
+    const { formatDate } = useDateFormatter();
     const [versions, setVersions] = useState<NoteVersionRecord[]>([]);
     const [selectedVersion, setSelectedVersion] = useState<NoteVersionRecord | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -53,6 +57,8 @@ export default function VersionHistory({ note, isOpen, onClose }) {
 
     if (!isOpen || !note) return null;
 
+    const selectedTag = selectedVersion ? findNoteTagBySymbol(selectedVersion.symbol) : undefined;
+
     return (
         <AnimatePresence>
             <motion.div
@@ -76,8 +82,8 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                                     <History className="w-4 h-4 text-primary-fg" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-lg">Version History</CardTitle>
-                                    <p className="text-xs text-muted-foreground">{versions.length} versions</p>
+                                    <CardTitle className="text-lg">{t("versionHistory.title")}</CardTitle>
+                                    <p className="text-xs text-muted-foreground">{t("versionHistory.versionCount", { count: versions.length })}</p>
                                 </div>
                             </div>
                             <Button
@@ -94,12 +100,12 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                             {isLoading ? (
                                 <div className="p-6 text-center text-muted-foreground">
                                     <Clock className="w-6 h-6 mx-auto mb-2 animate-spin text-primary-fg" />
-                                    Loading versions...
+                                    {t("versionHistory.loading")}
                                 </div>
                             ) : versions.length === 0 ? (
                                 <div className="p-6 text-center text-muted-foreground">
                                     <History className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                                    No version history available.
+                                    {t("versionHistory.empty")}
                                 </div>
                             ) : (
                                 <div className="space-y-1">
@@ -120,7 +126,7 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                                                             variant={selectedVersion?.id === version.id ? "default" : "secondary"}
                                                             className="text-xs"
                                                         >
-                                                            {note.current_version_id === version.id ? "Current" : `Version ${versions.length - index}`}
+                                                            {note.current_version_id === version.id ? t("versionHistory.current") : t("versionHistory.versionNumber", { number: versions.length - index })}
                                                         </Badge>
                                                     </div>
                                                     <p className="text-sm text-foreground line-clamp-2 break-words mt-1">
@@ -129,7 +135,7 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                                                 </div>
                                             </div>
                                             <p className="text-xs text-muted-foreground ms-[38px]">
-                                                {version.created_date ? format(new Date(version.created_date), "MMM d, yyyy, h:mm a") : 'No date'}
+                                                {version.created_date ? formatDate(version.created_date, "mediumDateTime") : t("notes.noDate")}
                                             </p>
                                         </button>
                                     ))}
@@ -143,13 +149,15 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                         <CardHeader className="p-4 border-b">
                             {selectedVersion ? (
                                 <div className="flex items-start gap-3">
-                                    <NoteTagIcon symbol={selectedVersion.symbol} size="md" decorative={Boolean(findNoteTagBySymbol(selectedVersion.symbol))} />
+                                    <NoteTagIcon symbol={selectedVersion.symbol} size="md" decorative={Boolean(selectedTag)} />
                                     <div className="flex-1 space-y-1.5">
                                         <h3 className="text-lg font-semibold">
-                                            {findNoteTagBySymbol(selectedVersion.symbol)?.label || "Note Details"}
+                                            {selectedTag ? t(noteTagLabelKey(selectedTag.id)) : t("versionHistory.noteDetails")}
                                         </h3>
                                         <p className="text-xs text-muted-foreground">
-                                            Saved on: {selectedVersion.created_date ? format(new Date(selectedVersion.created_date), "MMMM d, yyyy 'at' h:mm a") : 'No Date'}
+                                            {t("versionHistory.savedOn", {
+                                                date: selectedVersion.created_date ? formatDate(selectedVersion.created_date, "longDateTime") : t("notes.noDate"),
+                                            })}
                                         </p>
 
                                         {/* Client Tags */}
@@ -194,24 +202,24 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                                         )}
 
                                         {/* Importance and Votes */}
-                                        <div className="flex items-center gap-1" title={`Importance: ${selectedVersion.importance || 1}/7`}>
+                                        <div className="flex items-center gap-1" title={t("notes.importance.summary", { level: selectedVersion.importance || 1, max: maxNoteImportance })}>
                                             {Array.from({ length: selectedVersion.importance || 1 }).map((_, i) => <Star key={`s-filled-${i}`} className="w-3.5 h-3.5 text-warning fill-warning" />)}
-                                            {Array.from({ length: Math.max(0, 7 - (selectedVersion.importance || 1)) }).map((_, i) => <Star key={`s-empty-${i}`} className="w-3.5 h-3.5 text-border" />)}
+                                            {Array.from({ length: Math.max(0, maxNoteImportance - (selectedVersion.importance || 1)) }).map((_, i) => <Star key={`s-empty-${i}`} className="w-3.5 h-3.5 text-border" />)}
                                         </div>
                                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                             <div className="flex items-center gap-1">
                                                 <ThumbsUp className="w-3.5 h-3.5 text-success" />
-                                                <span>{selectedVersion.upvote_count === undefined ? 'N/A' : selectedVersion.upvote_count}</span>
+                                                <span>{selectedVersion.upvote_count === undefined ? t("versionHistory.notAvailable") : selectedVersion.upvote_count}</span>
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <ThumbsDown className="w-3.5 h-3.5 text-error" />
-                                                <span>{selectedVersion.downvote_count === undefined ? 'N/A' : selectedVersion.downvote_count}</span>
+                                                <span>{selectedVersion.downvote_count === undefined ? t("versionHistory.notAvailable") : selectedVersion.downvote_count}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             ) : (
-                                <CardTitle className="text-lg text-foreground">Version Details</CardTitle>
+                                <CardTitle className="text-lg text-foreground">{t("versionHistory.detailsTitle")}</CardTitle>
                             )}
                         </CardHeader>
                         <CardContent className="p-6 flex-1 overflow-y-auto space-y-4">
@@ -222,7 +230,7 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                                     </div>
                                     {selectedVersion.internal_comments && (
                                         <div className="mt-4">
-                                            <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-muted-foreground"><MessageSquare className="w-4 h-4" /> Internal Comments</h4>
+                                            <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-muted-foreground"><MessageSquare className="w-4 h-4" /> {t("versionHistory.internalComments")}</h4>
                                             <div className="bg-warning-tint rounded-lg p-4 h-full prose prose-sm max-w-none text-foreground leading-relaxed">
                                                 <ReactMarkdown>{selectedVersion.internal_comments}</ReactMarkdown>
                                             </div>
@@ -230,18 +238,18 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                                     )}
                                     {selectedVersion.images && selectedVersion.images.length > 0 && (
                                         <div className="mt-4">
-                                            <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-muted-foreground"><ImageIcon className="w-4 h-4" /> Attached Images</h4>
+                                            <h4 className="font-semibold text-sm mb-2 flex items-center gap-2 text-muted-foreground"><ImageIcon className="w-4 h-4" /> {t("versionHistory.attachedImages")}</h4>
                                             <div className="space-y-3">
                                                 {selectedVersion.images.map((image, index) => (
                                                     <div key={image.url || index} className="flex items-start gap-3 p-3 bg-card border border-border rounded-lg shadow-xs">
                                                         <img src={image.url} alt={image.alt} className="w-16 h-16 object-cover rounded-md flex-shrink-0" />
                                                         <div className="flex-1">
-                                                            <p className="text-sm text-foreground break-words">{image.alt || 'No description provided.'}</p>
+                                                            <p className="text-sm text-foreground break-words">{image.alt || t("notes.images.noDescription")}</p>
                                                             <div className="flex items-center gap-2 mt-2">
-                                                                <a href={image.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary-fg hover:underline">View Full Size</a>
+                                                                <a href={image.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary-fg hover:underline">{t("versionHistory.viewFullSize")}</a>
                                                                 <span className="text-border">|</span>
                                                                 <a href={image.url} download target="_blank" rel="noopener noreferrer" className="text-xs text-primary-fg hover:underline flex items-center gap-1">
-                                                                    <Download className="w-3 h-3" /> Download
+                                                                    <Download className="w-3 h-3" /> {t("common.download")}
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -254,7 +262,9 @@ export default function VersionHistory({ note, isOpen, onClose }) {
                             ) : (
                                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
                                     <ArrowLeft className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                                    <p className="text-center">Select a version from the list <br className="sm:hidden" /> to view its details.</p>
+                                    <p className="text-center">
+                                        <Trans i18nKey="versionHistory.selectPrompt" components={{ lineBreak: <br className="sm:hidden" /> }} />
+                                    </p>
                                 </div>
                             )}
                         </CardContent>

@@ -14,6 +14,10 @@ import { Switch } from "@/components/ui/switch";
 import { ThemePicker } from "@/features/theme/ThemePicker";
 import { accessibilitySettings } from "@/lib/constants";
 import { Keyboard, Zap, ZoomIn, ZoomOut } from "lucide-react";
+import { Trans, useTranslation } from "react-i18next";
+
+/** The shortcuts listed, in order; each is a key under appearanceSettings.keyboardShortcuts. */
+const KEYBOARD_SHORTCUTS = ["nextElement", "previousElement", "activate", "closeDialogs", "quickSave"] as const;
 
 export default function AccessibilityModal({
     isOpen,
@@ -23,6 +27,8 @@ export default function AccessibilityModal({
     isHighContrast,
     setIsHighContrast,
 }) {
+    const { t } = useTranslation();
+
     const handleFontSizeChange = (value) => {
         setFontSize(value[0]);
     };
@@ -44,11 +50,10 @@ export default function AccessibilityModal({
             >
                 <DialogHeader className="flex-shrink-0">
                     <DialogTitle id="accessibility-title">
-                        Appearance Settings
+                        {t("appearanceSettings.title")}
                     </DialogTitle>
                     <DialogDescription id="accessibility-description">
-                        Adjust the appearance of the application to suit your needs. Your
-                        settings will be saved for your next visit.
+                        {t("appearanceSettings.description")}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -63,7 +68,7 @@ export default function AccessibilityModal({
                             htmlFor="font-size-slider"
                             className="flex items-center gap-2 font-medium"
                         >
-                            <ZoomIn className="w-5 h-5" aria-hidden="true" /> Font Size
+                            <ZoomIn className="w-5 h-5" aria-hidden="true" /> {t("appearanceSettings.fontSize.label")}
                         </Label>
 
                         <div className="flex items-center gap-4">
@@ -75,7 +80,7 @@ export default function AccessibilityModal({
                                 step={accessibilitySettings.fontSizePercent.step}
                                 value={[fontSize]}
                                 onValueChange={handleFontSizeChange}
-                                aria-label={`Font size: ${fontSize} percent`}
+                                aria-label={t("appearanceSettings.fontSize.sliderLabel", { percent: fontSize })}
                                 className="flex-1"
                             />
                             <ZoomIn className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
@@ -85,7 +90,7 @@ export default function AccessibilityModal({
                             className="text-center text-sm text-muted-foreground"
                             aria-live="polite"
                         >
-                            Current size: {fontSize}%
+                            {t("appearanceSettings.fontSize.current", { percent: fontSize })}
                         </p>
                     </div>
 
@@ -95,59 +100,45 @@ export default function AccessibilityModal({
                                 htmlFor="high-contrast-switch"
                                 className="flex items-center gap-2 font-medium"
                             >
-                                <Zap className="w-5 h-5" aria-hidden="true" /> High Contrast Mode
+                                <Zap className="w-5 h-5" aria-hidden="true" /> {t("appearanceSettings.highContrast.label")}
                             </Label>
                             <p className="text-xs text-muted-foreground">
-                                Increases text visibility for better readability.
+                                {t("appearanceSettings.highContrast.hint")}
                             </p>
                         </div>
                         <Switch
                             id="high-contrast-switch"
                             checked={isHighContrast}
                             onCheckedChange={setIsHighContrast}
-                            aria-label={`High contrast mode: ${isHighContrast ? "enabled" : "disabled"
-                                }`}
+                            aria-label={isHighContrast
+                                ? t("appearanceSettings.highContrast.switchLabelEnabled")
+                                : t("appearanceSettings.highContrast.switchLabelDisabled")}
                             aria-describedby="high-contrast-description"
                         />
                     </div>
 
                     <div id="high-contrast-description" className="sr-only">
                         {isHighContrast
-                            ? "High contrast mode is currently enabled. This uses black backgrounds and white text for better visibility."
-                            : "High contrast mode is currently disabled. Enable this for better text visibility."}
+                            ? t("appearanceSettings.highContrast.enabledDescription")
+                            : t("appearanceSettings.highContrast.disabledDescription")}
                     </div>
 
                     <div className="space-y-2">
                         <h4 className="font-medium flex items-center gap-2">
-                            <Keyboard className="w-5 h-5" aria-hidden="true" /> Keyboard
-                            Shortcuts
+                            <Keyboard className="w-5 h-5" aria-hidden="true" /> {t("appearanceSettings.keyboardShortcuts.title")}
                         </h4>
                         <ul
                             className="text-sm list-disc list-inside space-y-1 text-muted-foreground"
                             role="list"
                         >
-                            <li>
-                                <span className="font-semibold">Tab</span>: Move to the next
-                                interactive element.
-                            </li>
-                            <li>
-                                <span className="font-semibold">Shift + Tab</span>: Move to the
-                                previous element.
-                            </li>
-                            <li>
-                                <span className="font-semibold">Enter</span> or{" "}
-                                <span className="font-semibold">Space</span>: Activate buttons
-                                and controls.
-                            </li>
-                            <li>
-                                <span className="font-semibold">Escape</span>: Close dialogs and
-                                modals.
-                            </li>
-                            <li>
-                                In Note Editor:{" "}
-                                <span className="font-semibold">Ctrl/Cmd + Enter</span> to save
-                                quickly.
-                            </li>
+                            {KEYBOARD_SHORTCUTS.map((shortcut) => (
+                                <li key={shortcut}>
+                                    <Trans
+                                        i18nKey={`appearanceSettings.keyboardShortcuts.${shortcut}`}
+                                        components={{ key: <span className="font-semibold" /> }}
+                                    />
+                                </li>
+                            ))}
                         </ul>
                     </div>
                 </div>
@@ -157,9 +148,9 @@ export default function AccessibilityModal({
                         <Button
                             type="button"
                             onClick={onClose}
-                            aria-label="Close appearance settings"
+                            aria-label={t("appearanceSettings.closeLabel")}
                         >
-                            Done
+                            {t("appearanceSettings.done")}
                         </Button>
                     </DialogClose>
                 </DialogFooter>

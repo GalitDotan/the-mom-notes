@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,16 +12,33 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 
+type TagSelectorProps = {
+    /** Which note chips these are, for their colors; other tags get neutral chips. */
+    kind?: "client" | "topic";
+    label?: string;
+    selectedTags?: string[];
+    availableTags?: string[];
+    onTagsChange: (tags: string[]) => void;
+    disabled?: boolean;
+    placeholder?: string;
+    infoText?: string;
+    icon?: React.ReactElement<{ className?: string }>;
+};
+
 export default function TagSelector({
-    label = "Tags", // Added default label
+    kind,
+    label, // Added default label
     selectedTags = [],
     availableTags = [],
     onTagsChange,
     disabled = false,
-    placeholder = "Select or create tags...",
+    placeholder,
     infoText = "", // Added infoText prop
     icon // Added icon prop
-}) {
+}: TagSelectorProps) {
+    const { t } = useTranslation();
+    const shownLabel = label ?? t("tagSelector.defaultLabel");
+    const shownPlaceholder = placeholder ?? t("tagSelector.defaultPlaceholder");
     const [isOpen, setIsOpen] = useState(false);
     const [inputValue, setInputValue] = useState("");
     const [filteredAvailable, setFilteredAvailable] = useState(availableTags);
@@ -67,23 +85,16 @@ export default function TagSelector({
         }
     };
 
-    const getBadgeVariant = (tagName) => {
-        if (label.toLowerCase().includes("client")) {
-            return { base: NOTE_CHIP_CLASSES.client, hover: NOTE_CHIP_HOVER_CLASSES.client };
-        } else if (label.toLowerCase().includes("topic")) {
-            return { base: NOTE_CHIP_CLASSES.topic, hover: NOTE_CHIP_HOVER_CLASSES.topic };
-        }
-        return { base: "bg-muted text-foreground border-border", hover: "hover:bg-accent" }; // Default
-    };
-
-    const currentBadgeStyle = getBadgeVariant(label);
+    const currentBadgeStyle = kind
+        ? { base: NOTE_CHIP_CLASSES[kind], hover: NOTE_CHIP_HOVER_CLASSES[kind] }
+        : { base: "bg-muted text-foreground border-border", hover: "hover:bg-accent" }; // Default
 
     return (
         <div className="space-y-2">
             <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-foreground flex items-center gap-1.5">
                     {React.cloneElement(TagIconComponent, { className: "w-4 h-4 text-muted-foreground" })}
-                    {label}
+                    {shownLabel}
                 </Label>
                 {infoText && <span className="text-xs text-muted-foreground">{infoText}</span>}
             </div>
@@ -102,7 +113,7 @@ export default function TagSelector({
                                     type="button"
                                     onClick={() => handleRemoveTag(tag)}
                                     className={`ml-1 ${currentBadgeStyle.hover} rounded-full p-0.5 transition-colors`}
-                                    aria-label={`Remove ${tag} tag`}
+                                    aria-label={t("tagSelector.remove", { tag })}
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
@@ -126,7 +137,7 @@ export default function TagSelector({
                         >
                             <Plus className="w-4 h-4 mr-2 text-muted-foreground" />
                             <span className={selectedTags.length > 0 ? "text-foreground" : "text-muted-foreground"}>
-                                {selectedTags.length > 0 ? "Add more..." : placeholder}
+                                {selectedTags.length > 0 ? t("tagSelector.addMore") : shownPlaceholder}
                             </span>
                         </Button>
                     </PopoverTrigger>
@@ -137,7 +148,7 @@ export default function TagSelector({
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder="Type to search or create new..."
+                                placeholder={t("tagSelector.searchPlaceholder")}
                                 className="w-full h-9 text-sm"
                             />
 
@@ -150,7 +161,7 @@ export default function TagSelector({
                                         className="w-full h-8 text-sm justify-start text-primary-fg hover:text-primary-fg hover:bg-primary-tint"
                                     >
                                         <Plus className="w-3.5 h-3.5 mr-2" />
-                                        Create new: "{inputValue.trim()}"
+                                        {t("tagSelector.createNew", { tag: inputValue.trim() })}
                                     </Button>
                                 )}
 
@@ -179,7 +190,7 @@ export default function TagSelector({
                                     (inputValue.trim() && selectedTags.some(st => st.toLowerCase() === inputValue.trim().toLowerCase()))
                                 ) && (
                                     <div className="text-center text-muted-foreground text-xs py-2">
-                                        {availableTags.length === 0 && !inputValue.trim() ? "No existing tags. Type to create new." : "No matching tags found."}
+                                        {availableTags.length === 0 && !inputValue.trim() ? t("tagSelector.noExistingTags") : t("tagSelector.noMatches")}
                                     </div>
                                 )}
                         </div>

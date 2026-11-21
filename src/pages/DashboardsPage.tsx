@@ -5,58 +5,67 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from "@/components/ui/input";
 import { Dashboard, DashboardShare, User } from "@/entities/all";
 import type { DashboardPermissionLevel, DashboardRecord, StoredUser } from "@/entities/all";
-import { badgeLabels, dashboardUrl, messages, pageTitle } from "@/lib/constants";
+import { usePageTitle } from "@/hooks/use-page-title";
+import { useDateFormatter } from "@/i18n/useDateFormatter";
+import { dashboardUrl } from "@/lib/constants";
 import { LIST_ITEM_MOTION } from "@/lib/motion";
-import { formatDistanceToNow } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronRight, FolderOpen, Loader2, Plus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 /**
  * @type {React.FC<{dashboard: Dashboard & {permission_level?: string}, isOwner: boolean, permission?: string}>}
  */
-const DashboardCard = ({ dashboard, isOwner, permission }) => (
-    <motion.div
-        layout
-        initial={LIST_ITEM_MOTION.initial}
-        animate={LIST_ITEM_MOTION.animate}
-        exit={LIST_ITEM_MOTION.exit}
-        transition={LIST_ITEM_MOTION.transition}
-    >
-        {/* A real link: reachable by keyboard and openable in a new tab. */}
-        <Link
-            to={dashboardUrl(dashboard.id)}
-            className="group block rounded-2xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-safe:active:scale-[0.99] transition-transform duration-150"
+const DashboardCard = ({ dashboard, isOwner, permission }) => {
+    const { t } = useTranslation();
+    const { formatTimeAgo } = useDateFormatter();
+
+    return (
+        <motion.div
+            layout
+            initial={LIST_ITEM_MOTION.initial}
+            animate={LIST_ITEM_MOTION.animate}
+            exit={LIST_ITEM_MOTION.exit}
+            transition={LIST_ITEM_MOTION.transition}
         >
-            <Card className="h-full p-5 transition-shadow duration-200 group-hover:shadow-card-hover">
-                <div className="flex items-center gap-3">
-                    <span
-                        className={isOwner ? "size-10 shrink-0 rounded-xl bg-accent text-primary-fg flex items-center justify-center" : "size-10 shrink-0 rounded-xl bg-tag-behavior/10 text-tag-behavior flex items-center justify-center"}
-                        aria-hidden
-                    >
-                        {isOwner ? <FolderOpen className="w-5 h-5" /> : <Users className="w-5 h-5" />}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-foreground truncate">{dashboard.name}</h3>
-                        <p className="text-[13px] text-muted-foreground">
-                            Updated {formatDistanceToNow(new Date(dashboard.updated_date), { addSuffix: true })}
-                        </p>
+            {/* A real link: reachable by keyboard and openable in a new tab. */}
+            <Link
+                to={dashboardUrl(dashboard.id)}
+                className="group block rounded-2xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-safe:active:scale-[0.99] transition-transform duration-150"
+            >
+                <Card className="h-full p-5 transition-shadow duration-200 group-hover:shadow-card-hover">
+                    <div className="flex items-center gap-3">
+                        <span
+                            className={isOwner ? "size-10 shrink-0 rounded-xl bg-accent text-primary-fg flex items-center justify-center" : "size-10 shrink-0 rounded-xl bg-tag-behavior/10 text-tag-behavior flex items-center justify-center"}
+                            aria-hidden
+                        >
+                            {isOwner ? <FolderOpen className="w-5 h-5" /> : <Users className="w-5 h-5" />}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                            <h3 className="font-semibold text-foreground truncate">{dashboard.name}</h3>
+                            <p className="text-[13px] text-muted-foreground">
+                                {t("dashboards.updated", { timeAgo: formatTimeAgo(dashboard.updated_date) })}
+                            </p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 shrink-0 text-muted-foreground/70 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5 rtl:rotate-180 rtl:motion-safe:group-hover:-translate-x-0.5" aria-hidden />
                     </div>
-                    <ChevronRight className="w-4 h-4 shrink-0 text-muted-foreground/70 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5 rtl:rotate-180 rtl:motion-safe:group-hover:-translate-x-0.5" aria-hidden />
-                </div>
-                {!isOwner && (
-                    <Badge variant="secondary" className="mt-3">
-                        {badgeLabels.sharedWithYou} · {permission}
-                    </Badge>
-                )}
-            </Card>
-        </Link>
-    </motion.div>
-);
+                    {!isOwner && (
+                        <Badge variant="secondary" className="mt-3">
+                            {/* A permission the app does not know is shown as stored. */}
+                            {t("dashboards.sharedBadge", { permission: t(`dashboards.permissions.${permission}`, { defaultValue: permission }) })}
+                        </Badge>
+                    )}
+                </Card>
+            </Link>
+        </motion.div>
+    );
+};
 
 export default function DashboardsPage() {
+    const { t } = useTranslation();
     const [ownedDashboards, setOwnedDashboards] = useState<DashboardRecord[]>([]);
     const [sharedDashboards, setSharedDashboards] = useState<Array<DashboardRecord & { permission_level: DashboardPermissionLevel }>>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -65,8 +74,9 @@ export default function DashboardsPage() {
     const [newDashboardName, setNewDashboardName] = useState("");
     const [isCreating, setIsCreating] = useState(false);
 
+    usePageTitle(t("documentTitles.dashboards"));
+
     useEffect(() => {
-        document.title = pageTitle.dashboards;
         const fetchUserAndDashboards = async () => {
             setIsLoading(true);
             try {
@@ -87,7 +97,7 @@ export default function DashboardsPage() {
                 }
             } catch (error) {
                 console.error("Failed to load user or dashboards:", error);
-                toast.error(messages.errors.loadDashboards);
+                toast.error(t("dashboards.toasts.loadFailed"));
             }
             setIsLoading(false);
         };
@@ -102,17 +112,17 @@ export default function DashboardsPage() {
 
         // Validation
         if (!dashboardName) {
-            toast.error(messages.errors.emptyDashboardName);
+            toast.error(t("dashboards.toasts.nameRequired"));
             return;
         }
 
         if (!currentUser) {
-            toast.error("No user logged in.");
+            toast.error(t("dashboards.toasts.noUser"));
             return;
         }
 
         if (!currentUser.email) {
-            toast.error("User email not available.");
+            toast.error(t("dashboards.toasts.noUserEmail"));
             return;
         }
 
@@ -139,10 +149,10 @@ export default function DashboardsPage() {
             setIsCreateDialogOpen(false);
 
             // Show success
-            toast.success(messages.success.dashboardCreated);
+            toast.success(t("dashboards.toasts.created"));
         } catch (error) {
             console.error("Failed to create dashboard:", error);
-            toast.error(messages.errors.saveDashboard);
+            toast.error(t("dashboards.toasts.createFailed"));
         } finally {
             setIsCreating(false);
         }
@@ -150,7 +160,7 @@ export default function DashboardsPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center" role="status" aria-label="Loading dashboards">
+            <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center" role="status" aria-label={t("dashboards.loading")}>
                 <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
             </div>
         );
@@ -162,13 +172,13 @@ export default function DashboardsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 mb-8">
                 <div>
-                    <h1 className="text-[28px] leading-tight font-semibold text-foreground">Your Dashboards</h1>
-                    <p className="text-muted-foreground mt-1">Organize your research notes into shareable dashboards.</p>
+                    <h1 className="text-[28px] leading-tight font-semibold text-foreground">{t("dashboards.title")}</h1>
+                    <p className="text-muted-foreground mt-1">{t("dashboards.subtitle")}</p>
                 </div>
                 {allDashboardsPresent && (
                     <Button onClick={() => setIsCreateDialogOpen(true)}>
                         <Plus aria-hidden />
-                        New Dashboard
+                        {t("dashboards.newDashboard")}
                     </Button>
                 )}
             </div>
@@ -179,14 +189,14 @@ export default function DashboardsPage() {
                         <FolderOpen className="w-6 h-6" />
                     </div>
                     <h2 className="text-lg font-semibold text-foreground mb-1.5">
-                        Create your first dashboard
+                        {t("dashboards.emptyState.title")}
                     </h2>
                     <p className="text-sm text-muted-foreground mb-6">
-                        Organize your notes into focused dashboards. Each dashboard can be shared with your team.
+                        {t("dashboards.emptyState.description")}
                     </p>
                     <Button onClick={() => setIsCreateDialogOpen(true)}>
                         <Plus aria-hidden />
-                        New Dashboard
+                        {t("dashboards.newDashboard")}
                     </Button>
                 </div>
             )}
@@ -194,7 +204,7 @@ export default function DashboardsPage() {
             {ownedDashboards.length > 0 && (
                 <section className="mb-10" aria-labelledby="owned-dashboards">
                     <h2 id="owned-dashboards" className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-                        {badgeLabels.ownedByYou}
+                        {t("dashboards.ownedByYou")}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         <AnimatePresence initial={false}>
@@ -209,7 +219,7 @@ export default function DashboardsPage() {
             {sharedDashboards.length > 0 && (
                 <section aria-labelledby="shared-dashboards">
                     <h2 id="shared-dashboards" className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-                        {badgeLabels.sharedWithYou}
+                        {t("dashboards.sharedWithYou")}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         <AnimatePresence initial={false}>
@@ -233,33 +243,33 @@ export default function DashboardsPage() {
                         onSubmit={(e) => { e.preventDefault(); handleCreateDashboard(); }}
                     >
                         <DialogHeader>
-                            <DialogTitle>New Dashboard</DialogTitle>
+                            <DialogTitle>{t("dashboards.createDialog.title")}</DialogTitle>
                             <DialogDescription>
-                                Give your new dashboard a name. You can add notes and share it later.
+                                {t("dashboards.createDialog.description")}
                             </DialogDescription>
                         </DialogHeader>
                         <Input
                             id="name"
                             autoFocus
-                            aria-label="Dashboard name"
-                            placeholder="E.g., Q4 User Interviews, Competitor Analysis"
+                            aria-label={t("dashboards.createDialog.nameLabel")}
+                            placeholder={t("dashboards.createDialog.namePlaceholder")}
                             value={newDashboardName}
                             onChange={(e) => setNewDashboardName(e.target.value)}
                         />
                         <DialogFooter>
                             <DialogClose asChild>
                                 <Button type="button" variant="outline" disabled={isCreating}>
-                                    Cancel
+                                    {t("common.cancel")}
                                 </Button>
                             </DialogClose>
                             <Button type="submit" disabled={isCreating || !newDashboardName.trim()}>
                                 {isCreating ? (
                                     <>
                                         <Loader2 className="animate-spin" aria-hidden />
-                                        Creating...
+                                        {t("dashboards.createDialog.submitting")}
                                     </>
                                 ) : (
-                                    "Create Dashboard"
+                                    t("dashboards.createDialog.submit")
                                 )}
                             </Button>
                         </DialogFooter>

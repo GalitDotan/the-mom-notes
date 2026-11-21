@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { badgeVariants } from "@/components/ui/badge";
-import { format } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import {
     Edit3,
@@ -31,7 +31,9 @@ import {
 import { toast } from "sonner";
 import { Note, NoteVersion } from "@/entities/all";
 import { NoteTagIcon } from "@/features/notes/NoteTagIcon";
-import { findNoteTagBySymbol } from "@/features/notes/note-tags";
+import { findNoteTagBySymbol, noteTagLabelKey } from "@/features/notes/note-tags";
+import { useDateFormatter } from "@/i18n/useDateFormatter";
+import { maxNoteImportance } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { NOTE_CHIP_CLASSES, NOTE_CHIP_HOVER_CLASSES } from "@/features/notes/note-chips";
 import ImageLightbox from "./ImageLightbox";
@@ -64,6 +66,8 @@ export default function NoteCard({
     onTopicClick, // New prop for handling topic clicks
     onClientClick // New prop for handling client clicks
 }) {
+    const { t } = useTranslation();
+    const { formatDate } = useDateFormatter();
     const [isHovered, setIsHovered] = useState(false);
     // These states are for optimistic UI updates. The source of truth comes from note prop.
     const [currentUpvotes, setCurrentUpvotes] = useState(note.upvote_count || 0);
@@ -149,7 +153,7 @@ export default function NoteCard({
             await createNewVersionForNoteChange(versionedVoteData);
             if (onNoteDataChanged) onNoteDataChanged();
         } catch (error) {
-            toast.error("Failed to record vote.");
+            toast.error(t("noteCard.toasts.voteFailed"));
             // Revert optimistic update
             setCurrentUpvotes(note.upvote_count || 0);
             setCurrentDownvotes(note.downvote_count || 0);
@@ -176,7 +180,7 @@ export default function NoteCard({
                 onNoteDataChanged();
             }
         } catch (error) {
-            toast.error("Failed to update importance.");
+            toast.error(t("noteCard.toasts.importanceFailed"));
             setCurrentImportance(oldImportance); // Revert
             console.error("Importance update error:", error);
         } finally {
@@ -186,7 +190,7 @@ export default function NoteCard({
 
     const handleCopyContent = () => {
         navigator.clipboard.writeText(note.content);
-        toast.success("Note content copied to clipboard");
+        toast.success(t("noteCard.toasts.copied"));
     };
 
     const canPerformActions = !!onEdit || !!onDelete;
@@ -229,7 +233,7 @@ export default function NoteCard({
                             <div className="flex items-center gap-2.5 min-w-0">
                                 <NoteTagIcon symbol={note.symbol} tag={tag} size="sm" animate={isHovered} decorative={!!tag} />
                                 <span className="text-[13px] font-medium text-muted-foreground truncate">
-                                    {tag?.label ?? "Note"}
+                                    {tag ? t(noteTagLabelKey(tag.id)) : t("notes.fallbackLabel")}
                                 </span>
                             </div>
 
@@ -241,20 +245,20 @@ export default function NoteCard({
                                             size="icon"
                                             className={cn("h-8 w-8 -me-2 rounded-full text-muted-foreground", REVEAL_ON_INTERACTION, "data-[state=open]:opacity-100")}
                                             onClick={(e) => e.stopPropagation()}
-                                            aria-label="Note actions"
+                                            aria-label={t("noteCard.actionsLabel")}
                                         >
                                             <MoreHorizontal className="w-4 h-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                                         {onEdit && <DropdownMenuItem onClick={() => onEdit(note)} disabled={isProcessing}>
-                                            <Edit3 className="w-4 h-4 me-2" /> Edit
+                                            <Edit3 className="w-4 h-4 me-2" /> {t("common.edit")}
                                         </DropdownMenuItem>}
                                         <DropdownMenuItem onClick={handleCopyContent} disabled={isProcessing}>
-                                            <Copy className="w-4 h-4 me-2" /> Copy content
+                                            <Copy className="w-4 h-4 me-2" /> {t("noteCard.copyContent")}
                                         </DropdownMenuItem>
                                         {onViewHistory && <DropdownMenuItem onClick={() => onViewHistory(note)} disabled={isProcessing}>
-                                            <History className="w-4 h-4 me-2" /> Version history
+                                            <History className="w-4 h-4 me-2" /> {t("noteCard.versionHistory")}
                                         </DropdownMenuItem>}
                                         {onDelete && <DropdownMenuSeparator />}
                                         {onDelete && <DropdownMenuItem
@@ -262,7 +266,7 @@ export default function NoteCard({
                                             className="text-destructive focus:text-destructive"
                                             disabled={isProcessing}
                                         >
-                                            <Trash2 className="w-4 h-4 me-2" /> Delete
+                                            <Trash2 className="w-4 h-4 me-2" /> {t("common.delete")}
                                         </DropdownMenuItem>}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -280,7 +284,7 @@ export default function NoteCard({
                             <div className="mt-4 rounded-lg border-s-2 border-tag-emotional/50 bg-muted/60 px-3 py-2.5">
                                 <div className="flex items-center gap-1.5 mb-1.5 text-xs font-medium text-muted-foreground">
                                     <MessageSquare className="w-3.5 h-3.5" aria-hidden />
-                                    Internal comments (researcher)
+                                    {t("noteCard.internalComments")}
                                 </div>
                                 <div className="prose text-sm max-w-none text-foreground/80" dir="auto">
                                     <ReactMarkdown>{note.internal_comments}</ReactMarkdown>
@@ -294,20 +298,20 @@ export default function NoteCard({
                                     <div key={`${image.url}-${index}`} className="relative group/image overflow-hidden rounded-lg border border-border/70">
                                         <img
                                             src={image.url}
-                                            alt={image.alt || `Note image ${index + 1}`}
+                                            alt={image.alt || t("noteCard.imageAlt", { number: index + 1 })}
                                             className="w-full h-auto object-contain max-h-72 rounded-lg high-contrast-image cursor-pointer hover:opacity-90 transition-opacity"
                                             onDoubleClick={(e) => handleImageDoubleClick(image, e)}
-                                            title="Double-click to view full size"
+                                            title={t("notes.images.viewFullSizeHint")}
                                         />
                                         <div className="high-contrast-alt-text">
                                             <div className="p-3 bg-muted border border-border rounded-lg text-sm italic h-full flex items-center justify-center">
-                                                <p><span className="font-bold me-1">[Image]</span>{image.alt || 'No description provided.'}</p>
+                                                <p><span className="font-bold me-1">{t("noteCard.imagePrefix")}</span>{image.alt || t("notes.images.noDescription")}</p>
                                             </div>
                                         </div>
                                         <div className="absolute top-0 end-0 p-1 opacity-0 group-hover/image:opacity-100 focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity bg-black/50 rounded-es-lg flex gap-1">
                                             <button
                                                 onClick={(e) => handleImageDoubleClick(image, e)}
-                                                aria-label="View image full size"
+                                                aria-label={t("noteCard.viewImageFullSize")}
                                                 className="block p-1 hover:bg-black/70 rounded"
                                             >
                                                 <Maximize2 className="w-4 h-4 text-white" />
@@ -318,7 +322,7 @@ export default function NoteCard({
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 onClick={(e) => e.stopPropagation()}
-                                                aria-label="Download image"
+                                                aria-label={t("notes.images.download")}
                                                 className="block p-1 hover:bg-black/70 rounded"
                                             >
                                                 <Download className="w-4 h-4 text-white" />
@@ -335,14 +339,14 @@ export default function NoteCard({
                             {/* Client Tags */}
                             {note.client_reference && Array.isArray(note.client_reference) && note.client_reference.length > 0 && (
                                 <div className="flex flex-wrap gap-1.5 items-center">
-                                    <UserCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" aria-label="Client tags" />
+                                    <UserCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" aria-label={t("notes.clientTags")} />
                                     {note.client_reference.map((clientTag, index) => (
                                         <button
                                             type="button"
                                             key={`client-${clientTag}-${index}`}
                                             className={cn(badgeVariants({ variant: "outline" }), NOTE_CHIP_CLASSES.client, NOTE_CHIP_HOVER_CLASSES.client)}
                                             onClick={(e) => handleClientBadgeClick(e, clientTag)}
-                                            aria-label={`Filter by client ${clientTag}`}
+                                            aria-label={t("noteCard.filterByClient", { client: clientTag })}
                                         >
                                             {clientTag}
                                         </button>
@@ -353,14 +357,14 @@ export default function NoteCard({
                             {/* Topics */}
                             {note.topics && Array.isArray(note.topics) && note.topics.length > 0 && (
                                 <div className="flex flex-wrap gap-1.5 items-center">
-                                    <TopicIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" aria-label="Topics" />
+                                    <TopicIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" aria-label={t("notes.topics")} />
                                     {note.topics.map((topic, index) => (
                                         <button
                                             type="button"
                                             key={`topic-${topic}-${index}`}
                                             className={cn(badgeVariants({ variant: "outline" }), NOTE_CHIP_CLASSES.topic, NOTE_CHIP_HOVER_CLASSES.topic)}
                                             onClick={(e) => handleTopicBadgeClick(e, topic)}
-                                            aria-label={`Filter by topic ${topic}`}
+                                            aria-label={t("noteCard.filterByTopic", { topic })}
                                         >
                                             {topic}
                                         </button>
@@ -371,7 +375,7 @@ export default function NoteCard({
                             {/* References */}
                             {note.references && Array.isArray(note.references) && note.references.length > 0 && (
                                 <div className="flex flex-wrap gap-1.5 items-center">
-                                    <LinkIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" aria-label="References" />
+                                    <LinkIcon className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" aria-label={t("notes.references")} />
                                     {note.references.map((refUrl, index) => (
                                         <a
                                             key={`ref-${index}`}
@@ -390,15 +394,15 @@ export default function NoteCard({
 
                             {/* Importance and Votes */}
                             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                <div className="flex items-center" role="group" aria-label={`Importance: ${currentImportance} of 7`}>
-                                    {Array.from({ length: 7 }).map((_, i) => {
+                                <div className="flex items-center" role="group" aria-label={t("notes.importance.summary", { level: currentImportance, max: maxNoteImportance })}>
+                                    {Array.from({ length: maxNoteImportance }).map((_, i) => {
                                         const starValue = i + 1;
                                         return (
                                             <button
                                                 key={`star-${i}`}
                                                 onClick={(e) => { e.stopPropagation(); handleImportanceChange(starValue); }}
                                                 className={cn("p-0.5 rounded-sm transition-colors motion-safe:active:scale-90", isProcessing ? 'cursor-not-allowed' : 'hover:bg-warning-tint')}
-                                                aria-label={`Set importance to ${starValue}`}
+                                                aria-label={t("notes.importance.setLevel", { level: starValue })}
                                                 aria-pressed={starValue <= currentImportance}
                                                 disabled={isProcessing}
                                             >
@@ -414,7 +418,7 @@ export default function NoteCard({
                                     size="sm"
                                     className="h-7 px-1.5 gap-1 text-muted-foreground hover:text-tag-business"
                                     onClick={(e) => { e.stopPropagation(); handleVote('up'); }}
-                                    aria-label={`Upvote (${currentUpvotes})`}
+                                    aria-label={t("noteCard.upvote", { count: currentUpvotes })}
                                     disabled={isProcessing}
                                 >
                                     <ThumbsUp className="!w-3.5 !h-3.5" />
@@ -425,7 +429,7 @@ export default function NoteCard({
                                     size="sm"
                                     className="h-7 px-1.5 gap-1 text-muted-foreground hover:text-tag-problem"
                                     onClick={(e) => { e.stopPropagation(); handleVote('down'); }}
-                                    aria-label={`Downvote (${currentDownvotes})`}
+                                    aria-label={t("noteCard.downvote", { count: currentDownvotes })}
                                     disabled={isProcessing}
                                 >
                                     <ThumbsDown className="!w-3.5 !h-3.5" />
@@ -436,7 +440,7 @@ export default function NoteCard({
 
                         <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
                             <span>
-                                {note.updated_date ? format(new Date(note.updated_date), "MMM d, h:mm a") : 'No date'}
+                                {note.updated_date ? formatDate(note.updated_date, "shortDateTime") : t("notes.noDate")}
                             </span>
 
                             {onEdit && <div className={REVEAL_ON_INTERACTION}>
@@ -448,7 +452,7 @@ export default function NoteCard({
                                     disabled={isProcessing}
                                 >
                                     <Edit3 className="!w-3.5 !h-3.5" />
-                                    Edit
+                                    {t("common.edit")}
                                 </Button>
                             </div>}
                         </div>
