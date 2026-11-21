@@ -4,6 +4,9 @@
  * A note stores its tag as the `emoji` string in its `symbol` field. That stored
  * value is the tag's persisted identity and must not change without a data
  * migration; the UI shows each tag's animated icon instead of the emoji.
+ *
+ * Names and descriptions are translations under `noteTags`, keyed by id (see
+ * the *Key helpers below).
  */
 import type { ComponentType } from "react";
 
@@ -39,14 +42,14 @@ export type NoteTagIconProps = {
 export type NoteTagIconComponent = ComponentType<NoteTagIconProps>;
 
 export const NOTE_TAG_CATEGORIES = [
-    { id: "emotional", label: "Emotional Responses", description: "How users feel about their current situation", Icon: Heart },
-    { id: "problem", label: "Problems & Pain Points", description: "Challenges and obstacles users face", Icon: CircleX },
-    { id: "outcome", label: "Goals & Outcomes", description: "What users want to achieve", Icon: Compass },
-    { id: "behavior", label: "Current Behavior", description: "How users currently work around problems", Icon: RefreshCw },
-    { id: "context", label: "Context & Environment", description: "Background information that influences decisions", Icon: Orbit },
-    { id: "business", label: "Business Context", description: "Budget, purchasing, and business considerations", Icon: ChartLine },
-    { id: "action", label: "Action Items", description: "Follow-up tasks and next steps", Icon: ClipboardCheck },
-] as const satisfies ReadonlyArray<{ id: string; label: string; description: string; Icon: NoteTagIconComponent }>;
+    { id: "emotional", Icon: Heart },
+    { id: "problem", Icon: CircleX },
+    { id: "outcome", Icon: Compass },
+    { id: "behavior", Icon: RefreshCw },
+    { id: "context", Icon: Orbit },
+    { id: "business", Icon: ChartLine },
+    { id: "action", Icon: ClipboardCheck },
+] as const satisfies ReadonlyArray<{ id: string; Icon: NoteTagIconComponent }>;
 
 export type NoteTagCategory = (typeof NOTE_TAG_CATEGORIES)[number];
 export type NoteTagCategoryId = NoteTagCategory["id"];
@@ -55,106 +58,78 @@ export const NOTE_TAGS = [
     {
         id: "excited",
         emoji: "🙂",
-        label: "Excited",
-        description: "Positive emotions or enthusiasm",
         category: "emotional",
         Icon: PartyPopper,
     },
     {
         id: "angry",
         emoji: "🙁",
-        label: "Angry",
-        description: "Frustration, complaints, or negative feelings",
         category: "emotional",
         Icon: CloudLightning,
     },
     {
         id: "embarrassed",
         emoji: "😳",
-        label: "Embarrassed",
-        description: "Awkwardness, discomfort, or uncertainty",
         category: "emotional",
         Icon: MessageCircleQuestion,
     },
     {
         id: "pain_problem",
         emoji: "💥",
-        label: "Pain/Problem",
-        description:
-            "Critical insight: the core challenge or pain the user urgently needs solved",
         category: "problem",
         Icon: MessageSquareWarning,
     },
     {
         id: "goal",
         emoji: "🥅",
-        label: "Goal",
-        description: "What the user ultimately wants to achieve or accomplish",
         category: "outcome",
         Icon: MapPin,
     },
     {
         id: "obstacle",
         emoji: "🟥",
-        label: "Obstacle",
-        description: "Something blocking progress or creating friction",
         category: "problem",
         Icon: SquareX,
     },
     {
         id: "workaround",
         emoji: "↪️",
-        label: "Workaround",
-        description: "A clever or improvised solution the user employs",
         category: "behavior",
         Icon: Route,
     },
     {
         id: "context",
         emoji: "🏔",
-        label: "Context",
-        description: "Additional background details that shape the situation",
         category: "context",
         Icon: Layers,
     },
     {
         id: "feature_request",
         emoji: "☑️",
-        label: "Feature Request",
-        description: "A suggestion for new functionality or improvements",
         category: "outcome",
         Icon: MessageSquarePlus,
     },
     {
         id: "budget",
         emoji: "💲",
-        label: "Budget",
-        description: "Conversations about pricing, spending, or funding",
         category: "business",
         Icon: ChartColumnIncreasing,
     },
     {
         id: "person_company",
         emoji: "♀️",
-        label: "Person/Company",
-        description:
-            "Mention of a specific individual, organization, competitor, collaborator, or key decision-maker",
         category: "context",
         Icon: Users,
     },
     {
         id: "follow_up",
         emoji: "⭐",
-        label: "Follow-up",
-        description: "Topics that require a future action or next step",
         category: "action",
         Icon: BellRing,
     },
 ] as const satisfies ReadonlyArray<{
     id: string;
     emoji: string;
-    label: string;
-    description: string;
     category: NoteTagCategoryId;
     Icon: NoteTagIconComponent;
 }>;
@@ -190,3 +165,11 @@ export const noteHasTag = (symbol: unknown, tagId: NoteTagId) => findNoteTagBySy
 
 export const tagsInCategory = (categoryId: NoteTagCategoryId) =>
     NOTE_TAGS.filter((tag) => tag.category === categoryId);
+
+/** Translation keys of a tag's name and of what it marks. */
+export const noteTagLabelKey = (tagId: NoteTagId) => `noteTags.tags.${tagId}.label` as const;
+export const noteTagDescriptionKey = (tagId: NoteTagId) => `noteTags.tags.${tagId}.description` as const;
+
+/** Translation keys of a category's name and of what its tags cover. */
+export const noteTagCategoryLabelKey = (categoryId: NoteTagCategoryId) => `noteTags.categories.${categoryId}.label` as const;
+export const noteTagCategoryDescriptionKey = (categoryId: NoteTagCategoryId) => `noteTags.categories.${categoryId}.description` as const;

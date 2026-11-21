@@ -1,7 +1,7 @@
 /**
- * Centralized constants for Saga's Scout
- * Messages, navigation items, and other constants are defined here
- * to avoid duplication and make i18n easier in the future.
+ * Centralized constants for Saga's Scout: routes, navigation items, storage
+ * keys and other values shared across the app. User-visible text lives in the
+ * translations (src/i18n/locales), not here.
  */
 
 import {
@@ -11,7 +11,8 @@ import {
 } from 'lucide-react';
 
 /**
- * Product branding
+ * Product branding. The name is not translated; translations refer to it
+ * as {{productName}}.
  */
 export const productName = "Saga's Scout" as const;
 
@@ -36,6 +37,9 @@ export const routes = {
     accessibilityStatement: '/AccessibilityStatement',
 } as const;
 
+/** Notes are rated from 1 star (the default) to this many. */
+export const maxNoteImportance = 7;
+
 /** The page of a single dashboard (DashboardDetailPage reads the `id` query parameter). */
 export const dashboardUrl = (dashboardId: string) =>
     `${routes.dashboardDetail}?id=${encodeURIComponent(dashboardId)}`;
@@ -55,34 +59,9 @@ export const accessibilitySettings = {
     highContrastClassName: 'high-contrast',
 } as const;
 
-/**
- * Toast/notification messages
- */
-export const messages = {
-    errors: {
-        loadDashboards: 'Could not load your dashboards.',
-        emptyDashboardName: 'Dashboard name cannot be empty.',
-        emptyNoteName: 'Note title cannot be empty.',
-        loadNotes: 'Could not load notes.',
-        saveDashboard: 'Failed to save dashboard.',
-        shareError: 'Failed to share dashboard.',
-        deleteError: 'Failed to delete dashboard.',
-    },
-    success: {
-        dashboardCreated: 'Dashboard created successfully!',
-        dashboardDeleted: 'Dashboard deleted successfully!',
-        dashboardShared: 'Dashboard shared successfully!',
-        noteSaved: 'Note saved successfully!',
-    },
-    validation: {
-        invalidEmail: 'Please enter a valid email address.',
-        emailRequired: 'Email is required.',
-        nameRequired: 'Name is required.',
-    },
-};
-
 export type NavigationItem = {
-    title: string;
+    /** The item's label, under `navigation` in the translations. */
+    labelKey: 'navigation.dashboards' | 'navigation.guide';
     url: string;
     icon: LucideIcon;
 };
@@ -92,39 +71,18 @@ export type NavigationItem = {
  */
 export const navigationItems: NavigationItem[] = [
     {
-        title: 'Dashboards',
+        labelKey: 'navigation.dashboards',
         url: routes.dashboards,
         icon: LayoutDashboard,
     },
     {
-        title: 'Guide',
+        labelKey: 'navigation.guide',
         url: routes.explanation,
         icon: HelpCircle,
     },
     // About, Credits and the legal pages are linked from the footer; the
-    // accessibility statement sits next to Accessibility Settings there.
+    // accessibility statement sits next to Appearance Settings there.
 ];
-
-/**
- * Text only screen readers announce.
- */
-export const screenReaderText = {
-    opensInNewTab: '(opens in a new tab)',
-};
-
-/**
- * Page titles configuration
- */
-export const pageTitle = {
-    dashboards: `Your Dashboards - ${productName}`,
-    dashboard: `Dashboard - ${productName}`,
-    explanation: `How It Works - ${productName}`,
-    credits: `Credits - ${productName}`,
-    about: `About - ${productName}`,
-    accessibility: `Accessibility - ${productName}`,
-    privacy: `Privacy Policy - ${productName}`,
-    terms: `Terms of Use - ${productName}`,
-};
 
 /**
  * Dashboard permissions configuration
@@ -148,53 +106,6 @@ export const collections = {
     shares: 'shares',
     users: 'users',
 } as const;
-
-/**
- * Badge labels
- */
-export const badgeLabels = {
-    ownedByYou: 'Owned by you',
-    sharedWithYou: 'Shared with you',
-};
-
-/**
- * Button labels
- */
-export const buttonLabels = {
-    create: 'Create',
-    save: 'Save',
-    delete: 'Delete',
-    cancel: 'Cancel',
-    share: 'Share',
-    close: 'Close',
-    logout: 'Logout',
-    login: 'Login',
-    signUp: 'Sign Up',
-    addNote: 'Add Note',
-    createDashboard: 'Create Dashboard',
-    saveChanges: 'Save Changes',
-};
-
-/**
- * Dialog/Modal titles
- */
-export const dialogTitles = {
-    createDashboard: 'Create New Dashboard',
-    renameDashboard: 'Rename Dashboard',
-    shareDashboard: 'Share Dashboard',
-    deleteConfirmation: 'Delete Confirmation',
-};
-
-/**
- * Placeholder text
- */
-export const placeholders = {
-    dashboardName: 'Enter dashboard name',
-    email: 'you@example.com',
-    name: 'Your name',
-    noteTitle: 'Note title',
-    search: 'Search notes or dashboards',
-};
 
 /**
  * Date/time formats
@@ -232,4 +143,6 @@ export const storageKeys = {
     user: 'momnotes_user',
     accessibilityFontSize: 'accessibility-font-size',
     accessibilityHighContrast: 'accessibility-high-contrast',
+    /** The chosen theme. index.html's startup script reads this key too. */
+    theme: 'theme',
 } as const;

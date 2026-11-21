@@ -3,9 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User } from "@/entities/all";
 import { useAuth } from "@/lib/AuthContext";
-import { productName, routes } from "@/lib/constants";
-import { StickyNote } from "lucide-react";
+import { productLogoUrl, routes } from "@/lib/constants";
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -13,6 +13,7 @@ import { toast } from "sonner";
  * @type {React.FC<{}>}
  */
 export default function Login() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { checkUserAuth } = useAuth();
   const [email, setEmail] = useState("");
@@ -24,12 +25,18 @@ export default function Login() {
 
     // Validation
     if (!email.trim()) {
-      toast.error("Email is required");
+      toast.error(t("login.errors.emailRequired"));
       return;
     }
 
     if (!name.trim()) {
-      toast.error("Name is required");
+      toast.error(t("login.errors.nameRequired"));
+      return;
+    }
+
+    // Checked here so the message can be translated; User.login's own errors are not.
+    if (!User.isValidEmail(email)) {
+      toast.error(t("login.errors.invalidEmail"));
       return;
     }
 
@@ -42,11 +49,11 @@ export default function Login() {
       await User.login(email, name);
       await checkUserAuth();
 
-      toast.success("Welcome! Redirecting to dashboards...");
+      toast.success(t("login.success"));
       navigate(routes.dashboards);
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error(error.message || "Login failed");
+      toast.error(t("login.errors.failed"));
     } finally {
       setIsLoading(false);
     }
@@ -57,12 +64,11 @@ export default function Login() {
       <div className="min-h-screen flex items-center justify-center px-4 py-10">
         <Card className="w-full max-w-sm shadow-overlay border-border/60">
           <CardHeader className="text-center pb-4">
-            <div className="size-14 bg-gradient-to-br from-[var(--ruby-dust-500)] to-[var(--ruby-dust-700)] rounded-2xl mx-auto mb-4 flex items-center justify-center rotate-12 shadow-xs" aria-hidden>
-              <StickyNote className="w-7 h-7 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-semibold tracking-tight">Welcome to {productName}</CardTitle>
+            {/* Decorative: the heading below names the product. */}
+            <img src={productLogoUrl} alt="" className="size-14 mx-auto mb-4" />
+            <CardTitle className="text-2xl font-semibold tracking-tight">{t("login.title")}</CardTitle>
             <CardDescription className="mt-1.5">
-              Get started by entering your information
+              {t("login.description")}
             </CardDescription>
           </CardHeader>
 
@@ -70,12 +76,12 @@ export default function Login() {
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium text-foreground/80">
-                  Email
+                  {t("login.emailLabel")}
                 </label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t("login.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
@@ -85,12 +91,12 @@ export default function Login() {
 
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium text-foreground/80">
-                  Name
+                  {t("login.nameLabel")}
                 </label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Your Name"
+                  placeholder={t("login.namePlaceholder")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   disabled={isLoading}
@@ -104,14 +110,13 @@ export default function Login() {
                 size="lg"
                 className="w-full"
               >
-                {isLoading ? "Logging in..." : "Continue"}
+                {isLoading ? t("login.submitting") : t("login.submit")}
               </Button>
             </form>
 
             <div className="mt-6 pt-5 border-t border-border/70">
               <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                Based on <strong>The Mom Test</strong> methodology by Rob Fitzpatrick. 
-                This app helps you organize customer research into focused dashboards.
+                <Trans i18nKey="login.methodology" components={{ strong: <strong /> }} />
               </p>
             </div>
           </CardContent>

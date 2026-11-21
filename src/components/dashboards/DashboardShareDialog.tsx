@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge"; // Added missing import
@@ -11,6 +12,7 @@ import type { DashboardPermissionLevel, DashboardShareRecord } from "@/entities/
 import { toast } from "sonner";
 
 export default function DashboardShareDialog({ dashboard, currentUserEmail, isOpen, onClose }) {
+    const { t } = useTranslation();
     const [email, setEmail] = useState("");
     const [permissionLevel, setPermissionLevel] = useState<DashboardPermissionLevel>("viewer");
     const [shares, setShares] = useState<DashboardShareRecord[]>([]);
@@ -26,7 +28,7 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
             setShares(shareData);
         } catch (error) {
             console.error("Failed to load shares:", error);
-            toast.error("Could not load sharing information.");
+            toast.error(t("dashboardShare.toasts.loadFailed"));
         }
     };
 
@@ -40,7 +42,7 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
     const handleShare = async () => {
         if (!email.trim() || !dashboard) return;
         if (email.trim() === currentUserEmail) {
-            toast.error("You cannot share a dashboard with yourself.");
+            toast.error(t("dashboardShare.toasts.cannotShareWithSelf"));
             return;
         }
 
@@ -48,7 +50,7 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
         try {
             const existingShare = shares.find(s => s.shared_with_email === email.trim());
             if (existingShare) {
-                toast.error("Dashboard is already shared with this email. You can edit their permission.");
+                toast.error(t("dashboardShare.toasts.alreadyShared"));
                 setIsSending(false);
                 return;
             }
@@ -62,9 +64,9 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
             setEmail("");
             setPermissionLevel("viewer");
             await loadShares();
-            toast.success("Dashboard shared successfully!");
+            toast.success(t("dashboardShare.toasts.shared"));
         } catch (error) {
-            toast.error("Failed to share dashboard.");
+            toast.error(t("dashboardShare.toasts.shareFailed"));
             console.error("Share error:", error);
         }
         setIsSending(false);
@@ -74,10 +76,10 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
         try {
             await DashboardShare.update(shareId, { permission_level: newPermission });
             await loadShares();
-            toast.success("Permission updated.");
+            toast.success(t("dashboardShare.toasts.permissionUpdated"));
             setEditingShareId(null);
         } catch (error) {
-            toast.error("Failed to update permission.");
+            toast.error(t("dashboardShare.toasts.permissionUpdateFailed"));
             console.error("Update permission error:", error);
         }
     };
@@ -86,9 +88,9 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
         try {
             await DashboardShare.delete(shareId);
             await loadShares();
-            toast.success("Share removed.");
+            toast.success(t("dashboardShare.toasts.removed"));
         } catch (error) {
-            toast.error("Failed to remove share.");
+            toast.error(t("dashboardShare.toasts.removeFailed"));
             console.error("Remove share error:", error);
         }
     };
@@ -105,59 +107,59 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <Users className="w-5 h-5" /> Share "{dashboard.name}"
+                        <Users className="w-5 h-5" /> {t("dashboardShare.title", { dashboardName: dashboard.name })}
                     </DialogTitle>
                     <DialogDescription>
-                        Invite others to collaborate or view this dashboard.
+                        {t("dashboardShare.description")}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 py-4">
                     <div className="flex gap-2 items-end">
                         <div className="flex-1 space-y-1">
-                            <label htmlFor="share-email" className="text-sm font-medium">Email address</label>
+                            <label htmlFor="share-email" className="text-sm font-medium">{t("dashboardShare.emailLabel")}</label>
                             <Input
                                 id="share-email"
                                 type="email"
-                                placeholder="Enter email to share with"
+                                placeholder={t("dashboardShare.emailPlaceholder")}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 disabled={isSending}
                             />
                         </div>
                         <div className="space-y-1">
-                            <label htmlFor="share-permission" className="text-sm font-medium">Permission</label>
+                            <label htmlFor="share-permission" className="text-sm font-medium">{t("dashboardShare.permissionLabel")}</label>
                             <Select value={permissionLevel} onValueChange={setPermissionLevel} disabled={isSending}>
                                 <SelectTrigger id="share-permission" className="w-[120px]">
-                                    <SelectValue placeholder="Role" />
+                                    <SelectValue placeholder={t("dashboardShare.permissionPlaceholder")} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="viewer"><div className="flex items-center gap-2"><Eye className="w-4 h-4" /> Viewer</div></SelectItem>
-                                    <SelectItem value="editor"><div className="flex items-center gap-2"><Edit className="w-4 h-4" /> Editor</div></SelectItem>
+                                    <SelectItem value="viewer"><div className="flex items-center gap-2"><Eye className="w-4 h-4" /> {t("dashboards.permissions.viewer")}</div></SelectItem>
+                                    <SelectItem value="editor"><div className="flex items-center gap-2"><Edit className="w-4 h-4" /> {t("dashboards.permissions.editor")}</div></SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
-                        <Button onClick={handleShare} disabled={!email.trim() || isSending} className="self-end bg-[var(--ruby-dust-600)] hover:bg-[var(--ruby-dust-700)] text-[var(--ruby-dust-text-on-primary)]">
+                        <Button onClick={handleShare} disabled={!email.trim() || isSending} className="self-end">
                             {isSending ? <Send className="w-4 h-4 animate-pulse" /> : <UserPlus className="w-4 h-4" />}
                         </Button>
                     </div>
 
                     {shares.length > 0 && (
                         <div className="space-y-3 pt-4 border-t">
-                            <h4 className="text-sm font-medium text-gray-700">Currently shared with:</h4>
+                            <h4 className="text-sm font-medium text-foreground">{t("dashboardShare.currentlySharedWith")}</h4>
                             <div className="space-y-2 max-h-48 overflow-y-auto">
                                 {shares.map((share) => (
                                     <div
                                         key={share.id}
-                                        className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg"
+                                        className="flex items-center justify-between p-2.5 bg-muted rounded-lg"
                                     >
                                         <div className="flex items-center gap-2">
-                                            <div className="w-7 h-7 bg-[var(--ruby-dust-100)] rounded-full flex items-center justify-center">
-                                                <span className="text-sm text-[var(--ruby-dust-600)] font-medium">
+                                            <div className="w-7 h-7 bg-primary-tint rounded-full flex items-center justify-center">
+                                                <span className="text-sm text-primary-fg font-medium">
                                                     {share.shared_with_email.charAt(0).toUpperCase()}
                                                 </span>
                                             </div>
-                                            <span className="text-sm text-gray-800 truncate max-w-[150px]" title={share.shared_with_email}>
+                                            <span className="text-sm text-foreground truncate max-w-[150px]" title={share.shared_with_email}>
                                                 {share.shared_with_email}
                                             </span>
                                         </div>
@@ -169,22 +171,23 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="viewer">Viewer</SelectItem>
-                                                        <SelectItem value="editor">Editor</SelectItem>
+                                                        <SelectItem value="viewer">{t("dashboards.permissions.viewer")}</SelectItem>
+                                                        <SelectItem value="editor">{t("dashboards.permissions.editor")}</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             ) : (
-                                                <Badge variant={share.permission_level === 'editor' ? 'default' : 'secondary'} className="capitalize h-7 text-xs">
-                                                    {share.permission_level}
+                                                <Badge variant={share.permission_level === 'editor' ? 'default' : 'secondary'} className="h-7 text-xs">
+                                                    {/* A permission the app does not know is shown as stored. */}
+                                                    {t(`dashboards.permissions.${share.permission_level}`, { defaultValue: share.permission_level })}
                                                 </Badge>
                                             )}
 
                                             {editingShareId === share.id ? (
-                                                <Button variant="ghost" size="icon" onClick={() => handleUpdatePermission(share.id, editPermissionLevel)} className="h-7 w-7 text-green-600 hover:text-green-700">
+                                                <Button variant="ghost" size="icon" onClick={() => handleUpdatePermission(share.id, editPermissionLevel)} className="h-7 w-7 text-success hover:text-success">
                                                     <UserCheck className="w-4 h-4" />
                                                 </Button>
                                             ) : (
-                                                <Button variant="ghost" size="icon" onClick={() => startEditing(share)} className="h-7 w-7 text-gray-500 hover:text-[var(--ruby-dust-600)]">
+                                                <Button variant="ghost" size="icon" onClick={() => startEditing(share)} className="h-7 w-7 text-muted-foreground hover:text-primary-fg">
                                                     <Edit className="w-4 h-4" />
                                                 </Button>
                                             )}
@@ -193,7 +196,7 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => handleRemoveShare(share.id)}
-                                                className="h-7 w-7 text-gray-500 hover:text-red-600"
+                                                className="h-7 w-7 text-muted-foreground hover:text-destructive"
                                             >
                                                 <UserX className="w-4 h-4" />
                                             </Button>
@@ -204,15 +207,15 @@ export default function DashboardShareDialog({ dashboard, currentUserEmail, isOp
                         </div>
                     )}
                     {shares.length === 0 && (
-                        <div className="text-center py-4 text-gray-500">
+                        <div className="text-center py-4 text-muted-foreground">
                             <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                            <p className="text-sm">This dashboard isn't shared yet.</p>
+                            <p className="text-sm">{t("dashboardShare.notShared")}</p>
                         </div>
                     )}
                 </div>
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button type="button" variant="outline">Close</Button>
+                        <Button type="button" variant="outline">{t("common.close")}</Button>
                     </DialogClose>
                 </DialogFooter>
             </DialogContent>

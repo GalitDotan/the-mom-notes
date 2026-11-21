@@ -76,5 +76,5 @@ const me = async (): Promise<StoredUser | null> => {
   return readUser();
 };
 
-export const User = { login, logout, me };
+export const User = { login, logout, me, isValidEmail };
 export default User;

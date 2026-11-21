@@ -1,3 +1,5 @@
+// Initializes translations before anything renders.
+import '@/i18n/i18n'
 import App from '@/App'
 import { createDebugHelper } from '@/lib/debug'
 import '@/styles/global.css'

@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from './Layout';
 import { routes } from '@/lib/constants';
+import { ThemeProvider } from '@/features/theme/ThemeProvider';
 
 import Login from './pages/Login';
 import DashboardsPage from './pages/DashboardsPage';
@@ -20,16 +21,13 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
 import AccessibilityStatement from './pages/AccessibilityStatement';
 
-/** The theme's light/dark appearance, which index.html sets on <html>. */
-const themeAppearance = document.documentElement.dataset.appearance === "dark" ? "dark" : "light";
-
 const AuthenticatedApp = () => {
     const { isLoadingAuth, isAuthenticated } = useAuth();
 
     if (isLoadingAuth) {
         return (
             <div className="fixed inset-0 flex items-center justify-center">
-                <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-4 border-muted border-t-foreground rounded-full animate-spin"></div>
             </div>
         );
     }
@@ -61,20 +59,22 @@ function App() {
         // Respects the OS "reduce motion" setting everywhere: transform and layout
         // animations are skipped, opacity fades remain.
         <MotionConfig reducedMotion="user">
-            <AuthProvider>
-                <QueryClientProvider client={queryClientInstance}>
-                    <Router>
-                        <Routes>
-                            <Route path={routes.login} element={<Login />} />
-                            <Route path="*" element={<AuthenticatedApp />} />
-                        </Routes>
-                    </Router>
-                    <Toaster />
-                    {/* The pages report success and errors through sonner's `toast`; without
-                        this, none of those messages (including failures) were ever shown. */}
-                    <SonnerToaster theme={themeAppearance} position="bottom-right" closeButton />
-                </QueryClientProvider>
-            </AuthProvider>
+            <ThemeProvider>
+                <AuthProvider>
+                    <QueryClientProvider client={queryClientInstance}>
+                        <Router>
+                            <Routes>
+                                <Route path={routes.login} element={<Login />} />
+                                <Route path="*" element={<AuthenticatedApp />} />
+                            </Routes>
+                        </Router>
+                        <Toaster />
+                        {/* The pages report success and errors through sonner's `toast`; without
+                            this, none of those messages (including failures) were ever shown. */}
+                        <SonnerToaster position="bottom-right" closeButton />
+                    </QueryClientProvider>
+                </AuthProvider>
+            </ThemeProvider>
         </MotionConfig>
     )
 }

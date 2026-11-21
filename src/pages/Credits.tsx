@@ -6,24 +6,29 @@ import { ContentPage, ContentSection } from "@/components/content/ContentPage";
 import { ExternalLinkButton } from "@/components/content/ExternalLinkButton";
 import { HighlightCard } from "@/components/content/HighlightCard";
 import { Card, CardContent } from "@/components/ui/card";
-import { pageTitle } from "@/lib/constants";
 import { BookOpen, Heart } from "lucide-react";
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 
-/** The three Mom Test benefits, each with an icon that animates while hovered. */
+/**
+ * The three Mom Test benefits, each with an icon that animates while hovered.
+ * Their text is under credits.benefits.<id>.
+ */
 const METHOD_BENEFITS = [
-    { id: "questions", title: "Better Questions", text: "Learn to ask questions that reveal actual behavior, not just opinions", Icon: CircleCheck, chip: "bg-tag-business/10 text-tag-business" },
-    { id: "insights", title: "Real Insights", text: "Discover what customers actually do, not what they say they'll do", Icon: Lightbulb, chip: "bg-accent text-primary" },
-    { id: "build", title: "Build Better", text: "Create products people actually want by understanding real problems", Icon: Compass, chip: "bg-tag-behavior/10 text-tag-behavior" },
+    { id: "questions", Icon: CircleCheck, chip: "bg-tag-business/10 text-tag-business" },
+    { id: "insights", Icon: Lightbulb, chip: "bg-accent text-primary-fg" },
+    { id: "build", Icon: Compass, chip: "bg-tag-behavior/10 text-tag-behavior" },
 ] as const;
 
 export default function Credits() {
+    const { t } = useTranslation();
+
     return (
         <ContentPage
-            documentTitle={pageTitle.credits}
+            documentTitle={t("documentTitles.credits")}
             icon={Heart}
-            title="Credits & Attribution"
-            description="This app stands on the shoulders of giants"
+            title={t("credits.title")}
+            description={t("credits.description")}
         >
             {/* Rob Fitzpatrick Credit */}
             <ContentSection>
@@ -35,25 +40,24 @@ export default function Credits() {
                             </BrandTile>
                             <div className="flex-1 space-y-4 leading-relaxed text-muted-foreground">
                                 <h2 className="text-2xl font-bold text-foreground">
-                                    Inspired by "The Mom Test"
+                                    {t("credits.inspiration.title")}
                                 </h2>
                                 <p>
-                                    This app is inspired by and gives full credit to <strong className="font-semibold text-foreground">Rob Fitzpatrick</strong>,
-                                    author of <em>The Mom Test</em> — a must-read book for anyone doing customer development,
-                                    product interviews, or startup validation.
+                                    <Trans
+                                        i18nKey="credits.inspiration.credit"
+                                        components={{ strong: <strong className="font-semibold text-foreground" />, em: <em /> }}
+                                    />
                                 </p>
                                 <p>
-                                    We highly recommend you buy the book and support Rob's work:
+                                    {t("credits.inspiration.recommendation")}
                                 </p>
                                 <div className="flex justify-center py-2">
                                     <ExternalLinkButton href="https://momtestbook.com" size="lg" className="w-full sm:w-auto">
-                                        Get The Mom Test Book
+                                        {t("credits.inspiration.bookLink")}
                                     </ExternalLinkButton>
                                 </div>
                                 <p className="rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm font-medium text-foreground">
-                                    <strong>Important:</strong> This project is not affiliated with, endorsed by,
-                                    or officially connected to Rob Fitzpatrick or The Mom Test. It's simply a
-                                    tribute tool for those who want to apply the lessons in their own workflows.
+                                    <Trans i18nKey="credits.inspiration.disclaimer" components={{ strong: <strong /> }} />
                                 </p>
                             </div>
                         </div>
@@ -66,10 +70,9 @@ export default function Credits() {
                 <HighlightCard>
                     <figure>
                         <blockquote className="text-xl italic mb-4 leading-relaxed">
-                            "The Mom Test is a set of simple rules for crafting good questions that
-                            even your mom can't lie to you about."
+                            {t("credits.quote.text")}
                         </blockquote>
-                        <figcaption className="font-medium text-primary-foreground/80">— Rob Fitzpatrick</figcaption>
+                        <figcaption className="font-medium text-primary-foreground/80">{t("credits.quote.attribution")}</figcaption>
                     </figure>
                 </HighlightCard>
             </ContentSection>
@@ -79,7 +82,7 @@ export default function Credits() {
                 <Card>
                     <CardContent className="p-8">
                         <h2 className="text-xl font-bold text-foreground mb-4 text-center">
-                            Why The Mom Test Methodology Matters
+                            {t("credits.benefits.title")}
                         </h2>
                         <MethodBenefits />
                     </CardContent>
@@ -90,17 +93,18 @@ export default function Credits() {
 }
 
 function MethodBenefits() {
+    const { t } = useTranslation();
     const [hovered, setHovered] = useState<string | null>(null);
 
     return (
         <div className="grid md:grid-cols-3 gap-6 text-center">
-            {METHOD_BENEFITS.map(({ id, title, text, Icon, chip }) => (
+            {METHOD_BENEFITS.map(({ id, Icon, chip }) => (
                 <div key={id} onPointerEnter={() => setHovered(id)} onPointerLeave={() => setHovered(null)}>
                     <div className={`size-12 rounded-full flex items-center justify-center mx-auto mb-3 ${chip}`} aria-hidden>
                         <Icon size={22} animate={hovered === id} />
                     </div>
-                    <h3 className="font-semibold text-foreground mb-2">{title}</h3>
-                    <p className="text-sm text-muted-foreground">{text}</p>
+                    <h3 className="font-semibold text-foreground mb-2">{t(`credits.benefits.${id}.title`)}</h3>
+                    <p className="text-sm text-muted-foreground">{t(`credits.benefits.${id}.text`)}</p>
                 </div>
             ))}
         </div>

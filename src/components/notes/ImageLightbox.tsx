@@ -1,9 +1,11 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { X, Download, ZoomIn, ZoomOut } from "lucide-react";
 
 export default function ImageLightbox({ image, isOpen, onClose }) {
+    const { t } = useTranslation();
     const [zoom, setZoom] = React.useState(1);
     const [position, setPosition] = React.useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = React.useState(false);
@@ -99,12 +101,12 @@ export default function ImageLightbox({ image, isOpen, onClose }) {
                             className="text-white hover:bg-white/20 h-8 w-8"
                             onClick={handleZoomOut}
                             disabled={zoom <= 0.5}
-                            title="Zoom out (-)"
+                            title={t("imageLightbox.zoomOut")}
                         >
                             <ZoomOut className="w-4 h-4" />
                         </Button>
                         <span className="text-white text-sm px-2 py-1 self-center min-w-[60px] text-center">
-                            {Math.round(zoom * 100)}%
+                            {t("imageLightbox.zoomLevel", { percent: Math.round(zoom * 100) })}
                         </span>
                         <Button
                             variant="ghost"
@@ -112,7 +114,7 @@ export default function ImageLightbox({ image, isOpen, onClose }) {
                             className="text-white hover:bg-white/20 h-8 w-8"
                             onClick={handleZoomIn}
                             disabled={zoom >= 5}
-                            title="Zoom in (+)"
+                            title={t("imageLightbox.zoomIn")}
                         >
                             <ZoomIn className="w-4 h-4" />
                         </Button>
@@ -123,7 +125,7 @@ export default function ImageLightbox({ image, isOpen, onClose }) {
                         className="text-white hover:bg-white/20 bg-black/50 h-8 w-8"
                         asChild
                     >
-                        <a href={image.url} download title="Download image">
+                        <a href={image.url} download title={t("notes.images.download")}>
                             <Download className="w-4 h-4" />
                         </a>
                     </Button>
@@ -132,7 +134,7 @@ export default function ImageLightbox({ image, isOpen, onClose }) {
                         size="icon"
                         className="text-white hover:bg-white/20 bg-black/50 h-8 w-8"
                         onClick={onClose}
-                        title="Close (Esc)"
+                        title={t("imageLightbox.close")}
                     >
                         <X className="w-4 h-4" />
                     </Button>
@@ -147,7 +149,7 @@ export default function ImageLightbox({ image, isOpen, onClose }) {
                 >
                     <img
                         src={image.url}
-                        alt={image.alt || 'Full size view'}
+                        alt={image.alt || t("imageLightbox.fullSizeAlt")}
                         className={`max-w-full max-h-full object-contain transition-transform ${zoom > 1 ? 'cursor-move' : 'cursor-zoom-in'
                             }`}
                         style={{
@@ -168,7 +170,7 @@ export default function ImageLightbox({ image, isOpen, onClose }) {
 
                 {/* Instructions */}
                 <div className="absolute bottom-4 right-4 text-white/70 text-xs">
-                    Click to zoom • Drag to pan • Esc to close
+                    {t("imageLightbox.instructions")}
                 </div>
             </motion.div>
         </AnimatePresence>
